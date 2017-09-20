@@ -1,0 +1,30 @@
+body {
+    padding: 2%;
+    font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+    margin: 0;
+}
+
+a {
+    color: #00B7FF;
+}
+
+p {
+    margin: 0;
+}
+
+.axis path,
+.axis line {
+    fill: none;
+    stroke: #000;
+    shape-rendering: crispEdges;
+}
+
+.line {
+    fill: none;
+    stroke: steelblue;
+    stroke-width: 1.5px;
+}
+
+.tick line {
+    opacity: 0.2;
+}

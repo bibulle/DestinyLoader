@@ -1,0 +1,52 @@
+#!/usr/bin/env node
+
+/**
+ * Module dependencies.
+ */
+
+var debug = require('debug')('SeedMeHome2:server');
+var async = require('async');
+var CronJob = require('cron').CronJob;
+
+var logger = require('../lib/logger');
+var destiny = require('../lib/destiny');
+var grimoireGoogle = require('../lib/grimoireGoogle');
+var config = require('../lib/config');
+
+var CRON_TAB_MINE_GRIMOIRE = config.crontabGrimoire;
+logger.info("CronTab grimoire : '" + CRON_TAB_MINE_GRIMOIRE + "'");
+
+//========================================================================
+
+var mineGrimoire = function () {
+  async.each(
+    config.accountsGrimoire,
+    function (user, callback) {
+      destiny.getGrimoire(user, function (err, data) {
+
+        if (err) {
+          return logger.error("Err : " + err);
+        }
+
+        //logger.info(userId + "  " + JSON.stringify(data));
+
+        grimoireGoogle.insert(user.docKey, data, function (err, newDoc) {
+          if (err) {
+            return logger.error("Err : " + err);
+          }
+        });
+      });
+    },
+    function (err) {
+      if (err) {
+        logger.error("Err : " + err);
+      }
+    });
+
+}
+
+//========================================================================
+new CronJob(CRON_TAB_MINE_GRIMOIRE, mineGrimoire, null, true, "GMT");
+//========================================================================
+
+

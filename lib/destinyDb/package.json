@@ -1,0 +1,11 @@
+{
+  "name": "destinyDb",
+  "version": "0.0.0",
+  "private": true,
+  "main": "destinyDb.js",
+  "dependencies": {
+    "logger": "../logger",
+    "nedb": "latest",
+    "mongodb": "^2.2.31"
+  }
+}

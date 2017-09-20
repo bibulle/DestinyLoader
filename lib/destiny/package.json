@@ -1,0 +1,9 @@
+{
+  "name": "destiny",
+  "version": "0.0.0",
+  "private": true,
+  "main": "destiny.js",
+  "dependencies": {
+    "logger": "../logger"
+  }
+}
