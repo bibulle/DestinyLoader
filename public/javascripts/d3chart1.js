@@ -428,10 +428,17 @@ var updateChart = function () {
             .type('circle');
     }
 
-    function checkPosition(pos, textPositions, step) {
-        if (!step) {
-            step = 1;
-        }
+    function checkPosition(pos, textPositions, step, count) {
+      if (!step) {
+        step = 1;
+      }
+      if (!count) {
+        count = 1;
+      } else if (count > 200) {
+          return 2 * height;
+      }
+      //console.log(count);
+
         nextStep = -1 * step;
         if (step < 0) {
             nextStep += 1;
@@ -456,7 +463,7 @@ var updateChart = function () {
         if (ok) {
             return pos;
         } else {
-            return checkPosition(pos + step, textPositions, nextStep);
+            return checkPosition(pos + step, textPositions, nextStep, count+1);
         }
 
     }
