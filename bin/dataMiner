@@ -18,7 +18,7 @@ var config = require('../lib/config');
 var CRON_TAB_MINE_DESTINY = config.crontab;
 var CRON_TAB_MINE_GRIMOIRE = config.crontabGrimoire;
 logger.info("CronTab          : '" + CRON_TAB_MINE_DESTINY + "'");
-logger.info("CronTab grimoire : '" + CRON_TAB_MINE_GRIMOIRE + "'");
+//logger.info("CronTab grimoire : '" + CRON_TAB_MINE_GRIMOIRE + "'");
 
 //========================================================================
 
@@ -127,4 +127,6 @@ new CronJob(CRON_TAB_MINE_DESTINY, mineDestiny, null, true, "GMT");
 //new CronJob(CRON_TAB_MINE_GRIMOIRE, mineGrimoire, null, true, "GMT");
 //========================================================================
 
+// launch once on start
+mineDestiny();
 
