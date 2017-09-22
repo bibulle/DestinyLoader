@@ -1,7 +1,8 @@
-var logger = require("logger");
 var express = require('express');
 var router = express.Router();
-var destiny = require("destiny");
+
+var logger = require("../lib/logger");
+var destiny = require("../lib/destiny");
 
 module.exports = function authentRouter(passport) {
 

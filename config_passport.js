@@ -1,6 +1,6 @@
 
 var OAuth2Strategy = require('passport-oauth2').Strategy;
-var destiny = require('destiny');
+var destiny = require("./lib/destiny");
 
 
 module.exports = function(passport) {

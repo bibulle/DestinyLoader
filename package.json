@@ -8,19 +8,19 @@
   "dependencies": {
     "async": "latest",
     "body-parser": "~1.13.2",
-    "config": "./lib/config",
     "cookie-parser": "~1.3.5",
     "cron": "latest",
     "debug": "~2.2.0",
-    "destiny": "./lib/destiny",
-    "destinyDb": "./lib/destinyDb",
     "express": "~4.13.1",
-    "grimoireGoogle": "./lib/grimoireGoogle",
     "jade": "~1.11.0",
-    "logger": "./lib/logger",
     "morgan": "~1.6.1",
     "passport": "^0.3.2",
     "passport-oauth2": "^1.4.0",
-    "serve-favicon": "~2.3.0"
+    "serve-favicon": "~2.3.0",
+    "winston": "~1.1.0",
+    "nedb": "latest",
+    "mongodb": "^2.2.31",
+    "google-spreadsheet": "latest"
+
   }
 }
