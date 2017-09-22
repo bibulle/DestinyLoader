@@ -1,30 +1,37 @@
+var logger = require("logger");
 var express = require('express');
 var router = express.Router();
+var destiny = require("destiny");
 
 module.exports = function authentRouter(passport) {
 
   router.route('/login')
     .get(function (request, response, next) {
-      console.log("GET /login");
+      logger.info("GET /login");
       passport.authenticate(
         'oauth2',
-        {session: false},
+        {session: true},
         function (err, user, info) {
-          console.log(err);
-          console.log(user);
-          console.log(info);
+          logger.info(err);
+          logger.info(user);
+          logger.info(info);
         })(request, response, next)
     });
 
   router.route('/login/callback')
     .get(function (request, response, next) {
+      logger.info("GET /login/callback");
+
       passport.authenticate(
         'oauth2',
         {failureRedirect: '/login'},
-        function (req, res) {
+        function (err, user, info) {
+          console.log(err);
+          console.log(user);
+          console.log(info);
 
           // Successful authentication, redirect home.
-          res.redirect('/monitorstuff');
+          response.redirect('/monitorstuff');
         })(request, response, next)
     });
 
