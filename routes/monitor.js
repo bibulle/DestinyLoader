@@ -80,7 +80,7 @@ router.get('/api', function (request, response, next) {
                 async.eachSeries(
                   itemsByBukets,
                   function (itemsByType, callback) {
-                    logger.info(JSON.stringify(itemsByType, null, 2));
+                    //logger.info(JSON.stringify(itemsByType, null, 2));
 
                     async.waterfall([
                       // First, add attribute if chosen by the user (and lock it if needed)
@@ -137,7 +137,7 @@ router.get('/api', function (request, response, next) {
                       }
                       ],
                       function (err) {
-                        logger.info(JSON.stringify(itemsByType, null, 2));
+                        //logger.info(JSON.stringify(itemsByType, null, 2));
                         callback(err, data, conf);
                       }
                     )
