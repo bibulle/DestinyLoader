@@ -26,7 +26,6 @@ router.get('/', function (request, response, next) {
 });
 
 router.get('/api', function (request, response, next) {
-    //logger.info("/api ------ 0");
     if (!request.session.user) {
       response.send({error: "NotLogged"});
     } else {
@@ -72,7 +71,7 @@ router.get('/api', function (request, response, next) {
           },
           function (data, conf, callback) {
             // Check all bucket for "wanted"
-            logger.info(JSON.stringify(conf, null, 2));
+            //logger.info(JSON.stringify(conf, null, 2));
 
             async.eachSeries(
               data.items,
@@ -103,7 +102,6 @@ router.get('/api', function (request, response, next) {
         ],
 
         function (err, data) {
-          //logger.info("/api ------ 10");
           if (err) {
             return response.send(JSON.stringify({messages: err}, null, 2));
           }
@@ -241,7 +239,7 @@ router.get('/login/callback', function (request, response, next) {
         }
 
         if (val.error) {
-          logger.info(JSON.stringify(val, null, 2));
+          logger.warn(JSON.stringify(val, null, 2));
           logger.error("Error in reading Bungie data : " + val.error_description);
           return response.send("Error in reading Bungie data : " + val.error_description);
         }
