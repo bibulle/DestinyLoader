@@ -85,7 +85,7 @@ router.get('/api', function (request, response, next) {
                       item.chosen = true;
                       data.messages.push(item.name+" found in "+item.bucketName);
                     }
-                    logger.info(JSON.stringify(item, null, 2));
+                    //logger.info(JSON.stringify(item, null, 2));
                     callback();
                   },
                   function (err) {
