@@ -76,16 +76,26 @@ router.get('/api', function (request, response, next) {
             async.eachSeries(
               data.items,
               function (bucket, callback) {
+                logger.info(JSON.stringify(bucket, null, 2));
                 async.eachSeries(
                   bucket,
-                  function (item, callback) {
-                    item.chosen = false;
-                    if (conf.list.indexOf(item.name) > -1) {
-                      item.chosen = true;
-                      data.messages.push(item.name+" found in "+item.bucketName);
-                    }
-                    logger.info(JSON.stringify(item, null, 2));
-                    callback();
+                  function (type, callback) {
+                    logger.info(JSON.stringify(type, null, 2));
+                    async.eachSeries(
+                      type,
+                      function (item, callback) {
+                        item.chosen = false;
+                        if (conf.list.indexOf(item.name) > -1) {
+                          item.chosen = true;
+                          data.messages.push(item.name+" found in "+item.bucketName);
+                        }
+                        logger.info(JSON.stringify(item, null, 2));
+                        callback();
+                      },
+                      function (err) {
+                        callback(err, data, conf);
+                      }
+                    )
                   },
                   function (err) {
                     callback(err, data, conf);
