@@ -33,34 +33,29 @@ router.get('/api', function (request, response, next) {
 
       async.waterfall([
           function (callback) {
-            //logger.info("/api ------ 1");
+            // Read the configuration (choice of the user)
             destinyDb.readConf(request.session.user, function (err, conf) {
               if (err) {
-                //logger.info("/api ------ 1.1");
                 callback(err);
               } else {
-                //logger.info("/api ------ 1.2");
                 callback(null, conf);
               }
 
             });
           },
           function (conf, callback) {
-            //logger.info("/api ------ 2");
+            // Check the configuration (did the chosen items exist)
             destiny.checkConf(conf, function (err, messages) {
-              //logger.info("/api ------ 2.1");
               if (err) {
-                //logger.info("/api ------ 2.2");
                 callback(err);
               } else {
-                //logger.info("/api ------ 2.3");
                 logger.info(JSON.stringify(messages, null, 2));
                 callback(null, messages, conf);
               }
             })
           },
           function (messages, conf, callback) {
-            //logger.info("/api ------ 3");
+            // Read the user destiny stuff
             destiny.getUserStuff(request.session.user, function (err, data) {
               if (err) {
                 callback(err);
@@ -85,7 +80,9 @@ router.get('/api', function (request, response, next) {
                 async.eachSeries(
                   bucket,
                   function (item, callback) {
+                    item.chosen = false;
                     if (conf.list.indexOf(item.name) > -1) {
+                      item.chosen = true;
                       data.messages.push(item.name+" found in "+item.bucketName);
                     }
                     logger.info(JSON.stringify(item, null, 2));
