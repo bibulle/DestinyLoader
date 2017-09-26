@@ -2,14 +2,14 @@ var express = require('express');
 var path = require('path');
 var favicon = require('serve-favicon');
 var logger = require('morgan');
-var passport = require('passport');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
+var session = require('express-session')
 
 var routes = require('./routes/index');
 var api = require('./routes/api');
 var api1 = require('./routes/api1');
-var authentRouter = require("./routes/monitor");
+var monitor = require("./routes/monitor");
 
 var app = express();
 
@@ -23,19 +23,18 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
+app.use(session({
+  secret: 'myownsecret',
+  cookie: { maxAge: 6000000 },
+  resave: false,
+  saveUninitialized: false
+}));
 
-//--------------
-// passport routes (authentication)
-//--------------
-require('./config_passport')(passport); // pass passport for configuration
-
-app.use(passport.initialize());
-app.use(passport.session()); // persistent login sessions
 
 app.use('/', routes);
 app.use('/api',  api);
 app.use('/api1', api1);
-app.use("/monitorstuff", authentRouter(passport));
+app.use("/monitorstuff", monitor);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

@@ -1,0 +1,12 @@
+doctype html
+html
+  head
+    title= title
+    link(rel='stylesheet', href='stylesheets/style.css')
+    script(src="javascripts/monitor.js")
+    script(src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js")
+  body(onLoad="init()")
+    div(id="title")= "Monitor Stuff for you : "+user.bungieNetUser.displayName
+    div(id="messages")
+    div(id="input")
+      textarea

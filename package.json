@@ -12,15 +12,17 @@
     "cron": "latest",
     "debug": "~2.2.0",
     "express": "~4.13.1",
+    "express-session": "^1.15.5",
+    "google-spreadsheet": "latest",
     "jade": "~1.11.0",
+    "mongodb": "^2.2.31",
     "morgan": "~1.6.1",
+    "nedb": "latest",
+    "node-stream-zip": "^1.3.7",
     "passport": "^0.3.2",
     "passport-oauth2": "^1.4.0",
     "serve-favicon": "~2.3.0",
-    "winston": "~1.1.0",
-    "nedb": "latest",
-    "mongodb": "^2.2.31",
-    "google-spreadsheet": "latest"
-
+    "sqlite3": "^3.1.12",
+    "winston": "~1.1.0"
   }
 }
