@@ -75,24 +75,52 @@ router.get('/api', function (request, response, next) {
 
             async.eachSeries(
               data.items,
-              function (bucket, callback) {
-                logger.info(JSON.stringify(bucket, null, 2));
+              function (itemsByBukets, callback) {
+                //logger.info(JSON.stringify(bucket, null, 2));
                 async.eachSeries(
-                  bucket,
-                  function (type, callback) {
-                    logger.info(JSON.stringify(type, null, 2));
-                    async.eachSeries(
-                      type,
-                      function (item, callback) {
-                        item.chosen = false;
-                        if (conf.list.indexOf(item.name) > -1) {
-                          item.chosen = true;
-                          data.messages.push(item.name+" found in "+item.bucketName);
-                        }
-                        logger.info(JSON.stringify(item, null, 2));
-                        callback();
+                  itemsByBukets,
+                  function (itemsByType, callback) {
+                    logger.info(JSON.stringify(itemsByType, null, 2));
+
+                    async.waterfall([
+                      // First, add attribute if chosen by the user (and lock it if needed)
+                      function(callback) {
+                        async.eachSeries(
+                          itemsByType,
+                          function (item, callback) {
+                            item.chosen = false;
+                            if (conf.list.indexOf(item.name) > -1) {
+                              item.chosen = true;
+                              //data.messages.push(item.name+" found in "+item.bucketName);
+                              if (item.state != 1) {
+                                data.messages.push(item.name + " found and should be locked");
+                              }
+                            }
+                            //logger.info(JSON.stringify(item, null, 2));
+                            callback();
+                          },
+                          function (err) {
+                            callback(err);
+                          }
+                        )
+
                       },
+                      // sort the itemsByType
+                      function(callback) {
+                        itemsByType.sort(function(i1, i2) {
+                          if (i1.chosen && !i2.chosen) {
+                            return 1;
+                          } else if (i2.chosen && !i1.chosen) {
+                            return -1;
+                          }
+                          return 0;
+
+                        });
+                        callback();
+                      }
+                      ],
                       function (err) {
+                        logger.info(JSON.stringify(itemsByType, null, 2));
                         callback(err, data, conf);
                       }
                     )
