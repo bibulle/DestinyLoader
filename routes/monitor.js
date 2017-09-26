@@ -8,7 +8,7 @@ var config = require('../lib/config');
 var destiny = require("../lib/destiny");
 var destinyDb = require("../lib/destinyDb");
 
-destiny.getManifest();
+
 
 // init the monitoring
 
@@ -109,10 +109,27 @@ router.get('/api', function (request, response, next) {
                       function(callback) {
                         itemsByType.sort(function(i1, i2) {
                           if (i1.chosen && !i2.chosen) {
-                            return 1;
-                          } else if (i2.chosen && !i1.chosen) {
                             return -1;
+                          } else if (i2.chosen && !i1.chosen) {
+                            return 1;
                           }
+                          if ((i1.state==1) && (i2.state!=1)) {
+                            return -1;
+                          } else if ((i2.state==1) && (i1.state!=1)) {
+                            return 1;
+                          }
+                          if (i1.tierType > i2.tierType) {
+                            return -1;
+                          } else if (i2.tierType > i1.tierType) {
+                            return 1;
+                          }
+                          logger.info("TODO know if legendary mod");
+                          if (i1.lightLevel > i2.lightLevel) {
+                            return -1;
+                          } else if (i2.lightLevel > i1.lightLevel) {
+                            return 1;
+                          }
+
                           return 0;
 
                         });
