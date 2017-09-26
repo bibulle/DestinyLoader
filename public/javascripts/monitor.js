@@ -3,11 +3,12 @@ var RELOAD_EVERY = 1 * 20 * 1000;
 
 var loadData = function () {
 
+  setTimeout(loadData, RELOAD_EVERY);
+
   try {
 
     $.getJSON("monitorstuff/api", function (d) {
 
-      setTimeout(loadData, RELOAD_EVERY);
 
       if (d && d.error == "NotLogged") {
         $("#messages").html("<hr><p>Not logged, refreshing</p>");
