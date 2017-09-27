@@ -125,7 +125,11 @@ router.get('/api', function (request, response, next) {
                           } else if (i2.tierType > i1.tierType) {
                             return 1;
                           }
-                          //logger.info("TODO know if legendary mod");
+                          if (i1.lightLevelBonus > i2.lightLevelBonus) {
+                            return -1;
+                          } else if (i2.lightLevelBonus > i1.lightLevelBonus) {
+                            return 1;
+                          }
                           if (i1.lightLevel > i2.lightLevel) {
                             return -1;
                           } else if (i2.lightLevel > i1.lightLevel) {
