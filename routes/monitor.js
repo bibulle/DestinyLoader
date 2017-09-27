@@ -173,7 +173,7 @@ router.get('/api', function (request, response, next) {
                         }
                       ],
                       function (err) {
-                        logger.info(JSON.stringify(itemsByType, null, 2));
+                        //logger.info(JSON.stringify(itemsByType, null, 2));
                         callback(err, data, conf);
                       }
                     )
@@ -199,16 +199,20 @@ router.get('/api', function (request, response, next) {
             async.eachSeries(
               data.items,
               function (itemsByBukets, callback) {
+                var lastBucketNameTarget;
                 async.eachSeries(
                   itemsByBukets,
                   function (itemsByType, callback) {
                     async.eachSeries(
                       itemsByType,
-                      function(item, callback) {
-                        if (!items[item.bucketNameTarget]) {
-                          items[item.bucketNameTarget] = [];
+                      function (item, callback) {
+                        if (BucketsToManaged.indexOf(item.bucketNameTarget) > -1) {
+                          if (!items[item.bucketNameTarget]) {
+                            items[item.bucketNameTarget] = [];
+                          }
+                          items[item.bucketNameTarget].push(item);
+                          lastBucketNameTarget = item.bucketNameTarget;
                         }
-                        items[item.bucketNameTarget].push(item);
                         callback(null);
                       },
                       function (err) {
@@ -217,13 +221,24 @@ router.get('/api', function (request, response, next) {
                     )
                   },
                   function (err) {
+                    if (lastBucketNameTarget) {
+                      logger.info(JSON.stringify(lastBucketNameTarget, null, 2));
+                      logger.info(JSON.stringify(items[lastBucketNameTarget].length, null, 2));
+                      logger.info("----------");
+                      logger.info(JSON.stringify(items[lastBucketNameTarget], null, 2));
+                      logger.info("----------");
+                      items = items[lastBucketNameTarget].sort(itemComparator)
+                      logger.info("==========");
+                      logger.info(JSON.stringify(items[lastBucketNameTarget], null, 2));
+                      logger.info("==========");
+                    }
                     callback(err);
                   }
                 )
               },
               function (err) {
                 data.items = items;
-                logger.info(JSON.stringify(bucket, null, 2));
+                logger.info(JSON.stringify(data, null, 2));
                 callback(err, data, conf);
               }
             )
@@ -420,6 +435,11 @@ module.exports = router;
 
 
 var itemComparator = function (i1, i2) {
+  if (i1.keep > i2.keep) {
+    return -1;
+  } else if (i2.keep < i1.keep) {
+    return 1;
+  }
   if (i1.chosen > i2.chosen) {
     return -1;
   } else if (i2.chosen < i1.chosen) {
@@ -456,3 +476,9 @@ var KeepOrNot = {
   KEEP_VAULT_TO_DISMANTLE: 8,
   NO_KEEP: 0
 }
+
+var BucketsToManaged = [
+  "Power Weapons", "Energy Weapons", "Kinetic Weapons",
+  //"Leg Armor", "Helmet", "Gauntlets", "Chest Armor", "Class Armor",
+  //"Ghost", "Vehicle", "Ships"
+]
