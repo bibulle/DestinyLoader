@@ -237,7 +237,6 @@ router.get('/api', function (request, response, next) {
       },
       function (data, conf, callback) {
         // Can we infuse ?
-        logger.info("Can we infuse ?")
         //logger.info(JSON.stringify(conf, null, 2));
         //logger.info(JSON.stringify(data.items.length, null, 2));
 
@@ -246,7 +245,6 @@ router.get('/api', function (request, response, next) {
         async.eachSeries(
           data.items,
           function (itemsByBukets, callback) {
-            logger.info("Can we infuse ? 2");
             //logger.info(JSON.stringify(itemsByBukets, null, 2));
             async.eachSeries(
               itemsByBukets,
@@ -270,17 +268,17 @@ router.get('/api', function (request, response, next) {
               itemsByInfusion,
               function (items, callback) {
                 items.sort(itemComparator);
-                logger.info(JSON.stringify(items, null, 2));
+                //logger.info(JSON.stringify(items, null, 2));
 
                 // let's search in inventory to upgrade
                 async.eachSeries(
                   items,
                   function (itemToInfuse, callback) {
-                    logger.info(itemToInfuse.name);
+                    //logger.info(itemToInfuse.name);
                     if (itemToInfuse.keep != KeepOrNot.KEEP_INVENTORY) {
                       return callback(null);
                     }
-                    logger.info(JSON.stringify(itemToInfuse.name, null, 2));
+                    //logger.info(JSON.stringify(itemToInfuse.name, null, 2));
                     var itemFound = false;
                     async.eachSeries(
                       items,
@@ -289,12 +287,12 @@ router.get('/api', function (request, response, next) {
                           //logger.info("found : "+itemToInfuse.name);
                           itemFound = true;
                         } else if (itemFound) {
-                          logger.info(JSON.stringify(itemToInfuse.name + " -> " + itemToDismantle.name + " (" + itemToDismantle.itemInstanceId + ")", null, 2));
+                          //logger.info(JSON.stringify(itemToInfuse.name + " -> " + itemToDismantle.name + " (" + itemToDismantle.itemInstanceId + ")", null, 2));
                           // if not chosen and light greater, propose
                           if ((itemToDismantle.chosen == -1) && (itemToDismantle.lightLevel > itemToInfuse.lightLevel)) {
-                            logger.info(data.messages.length);
-                            data.messages.push(itemToInfuse.name + ' (' + (itemToInfuse.lightLevel + itemToInfuse.lightLevelBonus) + ") from " + itemToInfuse.bucketName + " can be highlight by infusing " + itemToDismantle.name + ' (' + (itemToDismantle.lightLevel + itemToDismantle.lightLevelBonus) + ") from " + itemToDismantle.bucketName);
-                            logger.info(data.messages.length);
+                            //logger.info(data.messages.length);
+                            data.messages.push(itemToInfuse.name + ' (' + (itemToInfuse.lightLevel + itemToInfuse.lightLevelBonus) + ") from " + itemToInfuse.bucketName + " can be highlight by infusing " + itemToDismantle.name + ' (' + (itemToDismantle.lightLevel + itemToDismantle.lightLevelBonus) + ") from " + itemToDismantle.bucketName.replace("General","Vault"));
+                            //logger.info(data.messages.length);
                           }
                         }
                         callback(null);
