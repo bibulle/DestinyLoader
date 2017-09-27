@@ -222,15 +222,7 @@ router.get('/api', function (request, response, next) {
                   },
                   function (err) {
                     if (lastBucketNameTarget) {
-                      logger.info(JSON.stringify(lastBucketNameTarget, null, 2));
-                      logger.info(JSON.stringify(items[lastBucketNameTarget].length, null, 2));
-                      logger.info("----------");
-                      logger.info(JSON.stringify(items[lastBucketNameTarget], null, 2));
-                      logger.info("----------");
-                      items = items[lastBucketNameTarget].sort(itemComparator)
-                      logger.info("==========");
-                      logger.info(JSON.stringify(items[lastBucketNameTarget], null, 2));
-                      logger.info("==========");
+                      items[lastBucketNameTarget].sort(itemComparator)
                     }
                     callback(err);
                   }
@@ -437,12 +429,12 @@ module.exports = router;
 var itemComparator = function (i1, i2) {
   if (i1.keep > i2.keep) {
     return -1;
-  } else if (i2.keep < i1.keep) {
+  } else if (i2.keep > i1.keep) {
     return 1;
   }
   if (i1.chosen > i2.chosen) {
     return -1;
-  } else if (i2.chosen < i1.chosen) {
+  } else if (i2.chosen > i1.chosen) {
     return 1;
   }
   if ((i1.state == 1) && (i2.state != 1)) {
