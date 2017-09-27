@@ -71,7 +71,8 @@ router.get('/api', function (request, response, next) {
           },
           function (data, conf, callback) {
             // Check all bucket for "wanted"
-            //logger.info(JSON.stringify(conf, null, 2));
+            logger.info(JSON.stringify(conf, null, 2));
+            logger.info(JSON.stringify(data.items.length, null, 2));
 
             async.eachSeries(
               data.items,
@@ -123,7 +124,7 @@ router.get('/api', function (request, response, next) {
                           } else if (i2.tierType > i1.tierType) {
                             return 1;
                           }
-                          logger.info("TODO know if legendary mod");
+                          //logger.info("TODO know if legendary mod");
                           if (i1.lightLevel > i2.lightLevel) {
                             return -1;
                           } else if (i2.lightLevel > i1.lightLevel) {
@@ -137,7 +138,7 @@ router.get('/api', function (request, response, next) {
                       }
                       ],
                       function (err) {
-                        //logger.info(JSON.stringify(itemsByType, null, 2));
+                        logger.info(JSON.stringify(itemsByType, null, 2));
                         callback(err, data, conf);
                       }
                     )
