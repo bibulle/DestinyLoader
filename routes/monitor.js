@@ -90,9 +90,10 @@ router.get('/api', function (request, response, next) {
                         async.eachSeries(
                           itemsByType,
                           function (item, callback) {
-                            item.chosen = false;
+                            item.chosen = -1;
                             if (conf.list.indexOf(item.name) > -1) {
-                              item.chosen = true;
+                              item.chosen = conf.list.length() - conf.list.indexOf(item.name);
+                              logger.info(JSON.stringify(item.name+" "+item.chosen, null, 2));
                               //data.messages.push(item.name+" found in "+item.bucketName);
                               if (item.state != 1) {
                                 data.messages.push(item.name + " found and should be locked");
@@ -109,41 +110,12 @@ router.get('/api', function (request, response, next) {
                       },
                       // sort the itemsByType
                       function(callback) {
-                        itemsByType.sort(function(i1, i2) {
-                          if (i1.chosen && !i2.chosen) {
-                            return -1;
-                          } else if (i2.chosen && !i1.chosen) {
-                            return 1;
-                          }
-                          if ((i1.state==1) && (i2.state!=1)) {
-                            return -1;
-                          } else if ((i2.state==1) && (i1.state!=1)) {
-                            return 1;
-                          }
-                          if (i1.tierType > i2.tierType) {
-                            return -1;
-                          } else if (i2.tierType > i1.tierType) {
-                            return 1;
-                          }
-                          if (i1.lightLevelBonus > i2.lightLevelBonus) {
-                            return -1;
-                          } else if (i2.lightLevelBonus > i1.lightLevelBonus) {
-                            return 1;
-                          }
-                          if (i1.lightLevel > i2.lightLevel) {
-                            return -1;
-                          } else if (i2.lightLevel > i1.lightLevel) {
-                            return 1;
-                          }
-
-                          return 0;
-
-                        });
+                        itemsByType.sort(itemComparator);
                         callback();
                       }
                       ],
                       function (err) {
-                        //logger.info(JSON.stringify(itemsByType, null, 2));
+                        logger.info(JSON.stringify(itemsByType, null, 2));
                         callback(err, data, conf);
                       }
                     )
@@ -347,3 +319,35 @@ router.get('/login/callback', function (request, response, next) {
 });
 
 module.exports = router;
+
+
+var itemComparator = function(i1, i2) {
+  if (i1.chosen > i2.chosen) {
+    return -1;
+  } else if (i2.chosen < i1.chosen) {
+    return 1;
+  }
+  if ((i1.state==1) && (i2.state!=1)) {
+    return -1;
+  } else if ((i2.state==1) && (i1.state!=1)) {
+    return 1;
+  }
+  if (i1.tierType > i2.tierType) {
+    return -1;
+  } else if (i2.tierType > i1.tierType) {
+    return 1;
+  }
+  if (i1.lightLevelBonus > i2.lightLevelBonus) {
+    return -1;
+  } else if (i2.lightLevelBonus > i1.lightLevelBonus) {
+    return 1;
+  }
+  if (i1.lightLevel > i2.lightLevel) {
+    return -1;
+  } else if (i2.lightLevel > i1.lightLevel) {
+    return 1;
+  }
+
+  return 0;
+
+}
