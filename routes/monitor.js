@@ -70,7 +70,7 @@ router.get('/api', function (request, response, next) {
             });
           },
           function (data, conf, callback) {
-            // Check all bucket for "wanted"
+            // Calculate order and what to keep
             //logger.info(JSON.stringify(conf, null, 2));
             //logger.info(JSON.stringify(data.items.length, null, 2));
 
@@ -135,6 +135,41 @@ router.get('/api', function (request, response, next) {
                         function (callback) {
                           itemsByType.sort(itemComparator);
                           callback();
+                        },
+                        // find witch to keep
+                        function (callback) {
+                          var count = 0;
+                          async.eachSeries(
+                            itemsByType,
+                            function (item, callback) {
+                              // chosen exo       -> INVENTORY
+                              // chosen legendary -> INVENTORY
+                              // first legendary  -> INVENTORY
+                              // not chosen 3 legendary more -> VAULT
+                              // TODO : wathever usefull for dismantle -> VAULT_TO_DISMANTLE
+
+                              item.keep = KeepOrNot.NO_KEEP;
+                              if ((item.chosen > -1) && (item.tierType == 6)) {
+                                item.keep = KeepOrNot.KEEP_INVENTORY
+                              } else if ((item.chosen > -1) && (item.tierType == 5)) {
+                                item.keep = KeepOrNot.KEEP_INVENTORY
+                                if (count == 0) {
+                                  count = 1;
+                                }
+                              } else if ((item.tierType == 5)) {
+                                if (count == 0) {
+                                  item.keep = KeepOrNot.KEEP_INVENTORY
+                                } else if (count <= 3) {
+                                  item.keep = KeepOrNot.KEEP_VAULT
+                                }
+                                count++;
+                              }
+                              callback();
+                            },
+                            function (err) {
+                              callback(err);
+                            }
+                          );
                         }
                       ],
                       function (err) {
@@ -153,7 +188,47 @@ router.get('/api', function (request, response, next) {
               }
             )
 
+          },
+          function (data, conf, callback) {
+            // Calculate the "best" inventories
+            //logger.info(JSON.stringify(conf, null, 2));
+            //logger.info(JSON.stringify(data.items.length, null, 2));
+
+            // remove one level all in target bucket)
+            var items = {};
+            async.eachSeries(
+              data.items,
+              function (itemsByBukets, callback) {
+                async.eachSeries(
+                  itemsByBukets,
+                  function (itemsByType, callback) {
+                    async.eachSeries(
+                      itemsByType,
+                      function(item, callback) {
+                        if (!items[item.bucketNameTarget]) {
+                          items[item.bucketNameTarget] = [];
+                        }
+                        items[item.bucketNameTarget].push(item);
+                        callback(null);
+                      },
+                      function (err) {
+                        callback(err);
+                      }
+                    )
+                  },
+                  function (err) {
+                    callback(err);
+                  }
+                )
+              },
+              function (err) {
+                data.items = items;
+                logger.info(JSON.stringify(bucket, null, 2));
+                callback(err, data, conf);
+              }
+            )
           }
+
 
         ],
 
@@ -373,4 +448,11 @@ var itemComparator = function (i1, i2) {
 
   return 0;
 
+}
+
+var KeepOrNot = {
+  KEEP_INVENTORY: 10,
+  KEEP_VAULT: 9,
+  KEEP_VAULT_TO_DISMANTLE: 8,
+  NO_KEEP: 0
 }
