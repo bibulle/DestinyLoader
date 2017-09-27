@@ -237,6 +237,7 @@ router.get('/api', function (request, response, next) {
           },
           function (data, conf, callback) {
             // Can we infuse ?
+            logger.info("Can we infuse ?")
             //logger.info(JSON.stringify(conf, null, 2));
             //logger.info(JSON.stringify(data.items.length, null, 2));
 
@@ -245,10 +246,12 @@ router.get('/api', function (request, response, next) {
             async.eachSeries(
               data.items,
               function (itemsByBukets, callback) {
+                logger.info("Can we infuse ? 2");
+                logger.info(JSON.stringify(itemsByBukets, null, 2));
                 async.eachSeries(
                   itemsByBukets,
                   function (item, callback) {
-                    if (!itemsByInfusion[item.infusionCategoryName]) {
+                    if (item.infusionCategoryName && !itemsByInfusion[item.infusionCategoryName]) {
                       itemsByInfusion[item.infusionCategoryName] = [];
                     }
                     itemsByInfusion[item.infusionCategoryName].push(item);
