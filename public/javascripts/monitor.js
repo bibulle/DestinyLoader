@@ -38,21 +38,36 @@ var init = function () {
 
     $("#input textarea").change(function () {
       $("#input textarea").addClass("saving");
-      console.log("change");
-      console.log($(this).val());
-      $.post("monitorstuff/value", {conf: $(this).val()}, function (data) {
-
-        $("#input textarea").removeClass("saving");
-        if (data === "ERROR") {
-          $("#input textarea").addClass("error");
-        } else {
-          $("#input textarea").removeClass("error");
-          $("#input textarea").val(data);
-        }
-
-      });
+      sendConf({ conf: { chosen: $(this).val()}});
     }).change();
 
+    $("#input button").click(function () {
+      sendConf({ conf: { mode: $(this).attr('id')}});
+    });
+
     loadData();
+  });
+}
+
+var sendConf = function (conf) {
+  $.ajax({
+    url: "monitorstuff/value",
+    type: "POST",
+    data: JSON.stringify(conf),
+    contentType: "application/json",
+  }).done(function (data) {
+
+    var response = jQuery.parseJSON(data);
+
+    $("#input textarea").removeClass("saving");
+    if (response.error) {
+      $("#input textarea").addClass("error");
+    } else {
+      $("#input textarea").removeClass("error");
+      $("#input textarea").val(response.chosen);
+    }
+
+    $("#input button").removeClass("selected");
+    $("#" + response.mode).addClass("selected");
   });
 }

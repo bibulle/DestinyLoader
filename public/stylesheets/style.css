@@ -52,8 +52,9 @@ p {
     margin-top: 8px;
 }
 #input textarea {
-    width: 100%;
+    width: 60%;
     height: 10em;
+    float:left;
 }
 #input textarea:focus {
     outline:0;
@@ -65,3 +66,15 @@ p {
 #input textarea.error {
     border-color: red;
 }
+#input div {
+    width: 38%;
+    float: right;
+}
+#input button {
+    width: 100%;
+}
+#input button.selected {
+    color: forestgreen;
+    font-weight: bold;
+}
+
