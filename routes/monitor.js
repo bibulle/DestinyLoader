@@ -260,39 +260,53 @@ router.get('/api', function (request, response, next) {
                       itemsByInfusion,
                       function (items, callback) {
                         items.sort(itemComparator);
+                        logger.info(JSON.stringify(items,null,2));
 
                         // let's search in inventory to upgrade
-                        async.eachSeries(
-                          items,
-                          function(itemToInfuse, callback) {
-                            var itemFound = false;
-                            async.eachSeries(
-                              items,
-                              function(itemToDismantle, callback) {
-                                if (itemToInfuse.itemInstanceId == itemToDismantle.itemInstanceId) {
-                                  logger.info("found : "+itemToInfuse.name);
-                                  itemFound = true;
-                                }
-
-                                callback(null);
-
-                              },
-                              function(err){
-                                callback(err);
-                              }
-                            )
-                          },
-                          function(err) {
-                            async.setImmediate(function() {
-                              callback(err);
-                            });
-                          }
-                        )
+                        // async.eachSeries(
+                        //   items,
+                        //   function(itemToInfuse, callback) {
+                        //     logger.info(itemToInfuse.name);
+                        //     if (itemToInfuse.keep != KeepOrNot.KEEP_INVENTORY) {
+                        //       return callback(null);
+                        //     }
+                        //     logger.info(JSON.stringify(itemToInfuse.name, null, 2));
+                        //     var itemFound = false;
+                        //     async.eachSeries(
+                        //       items,
+                        //       function(itemToDismantle, callback) {
+                        //         if (itemToInfuse.itemInstanceId == itemToDismantle.itemInstanceId) {
+                        //           //logger.info("found : "+itemToInfuse.name);
+                        //           itemFound = true;
+                        //         } else if (itemFound) {
+                        //           logger.info(JSON.stringify(itemToInfuse.name+" -> "+itemToDismantle.name+" ("+itemToDismantle.itemInstanceId+")", null, 2));
+                        //           // if not chosen and light greater, propose
+                        //           if ((itemToDismantle.chosen == -1) && (itemToDismantle.lightLevel > itemToInfuse.lightLevel)) {
+                        //             logger.info(data.messages.length);
+                        //             data.messages.push(itemToInfuse.name+' ('+(itemToInfuse.lightLevel+itemToInfuse.lightLevelBonus)+") from "+itemToInfuse.bucketName+" can be highlight by infusing "+itemToDismantle.name+' ('+(itemToDismantle.lightLevel+itemToDismantle.lightLevelBonus)+") from "+itemToDismantle.bucketName);
+                        //             logger.info(data.messages.length);
+                        //           }
+                        //         }
+                        //
+                        //         callback(null);
+                        //
+                        //       },
+                        //       function(err){
+                        //         callback(err);
+                        //       }
+                        //     )
+                        //   },
+                        //   function(err) {
+                        //     //async.setImmediate(function() {
+                               callback(err);
+                        //     //});
+                        //   }
+                        // )
 
                       }
                       , function (err) {
 
-                        logger.info(JSON.stringify(itemsByInfusion, null, 2));
+                        //logger.info(JSON.stringify(itemsByInfusion, null, 2));
                         callback(err);
                       }
                     )
@@ -301,7 +315,7 @@ router.get('/api', function (request, response, next) {
               },
               function (err) {
                 //data.items = items;
-                //logger.info(JSON.stringify(data, null, 2));
+                logger.info(JSON.stringify(data.messages, null, 2));
                 callback(err, data, conf);
               }
             )
