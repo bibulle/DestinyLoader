@@ -92,7 +92,7 @@ router.get('/api', function (request, response, next) {
                               item.chosen = -1;
                               if (conf.list.indexOf(item.name) > -1) {
                                 item.chosen = conf.list.length - conf.list.indexOf(item.name);
-                                logger.info(JSON.stringify(item.name + " " + item.chosen, null, 2));
+                                //logger.info(JSON.stringify(item.name + " " + item.chosen, null, 2));
                                 //data.messages.push(item.name+" found in "+item.bucketName);
                                 if (item.state != 1) {
                                   data.messages.push(item.name + " found and should be locked");
@@ -194,7 +194,7 @@ router.get('/api', function (request, response, next) {
             //logger.info(JSON.stringify(conf, null, 2));
             //logger.info(JSON.stringify(data.items.length, null, 2));
 
-            // remove one level all in target bucket)
+            // remove one level (all in target bucket)
             var items = {};
             async.eachSeries(
               data.items,
@@ -230,7 +230,78 @@ router.get('/api', function (request, response, next) {
               },
               function (err) {
                 data.items = items;
-                logger.info(JSON.stringify(data, null, 2));
+                //logger.info(JSON.stringify(data, null, 2));
+                callback(err, data, conf);
+              }
+            )
+          },
+          function (data, conf, callback) {
+            // Can we infuse ?
+            //logger.info(JSON.stringify(conf, null, 2));
+            //logger.info(JSON.stringify(data.items.length, null, 2));
+
+            // Categories by infusionCategoryName
+            var itemsByInfusion = {};
+            async.eachSeries(
+              data.items,
+              function (itemsByBukets, callback) {
+                async.eachSeries(
+                  itemsByBukets,
+                  function (item, callback) {
+                    if (!itemsByInfusion[item.infusionCategoryName]) {
+                      itemsByInfusion[item.infusionCategoryName] = [];
+                    }
+                    itemsByInfusion[item.infusionCategoryName].push(item);
+                    callback(null);
+                  },
+                  function (err) {
+                    // sorts eack category
+                    async.eachSeries(
+                      itemsByInfusion,
+                      function (items, callback) {
+                        items.sort(itemComparator);
+
+                        // let's search in inventory to upgrade
+                        async.eachSeries(
+                          items,
+                          function(itemToInfuse, callback) {
+                            var itemFound = false;
+                            async.eachSeries(
+                              items,
+                              function(itemToDismantle, callback) {
+                                if (itemToInfuse.itemInstanceId == itemToDismantle.itemInstanceId) {
+                                  logger.info("found : "+itemToInfuse.name);
+                                  itemFound = true;
+                                }
+
+                                callback(null);
+
+                              },
+                              function(err){
+                                callback(err);
+                              }
+                            )
+                          },
+                          function(err) {
+                            async.setImmediate(function() {
+                              callback(err);
+                            });
+                          }
+                        )
+
+                      }
+                      , function (err) {
+
+                        logger.info(JSON.stringify(itemsByInfusion, null, 2));
+                        callback(err);
+                      }
+                    )
+                  }
+                )
+              },
+              function (err) {
+                //data.items = items;
+                //logger.info(JSON.stringify(data, null, 2));
                 callback(err, data, conf);
               }
             )
