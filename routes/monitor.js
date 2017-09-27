@@ -25,160 +25,155 @@ router.get('/', function (request, response, next) {
 });
 
 router.get('/api', function (request, response, next) {
-    if (!request.session.user) {
-      response.send({error: "NotLogged"});
-    } else {
+  if (!request.session.user) {
+    response.send({error: "NotLogged"});
+  } else {
 
-      async.waterfall([
-          function (callback) {
-            // Read the configuration (choice of the user)
-            destinyDb.readConf(request.session.user, function (err, conf) {
-              if (err) {
-                callback(err);
-              } else {
-                callback(null, conf);
-              }
+    async.waterfall([
+      function (callback) {
+        // Read the configuration (choice of the user)
+        destinyDb.readConf(request.session.user, function (err, conf) {
+          if (err) {
+            callback(err);
+          } else {
+            callback(null, conf);
+          }
 
+        });
+      },
+      function (conf, callback) {
+        // Check the configuration (did the chosen items exist)
+        destiny.checkConf(conf, function (err, messages) {
+          if (err) {
+            callback(err);
+          } else {
+            //logger.info(JSON.stringify(messages, null, 2));
+            callback(null, messages, conf);
+          }
+        })
+      },
+      function (messages, conf, callback) {
+        // Read the user destiny stuff
+        destiny.getUserStuff(request.session.user, function (err, data) {
+          if (err) {
+            callback(err);
+          } else {
+            //logger.info(JSON.stringify(data, null, 2));
+            //logger.info(JSON.stringify(data.items, null, 2));
+
+            data.messages = messages;
+            async.setImmediate(function () {
+              callback(null, data, conf);
             });
-          },
-          function (conf, callback) {
-            // Check the configuration (did the chosen items exist)
-            destiny.checkConf(conf, function (err, messages) {
-              if (err) {
-                callback(err);
-              } else {
-                //logger.info(JSON.stringify(messages, null, 2));
-                callback(null, messages, conf);
-              }
-            })
-          },
-          function (messages, conf, callback) {
-            // Read the user destiny stuff
-            destiny.getUserStuff(request.session.user, function (err, data) {
-              if (err) {
-                callback(err);
-              } else {
-                //logger.info(JSON.stringify(data, null, 2));
-                //logger.info(JSON.stringify(data.items, null, 2));
+          }
 
-                data.messages = messages;
-                async.setImmediate(function () {
-                  callback(null, data, conf);
-                });
-              }
+        });
+      },
+      function (data, conf, callback) {
+        // Calculate order and what to keep
+        //logger.info(JSON.stringify(conf, null, 2));
+        //logger.info(JSON.stringify(data.items.length, null, 2));
 
-            });
-          },
-          function (data, conf, callback) {
-            // Calculate order and what to keep
-            //logger.info(JSON.stringify(conf, null, 2));
-            //logger.info(JSON.stringify(data.items.length, null, 2));
-
+        async.eachSeries(
+          data.items,
+          function (itemsByBukets, callback) {
+            //logger.info(JSON.stringify(bucket, null, 2));
             async.eachSeries(
-              data.items,
-              function (itemsByBukets, callback) {
-                //logger.info(JSON.stringify(bucket, null, 2));
-                async.eachSeries(
-                  itemsByBukets,
-                  function (itemsByType, callback) {
-                    //logger.info(JSON.stringify(itemsByType, null, 2));
+              itemsByBukets,
+              function (itemsByType, callback) {
+                //logger.info(JSON.stringify(itemsByType, null, 2));
 
-                    async.waterfall([
-                        // First, add attribute if chosen by the user (and lock it if needed)
-                        function (callback) {
-                          async.eachSeries(
-                            itemsByType,
-                            function (item, callback) {
-                              item.chosen = -1;
-                              if (conf.list.indexOf(item.name) > -1) {
-                                item.chosen = conf.list.length - conf.list.indexOf(item.name);
-                                //logger.info(JSON.stringify(item.name + " " + item.chosen, null, 2));
-                                //data.messages.push(item.name+" found in "+item.bucketName);
-                                if (item.state != 1) {
-                                  data.messages.push(item.name + " found and should be locked");
-                                }
-                              }
-                              //logger.info(JSON.stringify(item, null, 2));
-                              callback();
-                            },
-                            function (err) {
-                              callback(err);
+                async.waterfall([
+                    // First, add attribute if chosen by the user (and lock it if needed)
+                    function (callback) {
+                      async.eachSeries(
+                        itemsByType,
+                        function (item, callback) {
+                          item.chosen = -1;
+                          if (conf.list.indexOf(item.name) > -1) {
+                            item.chosen = conf.list.length - conf.list.indexOf(item.name);
+                            //logger.info(JSON.stringify(item.name + " " + item.chosen, null, 2));
+                            //data.messages.push(item.name+" found in "+item.bucketName);
+                            if (item.state != 1) {
+                              data.messages.push(item.name + " found and should be locked");
                             }
-                          )
-
-                        },
-                        // sort the itemsByType
-                        function (callback) {
-                          itemsByType.sort(itemComparator);
+                          }
+                          //logger.info(JSON.stringify(item, null, 2));
                           callback();
                         },
-                        // find the chosen twice
-                        function (callback) {
-                          var found = [];
-                          async.eachSeries(
-                            itemsByType,
-                            function (item, callback) {
-                              if (item.chosen > -1) {
-                                if (found.indexOf(item.name) > -1) {
-                                  item.chosen = -1;
-                                }
-                                found.push(item.name);
-                              }
-                              callback();
-                            },
-                            function (err) {
-                              callback(err);
-                            }
-                          )
-                        },
-                        // sort again after chosen that exists twice
-                        function (callback) {
-                          itemsByType.sort(itemComparator);
-                          callback();
-                        },
-                        // find witch to keep
-                        function (callback) {
-                          var count = 0;
-                          async.eachSeries(
-                            itemsByType,
-                            function (item, callback) {
-                              // chosen exo       -> INVENTORY
-                              // chosen legendary -> INVENTORY
-                              // first legendary  -> INVENTORY
-                              // not chosen 3 legendary more -> VAULT
-                              // TODO : wathever usefull for dismantle -> VAULT_TO_DISMANTLE
-
-                              item.keep = KeepOrNot.NO_KEEP;
-                              if ((item.chosen > -1) && (item.tierType == 6)) {
-                                item.keep = KeepOrNot.KEEP_INVENTORY
-                              } else if ((item.chosen > -1) && (item.tierType == 5)) {
-                                item.keep = KeepOrNot.KEEP_INVENTORY
-                                if (count == 0) {
-                                  count = 1;
-                                }
-                              } else if ((item.tierType == 5)) {
-                                if (count == 0) {
-                                  item.keep = KeepOrNot.KEEP_INVENTORY
-                                } else if (count <= 3) {
-                                  item.keep = KeepOrNot.KEEP_VAULT
-                                }
-                                count++;
-                              }
-                              callback();
-                            },
-                            function (err) {
-                              callback(err);
-                            }
-                          );
+                        function (err) {
+                          callback(err);
                         }
-                      ],
-                      function (err) {
-                        //logger.info(JSON.stringify(itemsByType, null, 2));
-                        callback(err, data, conf);
-                      }
-                    )
-                  },
+                      )
+
+                    },
+                    // sort the itemsByType
+                    function (callback) {
+                      itemsByType.sort(itemComparator);
+                      callback();
+                    },
+                    // find the chosen twice
+                    function (callback) {
+                      var found = [];
+                      async.eachSeries(
+                        itemsByType,
+                        function (item, callback) {
+                          if (item.chosen > -1) {
+                            if (found.indexOf(item.name) > -1) {
+                              item.chosen = -1;
+                            }
+                            found.push(item.name);
+                          }
+                          callback();
+                        },
+                        function (err) {
+                          callback(err);
+                        }
+                      )
+                    },
+                    // sort again after chosen that exists twice
+                    function (callback) {
+                      itemsByType.sort(itemComparator);
+                      callback();
+                    },
+                    // find witch to keep
+                    function (callback) {
+                      var count = 0;
+                      async.eachSeries(
+                        itemsByType,
+                        function (item, callback) {
+                          // chosen exo       -> INVENTORY
+                          // chosen legendary -> INVENTORY
+                          // first legendary  -> INVENTORY
+                          // not chosen 3 legendary more -> VAULT
+                          // TODO : wathever usefull for dismantle -> VAULT_TO_DISMANTLE
+
+                          item.keep = KeepOrNot.NO_KEEP;
+                          if ((item.chosen > -1) && (item.tierType == 6)) {
+                            item.keep = KeepOrNot.KEEP_INVENTORY
+                          } else if ((item.chosen > -1) && (item.tierType == 5)) {
+                            item.keep = KeepOrNot.KEEP_INVENTORY
+                            if (count == 0) {
+                              count = 1;
+                            }
+                          } else if ((item.tierType == 5)) {
+                            if (count == 0) {
+                              item.keep = KeepOrNot.KEEP_INVENTORY
+                            } else if (count <= 3) {
+                              item.keep = KeepOrNot.KEEP_VAULT
+                            }
+                            count++;
+                          }
+                          callback();
+                        },
+                        function (err) {
+                          callback(err);
+                        }
+                      );
+                    }
+                  ],
                   function (err) {
+                    //logger.info(JSON.stringify(itemsByType, null, 2));
                     callback(err, data, conf);
                   }
                 )
@@ -187,31 +182,120 @@ router.get('/api', function (request, response, next) {
                 callback(err, data, conf);
               }
             )
-
           },
-          function (data, conf, callback) {
-            // Calculate the "best" inventories
-            //logger.info(JSON.stringify(conf, null, 2));
-            //logger.info(JSON.stringify(data.items.length, null, 2));
+          function (err) {
+            callback(err, data, conf);
+          }
+        )
 
-            // remove one level (all in target bucket)
-            var items = {};
+      },
+      function (data, conf, callback) {
+        // Calculate the "best" inventories
+        //logger.info(JSON.stringify(conf, null, 2));
+        //logger.info(JSON.stringify(data.items.length, null, 2));
+
+        // remove one level (all in target bucket)
+        var items = {};
+        async.eachSeries(
+          data.items,
+          function (itemsByBukets, callback) {
+            var lastBucketNameTarget;
             async.eachSeries(
-              data.items,
-              function (itemsByBukets, callback) {
-                var lastBucketNameTarget;
+              itemsByBukets,
+              function (itemsByType, callback) {
                 async.eachSeries(
-                  itemsByBukets,
-                  function (itemsByType, callback) {
+                  itemsByType,
+                  function (item, callback) {
+                    if (BucketsToManaged.indexOf(item.bucketNameTarget) > -1) {
+                      if (!items[item.bucketNameTarget]) {
+                        items[item.bucketNameTarget] = [];
+                      }
+                      items[item.bucketNameTarget].push(item);
+                      lastBucketNameTarget = item.bucketNameTarget;
+                    }
+                    callback(null);
+                  },
+                  function (err) {
+                    callback(err);
+                  }
+                )
+              },
+              function (err) {
+                if (lastBucketNameTarget) {
+                  items[lastBucketNameTarget].sort(itemComparator)
+                }
+                callback(err);
+              }
+            )
+          },
+          function (err) {
+            data.items = items;
+            //logger.info(JSON.stringify(data, null, 2));
+            callback(err, data, conf);
+          }
+        )
+      },
+      function (data, conf, callback) {
+        // Can we infuse ?
+        logger.info("Can we infuse ?")
+        //logger.info(JSON.stringify(conf, null, 2));
+        //logger.info(JSON.stringify(data.items.length, null, 2));
+
+        // Categories by infusionCategoryName
+        var itemsByInfusion = {};
+        async.eachSeries(
+          data.items,
+          function (itemsByBukets, callback) {
+            logger.info("Can we infuse ? 2");
+            //logger.info(JSON.stringify(itemsByBukets, null, 2));
+            async.eachSeries(
+              itemsByBukets,
+              function (item, callback) {
+                if (item.infusionCategoryName) {
+                  if (!itemsByInfusion[item.infusionCategoryName]) {
+                    itemsByInfusion[item.infusionCategoryName] = [];
+                  }
+                  itemsByInfusion[item.infusionCategoryName].push(item);
+                }
+                callback(null);
+              },
+              function (err) {
+                callback(err);
+              }
+            )
+          },
+          function (err) {
+            // sorts each infusion category
+            async.eachSeries(
+              itemsByInfusion,
+              function (items, callback) {
+                items.sort(itemComparator);
+                logger.info(JSON.stringify(items, null, 2));
+
+                // let's search in inventory to upgrade
+                async.eachSeries(
+                  items,
+                  function (itemToInfuse, callback) {
+                    logger.info(itemToInfuse.name);
+                    if (itemToInfuse.keep != KeepOrNot.KEEP_INVENTORY) {
+                      return callback(null);
+                    }
+                    logger.info(JSON.stringify(itemToInfuse.name, null, 2));
+                    var itemFound = false;
                     async.eachSeries(
-                      itemsByType,
-                      function (item, callback) {
-                        if (BucketsToManaged.indexOf(item.bucketNameTarget) > -1) {
-                          if (!items[item.bucketNameTarget]) {
-                            items[item.bucketNameTarget] = [];
+                      items,
+                      function (itemToDismantle, callback) {
+                        if (itemToInfuse.itemInstanceId == itemToDismantle.itemInstanceId) {
+                          //logger.info("found : "+itemToInfuse.name);
+                          itemFound = true;
+                        } else if (itemFound) {
+                          logger.info(JSON.stringify(itemToInfuse.name + " -> " + itemToDismantle.name + " (" + itemToDismantle.itemInstanceId + ")", null, 2));
+                          // if not chosen and light greater, propose
+                          if ((itemToDismantle.chosen == -1) && (itemToDismantle.lightLevel > itemToInfuse.lightLevel)) {
+                            logger.info(data.messages.length);
+                            data.messages.push(itemToInfuse.name + ' (' + (itemToInfuse.lightLevel + itemToInfuse.lightLevelBonus) + ") from " + itemToInfuse.bucketName + " can be highlight by infusing " + itemToDismantle.name + ' (' + (itemToDismantle.lightLevel + itemToDismantle.lightLevelBonus) + ") from " + itemToDismantle.bucketName);
+                            logger.info(data.messages.length);
                           }
-                          items[item.bucketNameTarget].push(item);
-                          lastBucketNameTarget = item.bucketNameTarget;
                         }
                         callback(null);
                       },
@@ -221,111 +305,26 @@ router.get('/api', function (request, response, next) {
                     )
                   },
                   function (err) {
-                    if (lastBucketNameTarget) {
-                      items[lastBucketNameTarget].sort(itemComparator)
-                    }
-                    callback(err);
+                    //async.setImmediate(function() {
+                    callback();
+                    //});
                   }
                 )
-              },
-              function (err) {
-                data.items = items;
-                //logger.info(JSON.stringify(data, null, 2));
-                callback(err, data, conf);
+
               }
-            )
-          },
-          function (data, conf, callback) {
-            // Can we infuse ?
-            logger.info("Can we infuse ?")
-            //logger.info(JSON.stringify(conf, null, 2));
-            //logger.info(JSON.stringify(data.items.length, null, 2));
+              , function (err) {
 
-            // Categories by infusionCategoryName
-            var itemsByInfusion = {};
-            async.eachSeries(
-              data.items,
-              function (itemsByBukets, callback) {
-                logger.info("Can we infuse ? 2");
-                logger.info(JSON.stringify(itemsByBukets, null, 2));
-                async.eachSeries(
-                  itemsByBukets,
-                  function (item, callback) {
-                    if (item.infusionCategoryName && !itemsByInfusion[item.infusionCategoryName]) {
-                      itemsByInfusion[item.infusionCategoryName] = [];
-                    }
-                    itemsByInfusion[item.infusionCategoryName].push(item);
-                    callback(null);
-                  },
-                  function (err) {
-                    // sorts eack category
-                    async.eachSeries(
-                      itemsByInfusion,
-                      function (items, callback) {
-                        items.sort(itemComparator);
-                        logger.info(JSON.stringify(items,null,2));
-
-                        // let's search in inventory to upgrade
-                        // async.eachSeries(
-                        //   items,
-                        //   function(itemToInfuse, callback) {
-                        //     logger.info(itemToInfuse.name);
-                        //     if (itemToInfuse.keep != KeepOrNot.KEEP_INVENTORY) {
-                        //       return callback(null);
-                        //     }
-                        //     logger.info(JSON.stringify(itemToInfuse.name, null, 2));
-                        //     var itemFound = false;
-                        //     async.eachSeries(
-                        //       items,
-                        //       function(itemToDismantle, callback) {
-                        //         if (itemToInfuse.itemInstanceId == itemToDismantle.itemInstanceId) {
-                        //           //logger.info("found : "+itemToInfuse.name);
-                        //           itemFound = true;
-                        //         } else if (itemFound) {
-                        //           logger.info(JSON.stringify(itemToInfuse.name+" -> "+itemToDismantle.name+" ("+itemToDismantle.itemInstanceId+")", null, 2));
-                        //           // if not chosen and light greater, propose
-                        //           if ((itemToDismantle.chosen == -1) && (itemToDismantle.lightLevel > itemToInfuse.lightLevel)) {
-                        //             logger.info(data.messages.length);
-                        //             data.messages.push(itemToInfuse.name+' ('+(itemToInfuse.lightLevel+itemToInfuse.lightLevelBonus)+") from "+itemToInfuse.bucketName+" can be highlight by infusing "+itemToDismantle.name+' ('+(itemToDismantle.lightLevel+itemToDismantle.lightLevelBonus)+") from "+itemToDismantle.bucketName);
-                        //             logger.info(data.messages.length);
-                        //           }
-                        //         }
-                        //
-                        //         callback(null);
-                        //
-                        //       },
-                        //       function(err){
-                        //         callback(err);
-                        //       }
-                        //     )
-                        //   },
-                        //   function(err) {
-                        //     //async.setImmediate(function() {
-                               callback(err);
-                        //     //});
-                        //   }
-                        // )
-
-                      }
-                      , function (err) {
-
-                        //logger.info(JSON.stringify(itemsByInfusion, null, 2));
-                        callback(err);
-                      }
-                    )
-                  }
-                )
-              },
-              function (err) {
-                //data.items = items;
+                //logger.info(JSON.stringify(itemsByInfusion, null, 2));
                 logger.info(JSON.stringify(data.messages, null, 2));
                 callback(err, data, conf);
               }
             )
           }
+          )
+          }
 
 
-        ],
+      ],
 
         function (err, data) {
           if (err) {
@@ -333,13 +332,14 @@ router.get('/api', function (request, response, next) {
           }
           response.send(JSON.stringify(data, null, 2));
         }
-      )
-      ;
-      //logger.info(JSON.stringify(request.session.user, null, 2));
-      //response.send("Welcome "+request.session.user.bungieNetUser.displayName);
-      //response.send({ user: request.session.user });
 
-    }
+      )
+        ;
+        //logger.info(JSON.stringify(request.session.user, null, 2));
+        //response.send("Welcome "+request.session.user.bungieNetUser.displayName);
+        //response.send({ user: request.session.user });
+
+      }
   }
 );
 
