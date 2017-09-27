@@ -9,7 +9,6 @@ var destiny = require("../lib/destiny");
 var destinyDb = require("../lib/destinyDb");
 
 
-
 // init the monitoring
 
 router.get('/', function (request, response, next) {
@@ -63,7 +62,7 @@ router.get('/api', function (request, response, next) {
                 //logger.info(JSON.stringify(data.items, null, 2));
 
                 data.messages = messages;
-                async.setImmediate(function() {
+                async.setImmediate(function () {
                   callback(null, data, conf);
                 });
               }
@@ -85,34 +84,58 @@ router.get('/api', function (request, response, next) {
                     //logger.info(JSON.stringify(itemsByType, null, 2));
 
                     async.waterfall([
-                      // First, add attribute if chosen by the user (and lock it if needed)
-                      function(callback) {
-                        async.eachSeries(
-                          itemsByType,
-                          function (item, callback) {
-                            item.chosen = -1;
-                            if (conf.list.indexOf(item.name) > -1) {
-                              item.chosen = conf.list.length() - conf.list.indexOf(item.name);
-                              logger.info(JSON.stringify(item.name+" "+item.chosen, null, 2));
-                              //data.messages.push(item.name+" found in "+item.bucketName);
-                              if (item.state != 1) {
-                                data.messages.push(item.name + " found and should be locked");
+                        // First, add attribute if chosen by the user (and lock it if needed)
+                        function (callback) {
+                          async.eachSeries(
+                            itemsByType,
+                            function (item, callback) {
+                              item.chosen = -1;
+                              if (conf.list.indexOf(item.name) > -1) {
+                                item.chosen = conf.list.length - conf.list.indexOf(item.name);
+                                logger.info(JSON.stringify(item.name + " " + item.chosen, null, 2));
+                                //data.messages.push(item.name+" found in "+item.bucketName);
+                                if (item.state != 1) {
+                                  data.messages.push(item.name + " found and should be locked");
+                                }
                               }
+                              //logger.info(JSON.stringify(item, null, 2));
+                              callback();
+                            },
+                            function (err) {
+                              callback(err);
                             }
-                            //logger.info(JSON.stringify(item, null, 2));
-                            callback();
-                          },
-                          function (err) {
-                            callback(err);
-                          }
-                        )
+                          )
 
-                      },
-                      // sort the itemsByType
-                      function(callback) {
-                        itemsByType.sort(itemComparator);
-                        callback();
-                      }
+                        },
+                        // sort the itemsByType
+                        function (callback) {
+                          itemsByType.sort(itemComparator);
+                          callback();
+                        },
+                        // find the chosen twice
+                        function (callback) {
+                          var found = [];
+                          async.eachSeries(
+                            itemsByType,
+                            function (item, callback) {
+                              if (item.chosen > -1) {
+                                if (found.indexOf(item.name) > -1) {
+                                  item.chosen = -1;
+                                }
+                                found.push(item.name);
+                              }
+                              callback();
+                            },
+                            function (err) {
+                              callback(err);
+                            }
+                          )
+                        },
+                        // sort again after chosen that exists twice
+                        function (callback) {
+                          itemsByType.sort(itemComparator);
+                          callback();
+                        }
                       ],
                       function (err) {
                         logger.info(JSON.stringify(itemsByType, null, 2));
@@ -321,15 +344,15 @@ router.get('/login/callback', function (request, response, next) {
 module.exports = router;
 
 
-var itemComparator = function(i1, i2) {
+var itemComparator = function (i1, i2) {
   if (i1.chosen > i2.chosen) {
     return -1;
   } else if (i2.chosen < i1.chosen) {
     return 1;
   }
-  if ((i1.state==1) && (i2.state!=1)) {
+  if ((i1.state == 1) && (i2.state != 1)) {
     return -1;
-  } else if ((i2.state==1) && (i1.state!=1)) {
+  } else if ((i2.state == 1) && (i1.state != 1)) {
     return 1;
   }
   if (i1.tierType > i2.tierType) {
