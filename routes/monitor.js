@@ -63,16 +63,17 @@ router.get('/api', function (request, response, next) {
                 //logger.info(JSON.stringify(data.items, null, 2));
 
                 data.messages = messages;
-
-                callback(null, data, conf);
+                async.setImmediate(function() {
+                  callback(null, data, conf);
+                });
               }
 
             });
           },
           function (data, conf, callback) {
             // Check all bucket for "wanted"
-            logger.info(JSON.stringify(conf, null, 2));
-            logger.info(JSON.stringify(data.items.length, null, 2));
+            //logger.info(JSON.stringify(conf, null, 2));
+            //logger.info(JSON.stringify(data.items.length, null, 2));
 
             async.eachSeries(
               data.items,
@@ -138,7 +139,7 @@ router.get('/api', function (request, response, next) {
                       }
                       ],
                       function (err) {
-                        logger.info(JSON.stringify(itemsByType, null, 2));
+                        //logger.info(JSON.stringify(itemsByType, null, 2));
                         callback(err, data, conf);
                       }
                     )
