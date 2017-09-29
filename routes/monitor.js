@@ -375,88 +375,143 @@ router.get('/api', function (request, response, next) {
             //logger.info(JSON.stringify(conf, null, 2));
             //logger.info(JSON.stringify(data.items.length, null, 2));
 
-            // First, move to Vault
-            async.eachSeries(
-              data.items,
-              function (itemsByBukets, callback) {
-                var firstCanBeEqquipped;
+            async.series([
+              // First move to Vault
+              function (callback) {
                 async.eachSeries(
-                  itemsByBukets,
-                  function (item, callback) {
-                    //if ((item.name == "Better Devils") || (item.name == "Primal Siege Type 1")) {
-                    //Tlogger.info(JSON.stringify(item, null, 2));
-                    //}
-                    // if one need to be equipped, just get the first unequipped to remember
-                    if (!firstCanBeEqquipped && item.tierType < 6 && item.keep == KeepOrNot.KEEP_INVENTORY && (item.bucketName != "General") && (item.bucketName != "Lost Items")) {
-                      firstCanBeEqquipped = item;
-                      //logger.info("firstCanBeEqquipped");
-                    }
+                  data.items,
+                  function (itemsByBukets, callback) {
+                    var firstCanBeEqquipped;
+                    async.eachSeries(
+                      itemsByBukets,
+                      function (item, callback) {
+                        // if one need to be equipped, just get the first unequipped to remember
+                        if (!firstCanBeEqquipped && item.tierType < 6 && item.keep == KeepOrNot.KEEP_INVENTORY && (item.bucketName != "General") && (item.bucketName != "Lost Items")) {
+                          firstCanBeEqquipped = item;
+                        }
 
-                    if (item.keep != KeepOrNot.KEEP_INVENTORY && (item.bucketName != "General") && (item.bucketName != "Lost Items") && (item.transferStatus <= 2 )) {
-                      if ((conf.mode && CONF_MODE[conf.mode] && CONF_MODE[conf.mode] == CONF_MODE["optimize-inventory"])) {
-                        destiny.moveItem(request.session.user, item, firstCanBeEqquipped, true, function (err) {
-                          if (err) {
-                            data.messages.push("Error while moving "+item.name + " (" + (item.lightLevel + item.lightLevelBonus) + ") to vault : "+err);
-                          } else {
-                            data.messages.push("Have moved to vault : "+item.name + " (" + (item.lightLevel + item.lightLevelBonus) + ")");
-                          }
-                          callback(err);
-                        });
-                      } else if ((conf.mode && CONF_MODE[conf.mode] && CONF_MODE[conf.mode] == CONF_MODE["prepare-infuse"]) && (item.keep != KeepOrNot.KEEP_VAULT_TO_DISMANTLE)) {
-                        destiny.moveItem(request.session.user, item, firstCanBeEqquipped, true, function (err) {
-                          if (err) {
-                            data.messages.push("Error while moving "+item.name + " (" + (item.lightLevel + item.lightLevelBonus) + ") to vault : "+err);
-                          } else {
-                            data.messages.push("Have moved to vault : "+item.name + " (" + (item.lightLevel + item.lightLevelBonus) + ")");
-                          }
-                          callback(err);
-                        });
-                      } else if ((conf.mode && CONF_MODE[conf.mode] && CONF_MODE[conf.mode] == CONF_MODE["prepare-cleanup"]) && (item.keep != KeepOrNot.NO_KEEP)) {
-                        destiny.moveItem(request.session.user, item, firstCanBeEqquipped, true, function (err) {
-                          if (err) {
-                            data.messages.push("Error while moving "+item.name + " (" + (item.lightLevel + item.lightLevelBonus) + ") to vault : "+err);
-                          } else {
-                            data.messages.push("Have moved to vault : "+item.name + " (" + (item.lightLevel + item.lightLevelBonus) + ")");
-                          }
-                          callback(err);
-                        });
-                      } else {
-                        data.messages.push(item.name + " (" + (item.lightLevel + item.lightLevelBonus) + ") should be moved to vault");
-                        callback();
+                        var transfert = false;
 
+                        if (conf.mode && CONF_MODE[conf.mode]) {
+
+                          if (CONF_MODE[conf.mode] == CONF_MODE["optimize-inventory"]) {
+                            if (item.keep != KeepOrNot.KEEP_INVENTORY
+                              && (item.bucketName != "General") && (item.bucketName != "Lost Items") && (item.transferStatus <= 2 )) {
+                              transfert = true;
+                            }
+
+                          } else if (CONF_MODE[conf.mode] == CONF_MODE["prepare-infuse"]) {
+                            if (item.keep != KeepOrNot.KEEP_INVENTORY && item.keep != KeepOrNot.KEEP_VAULT_TO_DISMANTLE
+                              && (item.bucketName != "General") && (item.bucketName != "Lost Items") && (item.transferStatus <= 2 )) {
+                              transfert = true;
+                            }
+                          } else if (CONF_MODE[conf.mode] == CONF_MODE["prepare-cleanup"]) {
+                            if (item.keep != KeepOrNot.NO_KEEP && !item.isEquipped
+                              && (item.bucketName != "General") && (item.bucketName != "Lost Items") && (item.transferStatus <= 2 )) {
+                              transfert = true;
+                            }
+                          } else {
+                            if (item.keep != KeepOrNot.KEEP_INVENTORY
+                              && (item.bucketName != "General") && (item.bucketName != "Lost Items") && (item.transferStatus <= 2 )) {
+                              data.messages.push(item.name + " (" + (item.lightLevel + item.lightLevelBonus) + ") should be moved to vault");
+                            }
+                          }
+                        }
+
+                        if (transfert) {
+                          destiny.moveItem(request.session.user, item, firstCanBeEqquipped, true, function (err) {
+                            if (err) {
+                              data.messages.push("Error while moving " + item.name + " (" + (item.lightLevel + item.lightLevelBonus) + ") to vault : " + err);
+                            } else {
+                              data.messages.push("Have moved to vault : " + item.name + " (" + (item.lightLevel + item.lightLevelBonus) + ")");
+                            }
+                            callback(err);
+                          });
+                        } else {
+                          callback();
+                        }
+
+                      },
+                      function (err) {
+                        callback(err);
                       }
-                    } else {
-                      callback();
-                    }
-                    // if ((item.chosen >= 0) && (item.keep == KeepOrNot.KEEP_INVENTORY) && (item.keep == KeepOrNot.KEEP_INVENTORY) && (item.state != 1)) {
-                    //   if (conf.mode && CONF_MODE[conf.mode] && CONF_MODE[conf.mode] >= CONF_MODE["lock-chosen"]) {
-                    //     destiny.lockItem(request.session.user, item, true, function(err) {
-                    //       if (err) {
-                    //         logger.error(err);
-                    //         data.messages.push("Error while locking "+item.name+" ("+(item.lightLevel+item.lightLevelBonus) + ") : "+err);
-                    //       } else {
-                    //         data.messages.push("Have locked : "+item.name+" ("+(item.lightLevel+item.lightLevelBonus) + ")");
-                    //       }
-                    //       callback();
-                    //     });
-                    //   } else {
-                    //     data.messages.push(item.name+" ("+(item.lightLevel+item.lightLevelBonus) + ") found and should be locked")
-                    //     callback();
-                    //   }
-                    // } else {
-                    // }
+                    )
                   },
                   function (err) {
-                    callback(err);
+                    async.setImmediate(function () {
+                      callback(err);
+                    });
                   }
                 )
               },
-              function (err) {
-                async.setImmediate(function () {
-                  callback(err, data, conf);
-                });
-              }
-            )
+              // Then move to inventories
+              function (callback) {
+                async.eachSeries(
+                  data.items,
+                  function (itemsByBukets, callback) {
+                    async.eachSeries(
+                      itemsByBukets,
+                      function (item, callback) {
+
+                        var transfert = false;
+
+                        if (conf.mode && CONF_MODE[conf.mode]) {
+
+                          if (CONF_MODE[conf.mode] == CONF_MODE["optimize-inventory"]) {
+                            if (item.keep == KeepOrNot.KEEP_INVENTORY
+                              && (item.bucketName == "General") && (item.transferStatus <= 2 )) {
+                              transfert = true;
+                            }
+
+                          } else if (CONF_MODE[conf.mode] == CONF_MODE["prepare-infuse"]) {
+                            if (item.keep == KeepOrNot.KEEP_INVENTORY || item.keep == KeepOrNot.KEEP_VAULT_TO_DISMANTLE
+                              && (item.bucketName == "General") && (item.transferStatus <= 2 )) {
+                              transfert = true;
+                            }
+                          } else if (CONF_MODE[conf.mode] == CONF_MODE["prepare-cleanup"]) {
+                            if (item.keep == KeepOrNot.NO_KEEP
+                              && (item.bucketName == "General") && (item.transferStatus <= 2 )) {
+                              transfert = true;
+                            }
+                          } else {
+                            if (item.keep == KeepOrNot.KEEP_INVENTORY
+                              && (item.bucketName == "General") && (item.transferStatus <= 2 )) {
+                              data.messages.push(item.name + " (" + (item.lightLevel + item.lightLevelBonus) + ") should be moved from vault");
+                            }
+                          }
+                        }
+
+                        if (transfert) {
+                          destiny.moveItem(request.session.user, item, null, false, function (err) {
+                            if (err) {
+                              data.messages.push("Error while moving " + item.name + " (" + (item.lightLevel + item.lightLevelBonus) + ") from vault : " + err);
+                            } else {
+                              data.messages.push("Have moved from vault : " + item.name + " (" + (item.lightLevel + item.lightLevelBonus) + ")");
+                            }
+                            callback(err);
+                          });
+                        } else {
+                          callback();
+                        }
+
+                      },
+                      function (err) {
+                        callback(err);
+                      }
+                    )
+                  },
+                  function (err) {
+                    async.setImmediate(function () {
+                      callback(err);
+                    });
+                  }
+                )
+              },
+            ], function (err) {
+              async.setImmediate(function () {
+                callback(err, data, conf);
+              });
+            });
           }
 
 
