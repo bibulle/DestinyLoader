@@ -291,7 +291,10 @@ router.get('/api', function (request, response, next) {
                               // if not chosen and light greater, propose
                               if ((itemToDismantle.chosen == -1) && (itemToDismantle.lightLevel > itemToInfuse.lightLevel)) {
                                 //logger.info(data.messages.length);
-                                //data.messages.push(itemToInfuse.name + ' (' + (itemToInfuse.lightLevel + itemToInfuse.lightLevelBonus) + ") from " + itemToInfuse.bucketName + " can be highlight by infusing " + itemToDismantle.name + ' (' + (itemToDismantle.lightLevel + itemToDismantle.lightLevelBonus) + ") from " + itemToDismantle.bucketName.replace("General", "Vault"));
+                                if (itemToDismantle.keep < KeepOrNot.KEEP_VAULT_TO_DISMANTLE) {
+                                  itemToDismantle.keep = KeepOrNot.KEEP_VAULT_TO_DISMANTLE;
+                                }
+                                data.messages.push(itemToInfuse.name + ' (' + (itemToInfuse.lightLevel + itemToInfuse.lightLevelBonus) + ") from " + itemToInfuse.bucketName + " can be highlight by infusing " + itemToDismantle.name + ' (' + (itemToDismantle.lightLevel + itemToDismantle.lightLevelBonus) + ") from " + itemToDismantle.bucketName.replace("General", "Vault"));
                                 //logger.info(data.messages.length);
                               }
                             }
@@ -459,7 +462,10 @@ router.get('/api', function (request, response, next) {
                             }
 
                           } else if (CONF_MODE[conf.mode] == CONF_MODE["prepare-infuse"]) {
-                            if (item.keep == KeepOrNot.KEEP_INVENTORY || item.keep == KeepOrNot.KEEP_VAULT_TO_DISMANTLE
+                            if (item.name == 'Three Graves') {
+                              logger.info(JSON.stringify(item, null, 2));
+                            }
+                            if ((item.keep == KeepOrNot.KEEP_INVENTORY || item.keep == KeepOrNot.KEEP_VAULT_TO_DISMANTLE)
                               && (item.bucketName == "General") && (item.transferStatus <= 2 )) {
                               transfert = true;
                             }
@@ -479,7 +485,11 @@ router.get('/api', function (request, response, next) {
                         if (transfert) {
                           destiny.moveItem(request.session.user, item, null, data.characters[0].characterId, false, function (err) {
                             if (err) {
-                              data.messages.push("Error while moving " + item.name + " (" + (item.lightLevel + item.lightLevelBonus) + ") from vault : " + err);
+                              if (err == "ErrorDestinyNoRoomInDestination") {
+                                data.messages.push("No space left for moving " + item.name + " (" + (item.lightLevel + item.lightLevelBonus) + ") from vault : " + err);
+                              } else {
+                                data.messages.push("Error while moving " + item.name + " (" + (item.lightLevel + item.lightLevelBonus) + ") from vault : " + err);
+                              }
                             } else {
                               data.messages.push("Have moved from vault : " + item.name + " (" + (item.lightLevel + item.lightLevelBonus) + ")");
                             }
@@ -716,6 +726,11 @@ var itemComparator = function (i1, i2) {
   } else if (i2.lightLevel > i1.lightLevel) {
     return 1;
   }
+  if (i1.itemInstanceId > i2.itemInstanceId) {
+    return -1;
+  } else if (i2.itemInstanceId > i1.itemInstanceId) {
+    return 1;
+  }
 
   return 0;
 
@@ -723,8 +738,8 @@ var itemComparator = function (i1, i2) {
 
 var KeepOrNot = {
   KEEP_INVENTORY: 10,
-  KEEP_VAULT: 9,
-  KEEP_VAULT_TO_DISMANTLE: 8,
+  KEEP_VAULT_TO_DISMANTLE: 9,
+  KEEP_VAULT: 8,
   NO_KEEP: 0
 };
 
