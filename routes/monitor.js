@@ -95,9 +95,9 @@ router.get('/api', function (request, response, next) {
                                 item.chosen = conf.chosen.length - conf.chosen.indexOf(item.name);
                                 //logger.info(JSON.stringify(item.name + " " + item.chosen, null, 2));
                                 //data.messages.push(item.name+" found in "+item.bucketName);
-                                if (item.state != 1) {
-                                  data.messages.push(item.name + " found and should be locked");
-                                }
+                                //if (item.state != 1) {
+                                //  data.messages.push(item.name + " found and should be locked");
+                                //}
                               }
                               //logger.info(JSON.stringify(item, null, 2));
                               callback();
@@ -147,7 +147,7 @@ router.get('/api', function (request, response, next) {
                               // chosen legendary -> INVENTORY
                               // first legendary  -> INVENTORY
                               // not chosen 3 legendary more -> VAULT
-                              // TODO : wathever usefull for dismantle -> VAULT_TO_DISMANTLE
+                              // whatever useful for dismantle -> VAULT_TO_DISMANTLE (later)
 
                               item.keep = KeepOrNot.NO_KEEP;
                               if ((item.chosen > -1) && (item.tierType == 6)) {
@@ -185,7 +185,9 @@ router.get('/api', function (request, response, next) {
                 )
               },
               function (err) {
-                callback(err, data, conf);
+                async.setImmediate(function () {
+                  callback(err, data, conf);
+                });
               }
             )
 
@@ -232,7 +234,9 @@ router.get('/api', function (request, response, next) {
               function (err) {
                 data.items = items;
                 //logger.info(JSON.stringify(data, null, 2));
-                callback(err, data, conf);
+                async.setImmediate(function () {
+                  callback(err, data, conf);
+                });
               }
             )
           },
@@ -292,7 +296,7 @@ router.get('/api', function (request, response, next) {
                               // if not chosen and light greater, propose
                               if ((itemToDismantle.chosen == -1) && (itemToDismantle.lightLevel > itemToInfuse.lightLevel)) {
                                 //logger.info(data.messages.length);
-                                data.messages.push(itemToInfuse.name + ' (' + (itemToInfuse.lightLevel + itemToInfuse.lightLevelBonus) + ") from " + itemToInfuse.bucketName + " can be highlight by infusing " + itemToDismantle.name + ' (' + (itemToDismantle.lightLevel + itemToDismantle.lightLevelBonus) + ") from " + itemToDismantle.bucketName.replace("General", "Vault"));
+                                //data.messages.push(itemToInfuse.name + ' (' + (itemToInfuse.lightLevel + itemToInfuse.lightLevelBonus) + ") from " + itemToInfuse.bucketName + " can be highlight by infusing " + itemToDismantle.name + ' (' + (itemToDismantle.lightLevel + itemToDismantle.lightLevelBonus) + ") from " + itemToDismantle.bucketName.replace("General", "Vault"));
                                 //logger.info(data.messages.length);
                               }
                             }
@@ -318,6 +322,51 @@ router.get('/api', function (request, response, next) {
                     callback(err, data, conf);
                   }
                 )
+              }
+            )
+          },
+          function (data, conf, callback) {
+            // Try to Lock
+            //logger.info(JSON.stringify(conf, null, 2));
+            //logger.info(JSON.stringify(data.items.length, null, 2));
+
+            async.eachSeries(
+              data.items,
+              function (itemsByBukets, callback) {
+                async.eachSeries(
+                  itemsByBukets,
+                  function (item, callback) {
+                    //if (item.name == "Better Devils") {
+                    //  logger.info(JSON.stringify(item,null,2));
+                    //}
+                    if ((item.chosen >= 0) && (item.keep == KeepOrNot.KEEP_INVENTORY) && (item.keep == KeepOrNot.KEEP_INVENTORY) && (item.state != 1)) {
+                      if (conf.mode && CONF_MODE[conf.mode] && CONF_MODE[conf.mode] >= CONF_MODE["lock-chosen"]) {
+                        destiny.lockItem(request.session.user, item, true, function(err) {
+                          if (err) {
+                             logger.error(err);
+                             data.messages.push("Error while locking "+item.name+" ("+(item.lightLevel+item.lightLevelBonus) + ") : "+err);
+                          } else {
+                            data.messages.push("Have locked : "+item.name+" ("+(item.lightLevel+item.lightLevelBonus) + ")");
+                          }
+                          callback();
+                        });
+                      } else {
+                        data.messages.push(item.name+" ("+(item.lightLevel+item.lightLevelBonus) + ") found and should be locked")
+                        callback();
+                      }
+                    } else {
+                      callback();
+                    }
+                  },
+                  function (err) {
+                    callback(err);
+                  }
+                )
+              },
+              function (err) {
+                async.setImmediate(function () {
+                  callback(err, data, conf);
+                });
               }
             )
           }
@@ -487,7 +536,7 @@ router.get('/login/callback', function (request, response, next) {
     req.on('error', function (e) {
       logger.info("error");
 
-      return response.send("Error in conecting Bungie : " + e);
+      return response.send("Error in connecting Bungie : " + e);
     });
 
   });
@@ -538,7 +587,15 @@ var KeepOrNot = {
   KEEP_VAULT: 9,
   KEEP_VAULT_TO_DISMANTLE: 8,
   NO_KEEP: 0
-}
+};
+
+var CONF_MODE = {
+  "do-nothing": 0,
+  "lock-chosen": 5,
+  "optimize-inventory": 10,
+  "prepare-infuse": 15,
+  "prepare-cleanup": 20
+};
 
 var BucketsToManaged = [
   "Power Weapons", "Energy Weapons", "Kinetic Weapons",
