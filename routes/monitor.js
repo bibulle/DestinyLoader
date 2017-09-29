@@ -375,23 +375,24 @@ router.get('/api', function (request, response, next) {
             //logger.info(JSON.stringify(conf, null, 2));
             //logger.info(JSON.stringify(data.items.length, null, 2));
 
-            // FIrst, move to Vault
+            // First, move to Vault
             async.eachSeries(
               data.items,
               function (itemsByBukets, callback) {
+                var firstCanBeEqquipped;
                 async.eachSeries(
                   itemsByBukets,
                   function (item, callback) {
-                    if ((item.name == "Better Devils") || (item.name == "Primal Siege Type 1")) {
-                      logger.info(JSON.stringify(item, null, 2));
-                    }
-                    // if one need to be equiped, just get the first uneqquipped to remanber
-                    var firstCanBeEqquipped;
-                    if (item.keep == KeepOrNot.KEEP_INVENTORY) {
+                    //if ((item.name == "Better Devils") || (item.name == "Primal Siege Type 1")) {
+                    //Tlogger.info(JSON.stringify(item, null, 2));
+                    //}
+                    // if one need to be equipped, just get the first unequipped to remember
+                    if (!firstCanBeEqquipped && item.tierType < 6 && item.keep == KeepOrNot.KEEP_INVENTORY && (item.bucketName != "General") && (item.bucketName != "Lost Items")) {
                       firstCanBeEqquipped = item;
+                      //logger.info("firstCanBeEqquipped");
                     }
 
-                    if (item.keep != KeepOrNot.KEEP_INVENTORY && (item.bucketName != "General") && (item.bucketName != "Lost Items")) {
+                    if (item.keep != KeepOrNot.KEEP_INVENTORY && (item.bucketName != "General") && (item.bucketName != "Lost Items") && (item.transferStatus <= 2 )) {
                       if ((conf.mode && CONF_MODE[conf.mode] && CONF_MODE[conf.mode] == CONF_MODE["optimize-inventory"])) {
                         destiny.moveItem(request.session.user, item, firstCanBeEqquipped, true, function (err) {
                           if (err) {
