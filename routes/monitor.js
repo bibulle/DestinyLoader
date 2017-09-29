@@ -30,8 +30,8 @@ router.get('/api', function (request, response, next) {
     } else {
 
       async.waterfall([
+          // Read the configuration (choice of the user)
           function (callback) {
-            // Read the configuration (choice of the user)
             destinyDb.readConf(request.session.user, function (err, conf) {
               if (err) {
                 callback(err);
@@ -42,8 +42,8 @@ router.get('/api', function (request, response, next) {
 
             });
           },
+          // Check the configuration (did the chosen items exist)
           function (conf, callback) {
-            // Check the configuration (did the chosen items exist)
             destiny.checkConf(conf, function (err, messages) {
               if (err) {
                 callback(err);
@@ -53,8 +53,8 @@ router.get('/api', function (request, response, next) {
               }
             })
           },
+          // Read the user destiny stuff
           function (messages, conf, callback) {
-            // Read the user destiny stuff
             destiny.getUserStuff(request.session.user, function (err, data) {
               if (err) {
                 callback(err);
@@ -70,8 +70,8 @@ router.get('/api', function (request, response, next) {
 
             });
           },
+          // Calculate order and what to keep
           function (data, conf, callback) {
-            // Calculate order and what to keep
             //logger.info(JSON.stringify(conf, null, 2));
             //logger.info(JSON.stringify(data.items.length, null, 2));
 
@@ -192,8 +192,8 @@ router.get('/api', function (request, response, next) {
             )
 
           },
+          // Calculate the "best" inventories
           function (data, conf, callback) {
-            // Calculate the "best" inventories
             //logger.info(JSON.stringify(conf, null, 2));
             //logger.info(JSON.stringify(data.items.length, null, 2));
 
@@ -240,8 +240,8 @@ router.get('/api', function (request, response, next) {
               }
             )
           },
+          // Can we infuse ?
           function (data, conf, callback) {
-            // Can we infuse ?
             //logger.info(JSON.stringify(conf, null, 2));
             //logger.info(JSON.stringify(data.items.length, null, 2));
 
@@ -296,7 +296,7 @@ router.get('/api', function (request, response, next) {
                               // if not chosen and light greater, propose
                               if ((itemToDismantle.chosen == -1) && (itemToDismantle.lightLevel > itemToInfuse.lightLevel)) {
                                 //logger.info(data.messages.length);
-                                //data.messages.push(itemToInfuse.name + ' (' + (itemToInfuse.lightLevel + itemToInfuse.lightLevelBonus) + ") from " + itemToInfuse.bucketName + " can be highlight by infusing " + itemToDismantle.name + ' (' + (itemToDismantle.lightLevel + itemToDismantle.lightLevelBonus) + ") from " + itemToDismantle.bucketName.replace("General", "Vault"));
+                                data.messages.push(itemToInfuse.name + ' (' + (itemToInfuse.lightLevel + itemToInfuse.lightLevelBonus) + ") from " + itemToInfuse.bucketName + " can be highlight by infusing " + itemToDismantle.name + ' (' + (itemToDismantle.lightLevel + itemToDismantle.lightLevelBonus) + ") from " + itemToDismantle.bucketName.replace("General", "Vault"));
                                 //logger.info(data.messages.length);
                               }
                             }
@@ -325,8 +325,8 @@ router.get('/api', function (request, response, next) {
               }
             )
           },
+          // Try to Lock
           function (data, conf, callback) {
-            // Try to Lock
             //logger.info(JSON.stringify(conf, null, 2));
             //logger.info(JSON.stringify(data.items.length, null, 2));
 
@@ -343,8 +343,8 @@ router.get('/api', function (request, response, next) {
                       if (conf.mode && CONF_MODE[conf.mode] && CONF_MODE[conf.mode] >= CONF_MODE["lock-chosen"]) {
                         destiny.lockItem(request.session.user, item, true, function(err) {
                           if (err) {
-                             logger.error(err);
-                             data.messages.push("Error while locking "+item.name+" ("+(item.lightLevel+item.lightLevelBonus) + ") : "+err);
+                            logger.error(err);
+                            data.messages.push("Error while locking "+item.name+" ("+(item.lightLevel+item.lightLevelBonus) + ") : "+err);
                           } else {
                             data.messages.push("Have locked : "+item.name+" ("+(item.lightLevel+item.lightLevelBonus) + ")");
                           }
@@ -357,6 +357,52 @@ router.get('/api', function (request, response, next) {
                     } else {
                       callback();
                     }
+                  },
+                  function (err) {
+                    callback(err);
+                  }
+                )
+              },
+              function (err) {
+                async.setImmediate(function () {
+                  callback(err, data, conf);
+                });
+              }
+            )
+          },
+          // Try move things
+          function (data, conf, callback) {
+            //logger.info(JSON.stringify(conf, null, 2));
+            //logger.info(JSON.stringify(data.items.length, null, 2));
+
+            async.eachSeries(
+              data.items,
+              function (itemsByBukets, callback) {
+                async.eachSeries(
+                  itemsByBukets,
+                  function (item, callback) {
+                    if (item.name == "Better Devils") {
+                      logger.info(JSON.stringify(item,null,2));
+                    }
+                    // if (item.keep == KeepOrNot.KEEP_INVENTORY)
+                    // if ((item.chosen >= 0) && (item.keep == KeepOrNot.KEEP_INVENTORY) && (item.keep == KeepOrNot.KEEP_INVENTORY) && (item.state != 1)) {
+                    //   if (conf.mode && CONF_MODE[conf.mode] && CONF_MODE[conf.mode] >= CONF_MODE["lock-chosen"]) {
+                    //     destiny.lockItem(request.session.user, item, true, function(err) {
+                    //       if (err) {
+                    //         logger.error(err);
+                    //         data.messages.push("Error while locking "+item.name+" ("+(item.lightLevel+item.lightLevelBonus) + ") : "+err);
+                    //       } else {
+                    //         data.messages.push("Have locked : "+item.name+" ("+(item.lightLevel+item.lightLevelBonus) + ")");
+                    //       }
+                    //       callback();
+                    //     });
+                    //   } else {
+                    //     data.messages.push(item.name+" ("+(item.lightLevel+item.lightLevelBonus) + ") found and should be locked")
+                    //     callback();
+                    //   }
+                    // } else {
+                      callback();
+                    // }
                   },
                   function (err) {
                     callback(err);
