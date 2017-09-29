@@ -296,7 +296,7 @@ router.get('/api', function (request, response, next) {
                               // if not chosen and light greater, propose
                               if ((itemToDismantle.chosen == -1) && (itemToDismantle.lightLevel > itemToInfuse.lightLevel)) {
                                 //logger.info(data.messages.length);
-                                data.messages.push(itemToInfuse.name + ' (' + (itemToInfuse.lightLevel + itemToInfuse.lightLevelBonus) + ") from " + itemToInfuse.bucketName + " can be highlight by infusing " + itemToDismantle.name + ' (' + (itemToDismantle.lightLevel + itemToDismantle.lightLevelBonus) + ") from " + itemToDismantle.bucketName.replace("General", "Vault"));
+                                //data.messages.push(itemToInfuse.name + ' (' + (itemToInfuse.lightLevel + itemToInfuse.lightLevelBonus) + ") from " + itemToInfuse.bucketName + " can be highlight by infusing " + itemToDismantle.name + ' (' + (itemToDismantle.lightLevel + itemToDismantle.lightLevelBonus) + ") from " + itemToDismantle.bucketName.replace("General", "Vault"));
                                 //logger.info(data.messages.length);
                               }
                             }
@@ -341,17 +341,17 @@ router.get('/api', function (request, response, next) {
                     //}
                     if ((item.chosen >= 0) && (item.keep == KeepOrNot.KEEP_INVENTORY) && (item.keep == KeepOrNot.KEEP_INVENTORY) && (item.state != 1)) {
                       if (conf.mode && CONF_MODE[conf.mode] && CONF_MODE[conf.mode] >= CONF_MODE["lock-chosen"]) {
-                        destiny.lockItem(request.session.user, item, true, function(err) {
+                        destiny.lockItem(request.session.user, item, true, function (err) {
                           if (err) {
                             logger.error(err);
-                            data.messages.push("Error while locking "+item.name+" ("+(item.lightLevel+item.lightLevelBonus) + ") : "+err);
+                            data.messages.push("Error while locking " + item.name + " (" + (item.lightLevel + item.lightLevelBonus) + ") : " + err);
                           } else {
-                            data.messages.push("Have locked : "+item.name+" ("+(item.lightLevel+item.lightLevelBonus) + ")");
+                            data.messages.push("Have locked : " + item.name + " (" + (item.lightLevel + item.lightLevelBonus) + ")");
                           }
                           callback();
                         });
                       } else {
-                        data.messages.push(item.name+" ("+(item.lightLevel+item.lightLevelBonus) + ") found and should be locked")
+                        data.messages.push(item.name + " (" + (item.lightLevel + item.lightLevelBonus) + ") found and should be locked")
                         callback();
                       }
                     } else {
@@ -375,16 +375,58 @@ router.get('/api', function (request, response, next) {
             //logger.info(JSON.stringify(conf, null, 2));
             //logger.info(JSON.stringify(data.items.length, null, 2));
 
+            // FIrst, move to Vault
             async.eachSeries(
               data.items,
               function (itemsByBukets, callback) {
                 async.eachSeries(
                   itemsByBukets,
                   function (item, callback) {
-                    if (item.name == "Better Devils") {
-                      logger.info(JSON.stringify(item,null,2));
+                    if ((item.name == "Better Devils") || (item.name == "Primal Siege Type 1")) {
+                      logger.info(JSON.stringify(item, null, 2));
                     }
-                    // if (item.keep == KeepOrNot.KEEP_INVENTORY)
+                    // if one need to be equiped, just get the first uneqquipped to remanber
+                    var firstCanBeEqquipped;
+                    if (item.keep == KeepOrNot.KEEP_INVENTORY) {
+                      firstCanBeEqquipped = item;
+                    }
+
+                    if (item.keep != KeepOrNot.KEEP_INVENTORY && (item.bucketName != "General") && (item.bucketName != "Lost Items")) {
+                      if ((conf.mode && CONF_MODE[conf.mode] && CONF_MODE[conf.mode] == CONF_MODE["optimize-inventory"])) {
+                        destiny.moveItem(request.session.user, item, firstCanBeEqquipped, true, function (err) {
+                          if (err) {
+                            data.messages.push("Error while moving "+item.name + " (" + (item.lightLevel + item.lightLevelBonus) + ") to vault : "+err);
+                          } else {
+                            data.messages.push("Have moved to vault : "+item.name + " (" + (item.lightLevel + item.lightLevelBonus) + ")");
+                          }
+                          callback(err);
+                        });
+                      } else if ((conf.mode && CONF_MODE[conf.mode] && CONF_MODE[conf.mode] == CONF_MODE["prepare-infuse"]) && (item.keep != KeepOrNot.KEEP_VAULT_TO_DISMANTLE)) {
+                        destiny.moveItem(request.session.user, item, firstCanBeEqquipped, true, function (err) {
+                          if (err) {
+                            data.messages.push("Error while moving "+item.name + " (" + (item.lightLevel + item.lightLevelBonus) + ") to vault : "+err);
+                          } else {
+                            data.messages.push("Have moved to vault : "+item.name + " (" + (item.lightLevel + item.lightLevelBonus) + ")");
+                          }
+                          callback(err);
+                        });
+                      } else if ((conf.mode && CONF_MODE[conf.mode] && CONF_MODE[conf.mode] == CONF_MODE["prepare-cleanup"]) && (item.keep != KeepOrNot.NO_KEEP)) {
+                        destiny.moveItem(request.session.user, item, firstCanBeEqquipped, true, function (err) {
+                          if (err) {
+                            data.messages.push("Error while moving "+item.name + " (" + (item.lightLevel + item.lightLevelBonus) + ") to vault : "+err);
+                          } else {
+                            data.messages.push("Have moved to vault : "+item.name + " (" + (item.lightLevel + item.lightLevelBonus) + ")");
+                          }
+                          callback(err);
+                        });
+                      } else {
+                        data.messages.push(item.name + " (" + (item.lightLevel + item.lightLevelBonus) + ") should be moved to vault");
+                        callback();
+
+                      }
+                    } else {
+                      callback();
+                    }
                     // if ((item.chosen >= 0) && (item.keep == KeepOrNot.KEEP_INVENTORY) && (item.keep == KeepOrNot.KEEP_INVENTORY) && (item.state != 1)) {
                     //   if (conf.mode && CONF_MODE[conf.mode] && CONF_MODE[conf.mode] >= CONF_MODE["lock-chosen"]) {
                     //     destiny.lockItem(request.session.user, item, true, function(err) {
@@ -401,7 +443,6 @@ router.get('/api', function (request, response, next) {
                     //     callback();
                     //   }
                     // } else {
-                      callback();
                     // }
                   },
                   function (err) {
@@ -422,7 +463,8 @@ router.get('/api', function (request, response, next) {
 
         function (err, data) {
           if (err) {
-            return response.send(JSON.stringify({messages: err}, null, 2));
+            //data.messages.push("ERROR : "+err);
+            //return response.send(JSON.stringify({messages: err}, null, 2));
           }
           response.send(JSON.stringify(data, null, 2));
         }
