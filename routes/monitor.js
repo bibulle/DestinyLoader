@@ -85,7 +85,7 @@ router.get('/api', function (request, response, next) {
                     //logger.info(JSON.stringify(itemsByType, null, 2));
 
                     async.waterfall([
-                        // First, add attribute if chosen by the user (and lock it if needed)
+                        // First, add attribute if chosen by the user
                         function (callback) {
                           async.eachSeries(
                             itemsByType,
@@ -93,11 +93,6 @@ router.get('/api', function (request, response, next) {
                               item.chosen = -1;
                               if (conf.chosen.indexOf(item.name) > -1) {
                                 item.chosen = conf.chosen.length - conf.chosen.indexOf(item.name);
-                                //logger.info(JSON.stringify(item.name + " " + item.chosen, null, 2));
-                                //data.messages.push(item.name+" found in "+item.bucketName);
-                                //if (item.state != 1) {
-                                //  data.messages.push(item.name + " found and should be locked");
-                                //}
                               }
                               //logger.info(JSON.stringify(item, null, 2));
                               callback();
@@ -336,7 +331,7 @@ router.get('/api', function (request, response, next) {
                 async.eachSeries(
                   itemsByBukets,
                   function (item, callback) {
-                    //if (item.name == "Better Devils") {
+                    //if (item.name == "A Single Clap") {
                     //  logger.info(JSON.stringify(item,null,2));
                     //}
                     if ((item.chosen >= 0) && (item.keep == KeepOrNot.KEEP_INVENTORY) && (item.keep == KeepOrNot.KEEP_INVENTORY) && (item.state != 1)) {
@@ -701,9 +696,9 @@ var itemComparator = function (i1, i2) {
   } else if (i2.chosen > i1.chosen) {
     return 1;
   }
-  if ((i1.state == 1) && (i2.state != 1)) {
+  if ((i1.chosen == -1) && (i1.state == 1) && (i2.state != 1)) {
     return -1;
-  } else if ((i2.state == 1) && (i1.state != 1)) {
+  } else if ((i1.chosen == -1) && (i2.state == 1) && (i1.state != 1)) {
     return 1;
   }
   if (i1.tierType > i2.tierType) {
