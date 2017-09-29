@@ -419,7 +419,7 @@ router.get('/api', function (request, response, next) {
                         }
 
                         if (transfert) {
-                          destiny.moveItem(request.session.user, item, firstCanBeEqquipped, true, function (err) {
+                          destiny.moveItem(request.session.user, item, firstCanBeEqquipped, data.characters[0].characterId, true, function (err) {
                             if (err) {
                               data.messages.push("Error while moving " + item.name + " (" + (item.lightLevel + item.lightLevelBonus) + ") to vault : " + err);
                             } else {
@@ -482,7 +482,7 @@ router.get('/api', function (request, response, next) {
                         }
 
                         if (transfert) {
-                          destiny.moveItem(request.session.user, item, null, false, function (err) {
+                          destiny.moveItem(request.session.user, item, null, data.characters[0].characterId, false, function (err) {
                             if (err) {
                               data.messages.push("Error while moving " + item.name + " (" + (item.lightLevel + item.lightLevelBonus) + ") from vault : " + err);
                             } else {
