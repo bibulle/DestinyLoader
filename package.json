@@ -15,11 +15,18 @@
     "destiny": "./lib/destiny",
     "destinyDb": "./lib/destinyDb",
     "express": "~4.13.1",
-    "grimoireGoogle": "./lib/grimoireGoogle",
+    "express-session": "^1.15.5",
+    "google-spreadsheet": "latest",
     "jade": "~1.11.0",
-    "logger": "./lib/logger",
+    "mongodb": "^2.2.31",
     "morgan": "~1.6.1",
+    "nedb": "latest",
+    "node-stream-zip": "^1.3.7",
+    "passport": "^0.3.2",
+    "passport-oauth2": "^1.4.0",
     "serve-favicon": "~2.3.0",
+    "sqlite3": "^3.1.12",
+    "winston": "~1.1.0"
     "sprintf-js": "^1.1.1"
   }
 }

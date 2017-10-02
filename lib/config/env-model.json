@@ -7,7 +7,9 @@
     "accountsGrimoire": [
       {"id": "your google id", "docKey": "your google key"}
     ],
-    "destinyAPIKey": "your destiny API key"
+    "destinyAPIKey": "your destiny API key",
+    "oAuthClientId": "you destiny api client id",
+    "oAuthClientSecret": "you destiny api client secret"
 
 },
   "production": {
@@ -18,6 +20,8 @@
     "accountsGrimoire": [
       {"id": "your google id", "docKey": "your google key"}
     ],
-    "destinyAPIKey": "your destiny API key"
+    "destinyAPIKey": "your destiny API key",
+    "oAuthClientId": "you destiny api client id",
+    "oAuthClientSecret": "you destiny api client secret"
   }
 }
