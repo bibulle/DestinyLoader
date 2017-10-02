@@ -140,8 +140,8 @@ router.get('/api', function (request, response, next) {
                             function (item, callback) {
                               // chosen exo                    -> INVENTORY
                               // chosen legendary              -> INVENTORY
-                              // first legendary               -> INVENTORY (3 for not weapon)
-                              // not chosen 3 legendary more   -> VAULT
+                              // first                         -> INVENTORY (3 for not weapon)
+                              // not chosen 3           more   -> VAULT
                               // first exo                     -> VAULT_EXO
                               // whatever useful for dismantle -> VAULT_TO_DISMANTLE (later)
 
@@ -158,7 +158,7 @@ router.get('/api', function (request, response, next) {
                               } else if ((item.chosen > -1) && (item.tierType == 5)) {
                                 item.keep = KeepOrNot.KEEP_INVENTORY
                                 count++;
-                              } else if ((item.tierType == 5)) {
+                              } else if ((item.tierType <= 5)) {
                                 if (count < countMax) {
                                   item.keep = KeepOrNot.KEEP_INVENTORY
                                 } else if (count < countMax+3) {
@@ -420,6 +420,7 @@ router.get('/api', function (request, response, next) {
                 async.eachSeries(
                   data.items,
                   function (itemsByBukets, callback) {
+                    //logger.info(JSON.stringify(itemsByBukets, null, 2));
                     var firstCanBeEqquipped;
                     async.eachSeries(
                       itemsByBukets,
