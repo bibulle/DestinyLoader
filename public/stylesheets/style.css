@@ -29,6 +29,7 @@ p {
     fill: none;
     stroke: steelblue;
     stroke-width: 1.5px;
+    stroke-linecap: round;
 }
 
 .tick line {

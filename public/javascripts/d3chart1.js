@@ -42,6 +42,7 @@ var loadData = function () {
       if (d.values[d.values.length - 1].isOnLine) {
         d.label = d.label + " &bull;";
       }
+      d.userId = d.values[d.values.length - 1].userId;
     });
 
     updateChart();
@@ -361,7 +362,10 @@ var updateChart = function () {
 
   texts.enter()
     .append("text")
-    .attr("class", "text")
+    .attr("class", function (d) {
+      //console.log(d);
+      return "text U" + d.userId
+    })
     .attr("transform", function (d) {
       var pos = y(Math.max(MIN_LIGHT, getYMax(d.values[d.values.length - 1])));
       //console.log(d.key+" "+pos);
@@ -381,12 +385,12 @@ var updateChart = function () {
       return color(d.key);
     })
     .on("mouseover", function (d) {
-      d3.select(this).style("font-weight", "bolder");
+      d3.selectAll(".text.U"+d.userId).style("font-weight", "bolder");
       d3.selectAll(".line.K"+d.key).style("stroke-width", "5px");
       d3.selectAll(".area.K"+d.key).style("opacity", "0.9");
     })
     .on("mouseout", function (d) {
-      d3.select(this).style("font-weight", "normal");
+      d3.selectAll(".text.U"+d.userId).style("font-weight", "normal");
       d3.selectAll(".line.K"+d.key).style("stroke-width", "1.5px")
       d3.selectAll(".area.K"+d.key).style("opacity", "0.2");
     })
