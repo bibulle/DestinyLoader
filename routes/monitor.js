@@ -161,7 +161,7 @@ router.get('/api', function (request, response, next) {
                               } else if ((item.tierType <= 5)) {
                                 if (count < countMax) {
                                   item.keep = KeepOrNot.KEEP_INVENTORY
-                                } else if (count < countMax+3) {
+                                } else if (count < countMax + 3) {
                                   item.keep = KeepOrNot.KEEP_VAULT
                                 }
                                 count++;
@@ -246,8 +246,26 @@ router.get('/api', function (request, response, next) {
               }
             )
           },
-          // Can we infuse ?
+          // Max light if needed
           function (data, conf, callback) {
+            //logger.info(JSON.stringify(conf, null, 2));
+            logger.info(JSON.stringify(data.items, null, 2));
+
+            if (CONF_MODE[conf.mode] != CONF_MODE["max-light"]) {
+              return callback(null, data, conf);
+            }
+
+            //"Power Weapons", "Energy Weapons", "Kinetic Weapons",
+            //  "Leg Armor", "Helmet", "Gauntlets", "Chest Armor", "Class Armor"
+
+            //Sort weapons by lights
+            //data.items
+
+
+            callback(null, data, conf);
+
+          },
+          // Can we infuse ?
             //logger.info(JSON.stringify(conf, null, 2));
             //logger.info(JSON.stringify(data.items.length, null, 2));
 
@@ -311,7 +329,7 @@ router.get('/api', function (request, response, next) {
                                     infusions[itemToInfuse.itemInstanceId] = [];
                                   }
                                   infusions[itemToInfuse.itemInstanceId].push(itemToDismantle);
-                                  itemsToInfuse[itemToInfuse.itemInstanceId]=itemToInfuse;
+                                  itemsToInfuse[itemToInfuse.itemInstanceId] = itemToInfuse;
                                 }
                               }
                             }
@@ -347,7 +365,7 @@ router.get('/api', function (request, response, next) {
 
                       });
                   },
-                  function(err) {
+                  function (err) {
 
                     //logger.info(JSON.stringify(itemsByInfusion, null, 2));
                     //logger.info(JSON.stringify(data.messages, null, 2));
@@ -434,7 +452,7 @@ router.get('/api', function (request, response, next) {
 
                         if (conf.mode && CONF_MODE[conf.mode]) {
 
-                          if (CONF_MODE[conf.mode] == CONF_MODE["optimize-inventory"]) {
+                          if ((CONF_MODE[conf.mode] == CONF_MODE["optimize-inventory"]) || (CONF_MODE[conf.mode] == CONF_MODE["max-light"])) {
                             if (item.keep != KeepOrNot.KEEP_INVENTORY
                               && (item.bucketName != "General") && (item.bucketName != "Lost Items") && (item.transferStatus < 2 )) {
                               transfert = true;
@@ -502,7 +520,7 @@ router.get('/api', function (request, response, next) {
 
                         if (conf.mode && CONF_MODE[conf.mode]) {
 
-                          if (CONF_MODE[conf.mode] == CONF_MODE["optimize-inventory"]) {
+                          if ((CONF_MODE[conf.mode] == CONF_MODE["optimize-inventory"]) || (CONF_MODE[conf.mode] == CONF_MODE["max-light"])) {
                             if (item.keep == KeepOrNot.KEEP_INVENTORY
                               && (item.bucketName == "General") && (item.transferStatus < 2 )) {
                               transfert = true;
@@ -510,7 +528,7 @@ router.get('/api', function (request, response, next) {
 
                           } else if (CONF_MODE[conf.mode] == CONF_MODE["prepare-infuse"]) {
                             //if (item.name == 'Three Graves') {
-                              //logger.info(JSON.stringify(item, null, 2));
+                            //logger.info(JSON.stringify(item, null, 2));
                             //}
                             if ((item.keep == KeepOrNot.KEEP_INVENTORY || item.keep == KeepOrNot.KEEP_VAULT_TO_DISMANTLE)
                               && (item.bucketName == "General") && (item.transferStatus < 2 )) {
@@ -773,12 +791,30 @@ var itemComparator = function (i1, i2) {
   } else if (i2.itemInstanceId > i1.itemInstanceId) {
     return 1;
   }
-
   return 0;
+}
 
+var itemComparatorByLight = function (i1, i2) {
+  if (i1.lightLevel+i1.lightLevelBonus > i2.lightLevel+i2.lightLevelBonus) {
+    return -1;
+  } else if (i2.lightLevel+i2.lightLevelBonus > i1.lightLevel+i1.lightLevelBonus) {
+    return 1;
+  }
+  if (i1.tierType > i2.tierType) {
+    return -1;
+  } else if (i2.tierType > i1.tierType) {
+    return 1;
+  }
+  if (i1.itemInstanceId > i2.itemInstanceId) {
+    return -1;
+  } else if (i2.itemInstanceId > i1.itemInstanceId) {
+    return 1;
+  }
+  return 0;
 }
 
 var KeepOrNot = {
+  KEEP_EQUIP: 15,
   KEEP_INVENTORY: 10,
   KEEP_VAULT_EXO: 6,
   KEEP_VAULT_TO_DISMANTLE: 5,
@@ -790,6 +826,7 @@ var CONF_MODE = {
   "do-nothing": 0,
   "lock-chosen": 5,
   "optimize-inventory": 10,
+  "max-light": 12,
   "prepare-infuse": 15,
   "prepare-cleanup": 20
 };

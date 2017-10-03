@@ -12,7 +12,8 @@ npm install
 
 echo "Restarting backend"
 sudo service destinyloader stop
-sudo service destinyserver stop
 sudo service destinyloader start
+sleep 5
+sudo service destinyserver stop
 sudo service destinyserver start
 
