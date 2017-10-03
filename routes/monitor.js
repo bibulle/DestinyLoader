@@ -266,6 +266,7 @@ router.get('/api', function (request, response, next) {
 
           },
           // Can we infuse ?
+          function (data, conf, callback) {
             //logger.info(JSON.stringify(conf, null, 2));
             //logger.info(JSON.stringify(data.items.length, null, 2));
 
