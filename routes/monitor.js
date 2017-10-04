@@ -14,15 +14,15 @@ var destinyDb = require("../lib/destinyDb");
 router.get('/', function (request, response, next) {
   if (request.originalUrl.slice(-1) == '/') return response.redirect('..' + request.originalUrl.slice(0, -1));
 
-  var fullUrl = request.protocol + '://' + request.get('host') + request.originalUrl;
+  logger.info(JSON.stringify(request.header('Referer'), null, 2));
+  logger.info(JSON.stringify(request.originalUrl, null, 2));
+  logger.info(JSON.stringify(request.header('Referer').endsWith(request.originalUrl), null, 2));
   if (!request.session.user) {
     response.redirect('monitorstuff/login');
-  } else if (request.header('Referer') == "ff" ) {
+  } else if (request.header('Referer').endsWith(request.originalUrl)) {
     response.redirect('monitorstuff/login');
   } else {
 
-    logger.info(JSON.stringify(fullUrl, null, 2));
-    logger.info(JSON.stringify(request.header('Referer'), null, 2));
     //response.send("Welcome "+request.session.user.bungieNetUser.displayName);
     response.render('monitor', {user: request.session.user});
 
