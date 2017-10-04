@@ -153,19 +153,19 @@ router.get('/api', function (request, response, next) {
                               //logger.info(JSON.stringify(item.itemType, null, 2));
 
                               item.keep = KeepOrNot.NO_KEEP;
-                              if ((item.chosen > -1) && (item.tierType == 6)) {
+                              if ((item.chosen > -1) && (item.tierType == Tier.Exotic)) {
                                 item.keep = KeepOrNot.KEEP_INVENTORY
-                              } else if ((item.chosen > -1) && (item.tierType == 5)) {
+                              } else if ((item.chosen > -1) && (item.tierType == Tier.Legendary)) {
                                 item.keep = KeepOrNot.KEEP_INVENTORY
                                 count++;
-                              } else if ((item.tierType <= 5)) {
+                              } else if ((item.tierType <= Tier.Legendary)) {
                                 if (count < countMax) {
                                   item.keep = KeepOrNot.KEEP_INVENTORY
                                 } else if (count < countMax + 3) {
                                   item.keep = KeepOrNot.KEEP_VAULT
                                 }
                                 count++;
-                              } else if (item.tierType == 6) {
+                              } else if (item.tierType == Tier.Exotic) {
                                 if (found.indexOf(item.name) == -1) {
                                   item.keep = KeepOrNot.KEEP_VAULT_EXO;
                                   found.push(item.name);
@@ -292,7 +292,7 @@ router.get('/api', function (request, response, next) {
                     cptExoEquiped = 0;
                     if (cpt1Legendary > 0) {
                       return callback;
-                    } else if (item1.tierType < 6) {
+                    } else if (item1.tierType < Tier.Exotic) {
                       cpt1Legendary++;
                     } else {
                       cptExoEquiped++;
@@ -302,7 +302,7 @@ router.get('/api', function (request, response, next) {
                         // If not first and first is not an exo, return
                         if (cpt2Legendary > 0) {
                           return callback;
-                        } else if (item2.tierType < 6) {
+                        } else if (item2.tierType < Tier.Exotic) {
                           cpt2Legendary++;
                         } else {
                           cptExoEquiped++;
@@ -312,7 +312,7 @@ router.get('/api', function (request, response, next) {
                             // If not first and first is not an exo, return
                             if (cpt3Legendary > 0) {
                               return callback;
-                            } else if (item3.tierType < 6) {
+                            } else if (item3.tierType < Tier.Exotic) {
                               cpt3Legendary++;
                             } else {
                               cptExoEquiped++;
@@ -345,7 +345,7 @@ router.get('/api', function (request, response, next) {
                     cptExoEquiped = 0;
                     if (cpt1Legendary > 0) {
                       return callback;
-                    } else if (item1.tierType < 6) {
+                    } else if (item1.tierType < Tier.Exotic) {
                       cpt1Legendary++;
                     } else {
                       cptExoEquiped++;
@@ -355,7 +355,7 @@ router.get('/api', function (request, response, next) {
                         // If not first and first is not an exo, return
                         if (cpt2Legendary > 0) {
                           return callback;
-                        } else if (item2.tierType < 6) {
+                        } else if (item2.tierType < Tier.Exotic) {
                           cpt2Legendary++;
                         } else {
                           cptExoEquiped++;
@@ -365,7 +365,7 @@ router.get('/api', function (request, response, next) {
                             // If not first and first is not an exo, return
                             if (cpt3Legendary > 0) {
                               return callback;
-                            } else if (item3.tierType < 6) {
+                            } else if (item3.tierType < Tier.Exotic) {
                               cpt3Legendary++;
                             } else {
                               cptExoEquiped++;
@@ -375,7 +375,7 @@ router.get('/api', function (request, response, next) {
                                 // If not first and first is not an exo, return
                                 if (cpt4Legendary > 0) {
                                   return callback;
-                                } else if (item4.tierType < 6) {
+                                } else if (item4.tierType < Tier.Exotic) {
                                   cpt4Legendary++;
                                 } else {
                                   cptExoEquiped++;
@@ -546,7 +546,7 @@ router.get('/api', function (request, response, next) {
                     var toLock = false;
                     if ((item.chosen >= 0) && (item.keep == KeepOrNot.KEEP_INVENTORY) && (item.state != 1)) {
                       toLock = true;
-                    } else if ((item.tierType >= 6) && (item.state != 1)) {
+                    } else if ((item.tierType >= Tier.Exotic) && (item.state != 1)) {
                       toLock = true;
                     }
 
@@ -598,7 +598,7 @@ router.get('/api', function (request, response, next) {
                       itemsByBukets,
                       function (item, callback) {
                         // if one need to be equipped, just get the first unequipped to remember
-                        if (!firstCanBeEqquipped && item.tierType < 6 && item.keep == KeepOrNot.KEEP_INVENTORY && (item.bucketName != "General") && (item.bucketName != "Lost Items")) {
+                        if (!firstCanBeEqquipped && item.tierType < Tier.Exotic && item.keep == KeepOrNot.KEEP_INVENTORY && (item.bucketName != "General") && (item.bucketName != "Lost Items")) {
                           firstCanBeEqquipped = item;
                         }
 
@@ -925,9 +925,9 @@ var itemComparator = function (i1, i2) {
   } else if ((i1.chosen == -1) && (i2.state == 1) && (i1.state != 1)) {
     return 1;
   }
-  if (i1.tierType > i2.tierType) {
+  if ((i1.tierType > Tier.Rare) && (i1.tierType > i2.tierType)) {
     return -1;
-  } else if (i2.tierType > i1.tierType) {
+  } else if ((i2.tierType > Tier.Rare) && (i2.tierType > i1.tierType)) {
     return 1;
   }
   if (i1.lightLevelBonus > i2.lightLevelBonus) {
@@ -938,6 +938,11 @@ var itemComparator = function (i1, i2) {
   if (i1.lightLevel > i2.lightLevel) {
     return -1;
   } else if (i2.lightLevel > i1.lightLevel) {
+    return 1;
+  }
+  if (i1.tierType > i2.tierType) {
+    return -1;
+  } else if (i2.tierType > i1.tierType) {
     return 1;
   }
   if (i1.itemInstanceId > i2.itemInstanceId) {
@@ -990,3 +995,13 @@ var BucketsToManaged = [
   "Leg Armor", "Helmet", "Gauntlets", "Chest Armor", "Class Armor",
   //"Ghost", "Vehicle", "Ships"
 ]
+
+var Tier = {
+  Unknown: 0,
+  Currency: 1,
+  Basic: 2,
+  Common: 3,
+  Rare: 4,
+  Legendary: 5,
+  Exotic: 6
+}
