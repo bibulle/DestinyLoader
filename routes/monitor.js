@@ -17,7 +17,7 @@ router.get('/', function (request, response, next) {
   if (!request.session.user) {
     response.redirect('monitorstuff/login');
   } else {
-    //logger.info(JSON.stringify(request.session.user, null, 2));
+    logger.info(JSON.stringify(request.session.user, null, 2));
     //response.send("Welcome "+request.session.user.bungieNetUser.displayName);
     response.render('monitor', {user: request.session.user});
 
