@@ -37,8 +37,10 @@ p {
 }
 
 #title {
+    font-weight: bold;
+    font-size: 2em;
     width: 100%;
-    height: 20px;
+    height: 1em;
     float: left;
 }
 #messages {
@@ -48,7 +50,6 @@ p {
 }
 #input {
     width: 100%;
-    margin-top: 0px;
     float: left;
     margin-top: 8px;
 }

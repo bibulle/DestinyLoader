@@ -1,4 +1,6 @@
 var RELOAD_EVERY = 1 * 20 * 1000;
+var previousDiv;
+var previousMess = "";
 
 
 var loadData = function () {
@@ -17,10 +19,21 @@ var loadData = function () {
 
       if (d && d.messages) {
         messagesDiv = $("#messages");
-        messagesDiv.html(messagesDiv.html() + "<HR><p style='font-size: 0.8em'>" + (new Date()) + "</p>");
+
+        var newDiv = $("<div></div>");
+        newDiv.addClass("meessagesPacket");
+        newDiv.append("<HR><p style='font-size: 0.8em'>" + (new Date()) + "</p>");
         d.messages.forEach(function (m) {
-          messagesDiv.html(messagesDiv.html() + "<p>" + m + "</p>");
+          newDiv.append("<p>" + m + "</p>");
         });
+        messagesDiv.append(newDiv);
+
+        if ((previousMess == "[]") || (previousMess == JSON.stringify(d.messages))) {
+          previousDiv.remove();
+        }
+
+        previousMess=JSON.stringify(d.messages);
+        previousDiv=newDiv;
       }
       $("html, body").animate({scrollTop: $(document).height() - $(window).height()});
       console.log(d);
@@ -38,11 +51,11 @@ var init = function () {
 
     $("#input textarea").change(function () {
       $("#input textarea").addClass("saving");
-      sendConf({ conf: { chosen: $(this).val()}});
+      sendConf({conf: {chosen: $(this).val()}});
     }).change();
 
     $("#input button").click(function () {
-      sendConf({ conf: { mode: $(this).attr('id')}});
+      sendConf({conf: {mode: $(this).attr('id')}});
     });
 
     loadData();
