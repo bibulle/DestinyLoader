@@ -19,12 +19,17 @@ router.get('/', function (request, response, next) {
   logger.info(JSON.stringify(request.header('Referer').endsWith(request.originalUrl), null, 2));
   if (!request.session.user) {
     response.redirect('monitorstuff/login');
-  } else if (request.header('Referer').endsWith(request.originalUrl)) {
-    response.redirect('monitorstuff/login');
   } else {
+    var d = new Date();
+    if (request.session.lastAccess && (request.session.lastAccess > d.getTime()-2000)) {
+      delete request.session.user;
+      response.redirect('monitorstuff/login');
+    } else {
+      request.session.lastAccess = d.getTime();
 
-    //response.send("Welcome "+request.session.user.bungieNetUser.displayName);
-    response.render('monitor', {user: request.session.user});
+      //response.send("Welcome "+request.session.user.bungieNetUser.displayName);
+      response.render('monitor', {user: request.session.user});
+    }
 
   }
 });
