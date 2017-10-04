@@ -705,7 +705,11 @@ router.get('/api', function (request, response, next) {
                                 data.messages.push("Error while moving " + item.name + " (" + (item.lightLevel + item.lightLevelBonus) + ") from vault : " + err);
                               }
                             } else {
-                              data.messages.push("Have moved from vault : " + item.name + " (" + (item.lightLevel + item.lightLevelBonus) + ")");
+                              if (item.keep == KeepOrNot.KEEP_EQUIP) {
+                                data.messages.push("Equip : " + item.name + " (" + (item.lightLevel + item.lightLevelBonus) + ")");
+                              } else {
+                                data.messages.push("Have moved from vault : " + item.name + " (" + (item.lightLevel + item.lightLevelBonus) + ")");
+                              }
                             }
                             callback(err);
                           });
