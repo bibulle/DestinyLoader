@@ -741,7 +741,8 @@ router.get('/api', function (request, response, next) {
         ],
 
         function (err, data) {
-          if (err) {
+          if (err && err.error) {
+            response.send(err);
             //data.messages.push("ERROR : "+err);
             //return response.send(JSON.stringify({messages: err}, null, 2));
           }
