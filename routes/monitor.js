@@ -153,19 +153,19 @@ router.get('/api', function (request, response, next) {
                               //logger.info(JSON.stringify(item.itemType, null, 2));
 
                               item.keep = KeepOrNot.NO_KEEP;
-                              if ((item.chosen > -1) && (item.tierType == 6)) {
+                              if ((item.chosen > -1) && (item.tierType == Tier.Exotic)) {
                                 item.keep = KeepOrNot.KEEP_INVENTORY
-                              } else if ((item.chosen > -1) && (item.tierType == 5)) {
+                              } else if ((item.chosen > -1) && (item.tierType == Tier.Legendary)) {
                                 item.keep = KeepOrNot.KEEP_INVENTORY
                                 count++;
-                              } else if ((item.tierType <= 5)) {
+                              } else if ((item.tierType <= Tier.Legendary)) {
                                 if (count < countMax) {
                                   item.keep = KeepOrNot.KEEP_INVENTORY
-                                } else if (count < countMax+3) {
+                                } else if (count < countMax + 3) {
                                   item.keep = KeepOrNot.KEEP_VAULT
                                 }
                                 count++;
-                              } else if (item.tierType == 6) {
+                              } else if (item.tierType == Tier.Exotic) {
                                 if (found.indexOf(item.name) == -1) {
                                   item.keep = KeepOrNot.KEEP_VAULT_EXO;
                                   found.push(item.name);
@@ -246,6 +246,170 @@ router.get('/api', function (request, response, next) {
               }
             )
           },
+          // Max light if needed
+          function (data, conf, callback) {
+            //logger.info(JSON.stringify(conf, null, 2));
+            //logger.info(JSON.stringify(data.items, null, 2));
+
+            if (CONF_MODE[conf.mode] != CONF_MODE["max-light"]) {
+              return callback(null, data, conf);
+            }
+
+            // create max light lists
+            var maxLights = {};
+            async.eachSeries(
+              data.items,
+              function (itemsByBuckets, callback) {
+                var bucketName;
+                async.eachSeries(
+                  itemsByBuckets,
+                  function (item, callback) {
+                    if (item.bucketNameTarget) {
+                      if (!maxLights[item.bucketNameTarget]) {
+                        maxLights[item.bucketNameTarget] = [];
+                      }
+                      maxLights[item.bucketNameTarget].push(item);
+                      bucketName = item.bucketNameTarget;
+                    }
+                    callback(null);
+                  },
+                  function (err) {
+                    maxLights[bucketName].sort(itemComparatorByLight);
+                    callback(err);
+                  }
+                )
+              },
+              function (err) {
+
+                var itemsToEquip = [];
+                var lightMax = 0;
+                var cpt1Legendary = 0;
+                var cpt2Legendary = 0;
+                var cpt3Legendary = 0;
+                maxLights["Kinetic Weapons"].forEach(
+                  function(item1) {
+                    // If not first and first is not an exo, return
+                    cptExoEquiped = 0;
+                    if (cpt1Legendary > 0) {
+                      return callback;
+                    } else if (item1.tierType < Tier.Exotic) {
+                      cpt1Legendary++;
+                    } else {
+                      cptExoEquiped++;
+                    }
+                    maxLights["Energy Weapons"].forEach(
+                      function(item2) {
+                        // If not first and first is not an exo, return
+                        if (cpt2Legendary > 0) {
+                          return callback;
+                        } else if (item2.tierType < Tier.Exotic) {
+                          cpt2Legendary++;
+                        } else {
+                          cptExoEquiped++;
+                        }
+                        maxLights["Power Weapons"].forEach(
+                          function(item3) {
+                            // If not first and first is not an exo, return
+                            if (cpt3Legendary > 0) {
+                              return callback;
+                            } else if (item3.tierType < Tier.Exotic) {
+                              cpt3Legendary++;
+                            } else {
+                              cptExoEquiped++;
+                            }
+                            var light =
+                              item1.lightLevel+item1.lightLevelBonus+
+                              item2.lightLevel+item2.lightLevelBonus+
+                              item3.lightLevel+item3.lightLevelBonus;
+                            if ((cptExoEquiped < 2) && (light > lightMax)) {
+                              itemsToEquip = [item1, item2, item3];
+                            }
+                          }
+                        )
+                      }
+                    )
+                  }
+                );
+                itemsToEquip.forEach(function(item) {
+                  item.keep = KeepOrNot.KEEP_EQUIP;
+                });
+                var itemsToEquip = [];
+                var lightMax = 0;
+                var cpt1Legendary = 0;
+                var cpt2Legendary = 0;
+                var cpt3Legendary = 0;
+                var cpt4Legendary = 0;
+                maxLights["Helmet"].forEach(
+                  function(item1) {
+                    // If not first and first is not an exo, return
+                    cptExoEquiped = 0;
+                    if (cpt1Legendary > 0) {
+                      return callback;
+                    } else if (item1.tierType < Tier.Exotic) {
+                      cpt1Legendary++;
+                    } else {
+                      cptExoEquiped++;
+                    }
+                    maxLights["Gauntlets"].forEach(
+                      function(item2) {
+                        // If not first and first is not an exo, return
+                        if (cpt2Legendary > 0) {
+                          return callback;
+                        } else if (item2.tierType < Tier.Exotic) {
+                          cpt2Legendary++;
+                        } else {
+                          cptExoEquiped++;
+                        }
+                        maxLights["Chest Armor"].forEach(
+                          function(item3) {
+                            // If not first and first is not an exo, return
+                            if (cpt3Legendary > 0) {
+                              return callback;
+                            } else if (item3.tierType < Tier.Exotic) {
+                              cpt3Legendary++;
+                            } else {
+                              cptExoEquiped++;
+                            }
+                            maxLights["Leg Armor"].forEach(
+                              function(item4) {
+                                // If not first and first is not an exo, return
+                                if (cpt4Legendary > 0) {
+                                  return callback;
+                                } else if (item4.tierType < Tier.Exotic) {
+                                  cpt4Legendary++;
+                                } else {
+                                  cptExoEquiped++;
+                                }
+                                var light =
+                                  item1.lightLevel+item1.lightLevelBonus+
+                                  item2.lightLevel+item2.lightLevelBonus+
+                                  item3.lightLevel+item3.lightLevelBonus+
+                                  item4.lightLevel+item4.lightLevelBonus;
+                                if ((cptExoEquiped < 2) && (light > lightMax)) {
+                                  itemsToEquip = [item1, item2, item3, item4];
+                                }
+                              }
+                            )
+                          }
+                        )
+                      }
+                    )
+                  }
+                );
+                itemsToEquip.forEach(function(item) {
+                  item.keep = KeepOrNot.KEEP_EQUIP;
+                });
+
+                maxLights["Class Armor"][0].keep = KeepOrNot.KEEP_EQUIP;
+
+                //logger.info(JSON.stringify(data.items, null, 2));
+
+
+
+                callback(null, data, conf);
+              }
+            )
+          },
           // Can we infuse ?
           function (data, conf, callback) {
             //logger.info(JSON.stringify(conf, null, 2));
@@ -311,7 +475,7 @@ router.get('/api', function (request, response, next) {
                                     infusions[itemToInfuse.itemInstanceId] = [];
                                   }
                                   infusions[itemToInfuse.itemInstanceId].push(itemToDismantle);
-                                  itemsToInfuse[itemToInfuse.itemInstanceId]=itemToInfuse;
+                                  itemsToInfuse[itemToInfuse.itemInstanceId] = itemToInfuse;
                                 }
                               }
                             }
@@ -347,7 +511,7 @@ router.get('/api', function (request, response, next) {
 
                       });
                   },
-                  function(err) {
+                  function (err) {
 
                     //logger.info(JSON.stringify(itemsByInfusion, null, 2));
                     //logger.info(JSON.stringify(data.messages, null, 2));
@@ -374,7 +538,7 @@ router.get('/api', function (request, response, next) {
                     var toLock = false;
                     if ((item.chosen >= 0) && (item.keep == KeepOrNot.KEEP_INVENTORY) && (item.state != 1)) {
                       toLock = true;
-                    } else if ((item.tierType >= 6) && (item.state != 1)) {
+                    } else if ((item.tierType >= Tier.Exotic) && (item.state != 1)) {
                       toLock = true;
                     }
 
@@ -426,7 +590,7 @@ router.get('/api', function (request, response, next) {
                       itemsByBukets,
                       function (item, callback) {
                         // if one need to be equipped, just get the first unequipped to remember
-                        if (!firstCanBeEqquipped && item.tierType < 6 && item.keep == KeepOrNot.KEEP_INVENTORY && (item.bucketName != "General") && (item.bucketName != "Lost Items")) {
+                        if (!firstCanBeEqquipped && item.tierType < Tier.Exotic && item.keep == KeepOrNot.KEEP_INVENTORY && (item.bucketName != "General") && (item.bucketName != "Lost Items")) {
                           firstCanBeEqquipped = item;
                         }
 
@@ -434,14 +598,14 @@ router.get('/api', function (request, response, next) {
 
                         if (conf.mode && CONF_MODE[conf.mode]) {
 
-                          if (CONF_MODE[conf.mode] == CONF_MODE["optimize-inventory"]) {
-                            if (item.keep != KeepOrNot.KEEP_INVENTORY
+                          if ((CONF_MODE[conf.mode] == CONF_MODE["optimize-inventory"]) || (CONF_MODE[conf.mode] == CONF_MODE["max-light"])) {
+                            if (item.keep < KeepOrNot.KEEP_INVENTORY
                               && (item.bucketName != "General") && (item.bucketName != "Lost Items") && (item.transferStatus < 2 )) {
                               transfert = true;
                             }
 
                           } else if (CONF_MODE[conf.mode] == CONF_MODE["prepare-infuse"]) {
-                            if (item.keep != KeepOrNot.KEEP_INVENTORY && item.keep != KeepOrNot.KEEP_VAULT_TO_DISMANTLE
+                            if (item.keep < KeepOrNot.KEEP_INVENTORY && item.keep != KeepOrNot.KEEP_VAULT_TO_DISMANTLE
                               && (item.bucketName != "General") && (item.bucketName != "Lost Items") && (item.transferStatus < 2 )) {
                               transfert = true;
                             }
@@ -451,7 +615,7 @@ router.get('/api', function (request, response, next) {
                               transfert = true;
                             }
                           } else {
-                            if (item.keep != KeepOrNot.KEEP_INVENTORY
+                            if (item.keep < KeepOrNot.KEEP_INVENTORY
                               && (item.bucketName != "General") && (item.bucketName != "Lost Items") && (item.transferStatus < 2 )) {
                               data.messages.push(item.name + " (" + (item.lightLevel + item.lightLevelBonus) + ") should be moved to vault");
                             }
@@ -462,7 +626,7 @@ router.get('/api', function (request, response, next) {
                           if (item.isEquipped && (!firstCanBeEqquipped || (item.itemInstanceId == firstCanBeEqquipped.itemInstanceId))) {
                             callback();
                           } else {
-                            destiny.moveItem(request.session.user, item, firstCanBeEqquipped, data.characters[0].characterId, true, function (err) {
+                            destiny.moveItem(request.session.user, item, firstCanBeEqquipped, data.characters[0].characterId, true, false, function (err) {
                               if (err) {
                                 //logger.info(JSON.stringify(item, null, 2));
                                 data.messages.push("Error while moving " + item.name + " (" + (item.lightLevel + item.lightLevelBonus) + ") to vault : " + err);
@@ -502,17 +666,19 @@ router.get('/api', function (request, response, next) {
 
                         if (conf.mode && CONF_MODE[conf.mode]) {
 
-                          if (CONF_MODE[conf.mode] == CONF_MODE["optimize-inventory"]) {
+                          if ((CONF_MODE[conf.mode] == CONF_MODE["optimize-inventory"]) || (CONF_MODE[conf.mode] == CONF_MODE["max-light"])) {
                             if (item.keep == KeepOrNot.KEEP_INVENTORY
                               && (item.bucketName == "General") && (item.transferStatus < 2 )) {
+                              transfert = true;
+                            } else if ((item.keep == KeepOrNot.KEEP_EQUIP) && !item.isEquipped) {
                               transfert = true;
                             }
 
                           } else if (CONF_MODE[conf.mode] == CONF_MODE["prepare-infuse"]) {
                             //if (item.name == 'Three Graves') {
-                              //logger.info(JSON.stringify(item, null, 2));
+                            //logger.info(JSON.stringify(item, null, 2));
                             //}
-                            if ((item.keep == KeepOrNot.KEEP_INVENTORY || item.keep == KeepOrNot.KEEP_VAULT_TO_DISMANTLE)
+                            if ((item.keep >= KeepOrNot.KEEP_INVENTORY || item.keep == KeepOrNot.KEEP_VAULT_TO_DISMANTLE)
                               && (item.bucketName == "General") && (item.transferStatus < 2 )) {
                               transfert = true;
                             }
@@ -522,7 +688,7 @@ router.get('/api', function (request, response, next) {
                               transfert = true;
                             }
                           } else {
-                            if (item.keep == KeepOrNot.KEEP_INVENTORY
+                            if (item.keep >= KeepOrNot.KEEP_INVENTORY
                               && (item.bucketName == "General") && (item.transferStatus < 2 )) {
                               data.messages.push(item.name + " (" + (item.lightLevel + item.lightLevelBonus) + ") should be moved from vault");
                             }
@@ -530,7 +696,7 @@ router.get('/api', function (request, response, next) {
                         }
 
                         if (transfert) {
-                          destiny.moveItem(request.session.user, item, null, data.characters[0].characterId, false, function (err) {
+                          destiny.moveItem(request.session.user, item, null, data.characters[0].characterId, false, (item.keep == KeepOrNot.KEEP_EQUIP), function (err) {
                             if (err) {
                               if (err == "ErrorDestinyNoRoomInDestination") {
                                 data.messages.push("No space left for moving " + item.name + " (" + (item.lightLevel + item.lightLevelBonus) + ") from vault");
@@ -539,7 +705,11 @@ router.get('/api', function (request, response, next) {
                                 data.messages.push("Error while moving " + item.name + " (" + (item.lightLevel + item.lightLevelBonus) + ") from vault : " + err);
                               }
                             } else {
-                              data.messages.push("Have moved from vault : " + item.name + " (" + (item.lightLevel + item.lightLevelBonus) + ")");
+                              if (item.keep == KeepOrNot.KEEP_EQUIP) {
+                                data.messages.push("Equip : " + item.name + " (" + (item.lightLevel + item.lightLevelBonus) + ")");
+                              } else {
+                                data.messages.push("Have moved from vault : " + item.name + " (" + (item.lightLevel + item.lightLevelBonus) + ")");
+                              }
                             }
                             callback(err);
                           });
@@ -753,9 +923,9 @@ var itemComparator = function (i1, i2) {
   } else if ((i1.chosen == -1) && (i2.state == 1) && (i1.state != 1)) {
     return 1;
   }
-  if (i1.tierType > i2.tierType) {
+  if ((i1.tierType > Tier.Rare) && (i1.tierType > i2.tierType)) {
     return -1;
-  } else if (i2.tierType > i1.tierType) {
+  } else if ((i2.tierType > Tier.Rare) && (i2.tierType > i1.tierType)) {
     return 1;
   }
   if (i1.lightLevelBonus > i2.lightLevelBonus) {
@@ -768,17 +938,40 @@ var itemComparator = function (i1, i2) {
   } else if (i2.lightLevel > i1.lightLevel) {
     return 1;
   }
+  if (i1.tierType > i2.tierType) {
+    return -1;
+  } else if (i2.tierType > i1.tierType) {
+    return 1;
+  }
   if (i1.itemInstanceId > i2.itemInstanceId) {
     return -1;
   } else if (i2.itemInstanceId > i1.itemInstanceId) {
     return 1;
   }
-
   return 0;
+}
 
+var itemComparatorByLight = function (i1, i2) {
+  if (i1.lightLevel + i1.lightLevelBonus > i2.lightLevel + i2.lightLevelBonus) {
+    return -1;
+  } else if (i2.lightLevel + i2.lightLevelBonus > i1.lightLevel + i1.lightLevelBonus) {
+    return 1;
+  }
+  if (i1.tierType > i2.tierType) {
+    return -1;
+  } else if (i2.tierType > i1.tierType) {
+    return 1;
+  }
+  if (i1.itemInstanceId > i2.itemInstanceId) {
+    return -1;
+  } else if (i2.itemInstanceId > i1.itemInstanceId) {
+    return 1;
+  }
+  return 0;
 }
 
 var KeepOrNot = {
+  KEEP_EQUIP: 15,
   KEEP_INVENTORY: 10,
   KEEP_VAULT_EXO: 6,
   KEEP_VAULT_TO_DISMANTLE: 5,
@@ -790,6 +983,7 @@ var CONF_MODE = {
   "do-nothing": 0,
   "lock-chosen": 5,
   "optimize-inventory": 10,
+  "max-light": 12,
   "prepare-infuse": 15,
   "prepare-cleanup": 20
 };
@@ -799,3 +993,13 @@ var BucketsToManaged = [
   "Leg Armor", "Helmet", "Gauntlets", "Chest Armor", "Class Armor",
   //"Ghost", "Vehicle", "Ships"
 ]
+
+var Tier = {
+  Unknown: 0,
+  Currency: 1,
+  Basic: 2,
+  Common: 3,
+  Rare: 4,
+  Legendary: 5,
+  Exotic: 6
+}
