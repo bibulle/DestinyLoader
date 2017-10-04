@@ -249,7 +249,7 @@ router.get('/api', function (request, response, next) {
           // Max light if needed
           function (data, conf, callback) {
             //logger.info(JSON.stringify(conf, null, 2));
-            /logger.info(JSON.stringify(data.items, null, 2));
+            //logger.info(JSON.stringify(data.items, null, 2));
 
             if (CONF_MODE[conf.mode] != CONF_MODE["max-light"]) {
               return callback(null, data, conf);
@@ -287,34 +287,41 @@ router.get('/api', function (request, response, next) {
                 var cpt2Legendary = 0;
                 var cpt3Legendary = 0;
                 maxLights["Kinetic Weapons"].forEach(
-                  function(item1, callback) {
+                  function(item1) {
                     // If not first and first is not an exo, return
+                    cptExoEquiped = 0;
                     if (cpt1Legendary > 0) {
                       return callback;
                     } else if (item1.tierType < 6) {
                       cpt1Legendary++;
+                    } else {
+                      cptExoEquiped++;
                     }
                     maxLights["Energy Weapons"].forEach(
-                      function(item2, callback) {
+                      function(item2) {
                         // If not first and first is not an exo, return
                         if (cpt2Legendary > 0) {
                           return callback;
                         } else if (item2.tierType < 6) {
                           cpt2Legendary++;
+                        } else {
+                          cptExoEquiped++;
                         }
                         maxLights["Power Weapons"].forEach(
-                          function(item3, callback) {
+                          function(item3) {
                             // If not first and first is not an exo, return
                             if (cpt3Legendary > 0) {
                               return callback;
                             } else if (item3.tierType < 6) {
                               cpt3Legendary++;
+                            } else {
+                              cptExoEquiped++;
                             }
                             var light =
                               item1.lightLevel+item1.lightLevelBonus+
                               item2.lightLevel+item2.lightLevelBonus+
                               item3.lightLevel+item3.lightLevelBonus;
-                            if (light > lightMax) {
+                            if ((cptExoEquiped < 2) && (light > lightMax)) {
                               itemsToEquip = [item1, item2, item3];
                             }
                           }
@@ -323,10 +330,78 @@ router.get('/api', function (request, response, next) {
                     )
                   }
                 );
-                itemsToEquip.forEach(function(item, callback) {
+                itemsToEquip.forEach(function(item) {
                   item.keep = KeepOrNot.KEEP_EQUIP;
-                  callback();
                 });
+                var itemsToEquip = [];
+                var lightMax = 0;
+                var cpt1Legendary = 0;
+                var cpt2Legendary = 0;
+                var cpt3Legendary = 0;
+                var cpt4Legendary = 0;
+                maxLights["Helmet"].forEach(
+                  function(item1) {
+                    // If not first and first is not an exo, return
+                    cptExoEquiped = 0;
+                    if (cpt1Legendary > 0) {
+                      return callback;
+                    } else if (item1.tierType < 6) {
+                      cpt1Legendary++;
+                    } else {
+                      cptExoEquiped++;
+                    }
+                    maxLights["Gauntlets"].forEach(
+                      function(item2) {
+                        // If not first and first is not an exo, return
+                        if (cpt2Legendary > 0) {
+                          return callback;
+                        } else if (item2.tierType < 6) {
+                          cpt2Legendary++;
+                        } else {
+                          cptExoEquiped++;
+                        }
+                        maxLights["Chest Armor"].forEach(
+                          function(item3) {
+                            // If not first and first is not an exo, return
+                            if (cpt3Legendary > 0) {
+                              return callback;
+                            } else if (item3.tierType < 6) {
+                              cpt3Legendary++;
+                            } else {
+                              cptExoEquiped++;
+                            }
+                            maxLights["Leg Armor"].forEach(
+                              function(item4) {
+                                // If not first and first is not an exo, return
+                                if (cpt4Legendary > 0) {
+                                  return callback;
+                                } else if (item4.tierType < 6) {
+                                  cpt4Legendary++;
+                                } else {
+                                  cptExoEquiped++;
+                                }
+                                var light =
+                                  item1.lightLevel+item1.lightLevelBonus+
+                                  item2.lightLevel+item2.lightLevelBonus+
+                                  item3.lightLevel+item3.lightLevelBonus+
+                                  item4.lightLevel+item4.lightLevelBonus;
+                                if ((cptExoEquiped < 2) && (light > lightMax)) {
+                                  itemsToEquip = [item1, item2, item3, item4];
+                                }
+                              }
+                            )
+                          }
+                        )
+                      }
+                    )
+                  }
+                );
+                itemsToEquip.forEach(function(item) {
+                  item.keep = KeepOrNot.KEEP_EQUIP;
+                });
+
+                maxLights["Class Armor"][0].keep = KeepOrNot.KEEP_EQUIP;
+
                 logger.info(JSON.stringify(data.items, null, 2));
 
 
