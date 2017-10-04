@@ -402,21 +402,13 @@ router.get('/api', function (request, response, next) {
 
                 maxLights["Class Armor"][0].keep = KeepOrNot.KEEP_EQUIP;
 
-                logger.info(JSON.stringify(data.items, null, 2));
+                //logger.info(JSON.stringify(data.items, null, 2));
 
 
 
                 callback(null, data, conf);
               }
             )
-
-            //"Power Weapons", "Energy Weapons", "Kinetic Weapons",
-            //  "Leg Armor", "Helmet", "Gauntlets", "Chest Armor", "Class Armor"
-
-            //Sort weapons by lights
-            //data.items
-
-
           },
           // Can we infuse ?
           function (data, conf, callback) {
@@ -607,13 +599,13 @@ router.get('/api', function (request, response, next) {
                         if (conf.mode && CONF_MODE[conf.mode]) {
 
                           if ((CONF_MODE[conf.mode] == CONF_MODE["optimize-inventory"]) || (CONF_MODE[conf.mode] == CONF_MODE["max-light"])) {
-                            if (item.keep != KeepOrNot.KEEP_INVENTORY
+                            if (item.keep < KeepOrNot.KEEP_INVENTORY
                               && (item.bucketName != "General") && (item.bucketName != "Lost Items") && (item.transferStatus < 2 )) {
                               transfert = true;
                             }
 
                           } else if (CONF_MODE[conf.mode] == CONF_MODE["prepare-infuse"]) {
-                            if (item.keep != KeepOrNot.KEEP_INVENTORY && item.keep != KeepOrNot.KEEP_VAULT_TO_DISMANTLE
+                            if (item.keep < KeepOrNot.KEEP_INVENTORY && item.keep != KeepOrNot.KEEP_VAULT_TO_DISMANTLE
                               && (item.bucketName != "General") && (item.bucketName != "Lost Items") && (item.transferStatus < 2 )) {
                               transfert = true;
                             }
@@ -623,7 +615,7 @@ router.get('/api', function (request, response, next) {
                               transfert = true;
                             }
                           } else {
-                            if (item.keep != KeepOrNot.KEEP_INVENTORY
+                            if (item.keep < KeepOrNot.KEEP_INVENTORY
                               && (item.bucketName != "General") && (item.bucketName != "Lost Items") && (item.transferStatus < 2 )) {
                               data.messages.push(item.name + " (" + (item.lightLevel + item.lightLevelBonus) + ") should be moved to vault");
                             }
@@ -634,7 +626,7 @@ router.get('/api', function (request, response, next) {
                           if (item.isEquipped && (!firstCanBeEqquipped || (item.itemInstanceId == firstCanBeEqquipped.itemInstanceId))) {
                             callback();
                           } else {
-                            destiny.moveItem(request.session.user, item, firstCanBeEqquipped, data.characters[0].characterId, true, function (err) {
+                            destiny.moveItem(request.session.user, item, firstCanBeEqquipped, data.characters[0].characterId, true, false, function (err) {
                               if (err) {
                                 //logger.info(JSON.stringify(item, null, 2));
                                 data.messages.push("Error while moving " + item.name + " (" + (item.lightLevel + item.lightLevelBonus) + ") to vault : " + err);
@@ -678,13 +670,15 @@ router.get('/api', function (request, response, next) {
                             if (item.keep == KeepOrNot.KEEP_INVENTORY
                               && (item.bucketName == "General") && (item.transferStatus < 2 )) {
                               transfert = true;
+                            } else if ((item.keep == KeepOrNot.KEEP_EQUIP) && !item.isEquipped) {
+                              transfert = true;
                             }
 
                           } else if (CONF_MODE[conf.mode] == CONF_MODE["prepare-infuse"]) {
                             //if (item.name == 'Three Graves') {
                             //logger.info(JSON.stringify(item, null, 2));
                             //}
-                            if ((item.keep == KeepOrNot.KEEP_INVENTORY || item.keep == KeepOrNot.KEEP_VAULT_TO_DISMANTLE)
+                            if ((item.keep >= KeepOrNot.KEEP_INVENTORY || item.keep == KeepOrNot.KEEP_VAULT_TO_DISMANTLE)
                               && (item.bucketName == "General") && (item.transferStatus < 2 )) {
                               transfert = true;
                             }
@@ -694,7 +688,7 @@ router.get('/api', function (request, response, next) {
                               transfert = true;
                             }
                           } else {
-                            if (item.keep == KeepOrNot.KEEP_INVENTORY
+                            if (item.keep >= KeepOrNot.KEEP_INVENTORY
                               && (item.bucketName == "General") && (item.transferStatus < 2 )) {
                               data.messages.push(item.name + " (" + (item.lightLevel + item.lightLevelBonus) + ") should be moved from vault");
                             }
@@ -702,7 +696,7 @@ router.get('/api', function (request, response, next) {
                         }
 
                         if (transfert) {
-                          destiny.moveItem(request.session.user, item, null, data.characters[0].characterId, false, function (err) {
+                          destiny.moveItem(request.session.user, item, null, data.characters[0].characterId, false, (item.keep == KeepOrNot.KEEP_EQUIP), function (err) {
                             if (err) {
                               if (err == "ErrorDestinyNoRoomInDestination") {
                                 data.messages.push("No space left for moving " + item.name + " (" + (item.lightLevel + item.lightLevelBonus) + ") from vault");
