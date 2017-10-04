@@ -249,11 +249,91 @@ router.get('/api', function (request, response, next) {
           // Max light if needed
           function (data, conf, callback) {
             //logger.info(JSON.stringify(conf, null, 2));
-            logger.info(JSON.stringify(data.items, null, 2));
+            /logger.info(JSON.stringify(data.items, null, 2));
 
             if (CONF_MODE[conf.mode] != CONF_MODE["max-light"]) {
               return callback(null, data, conf);
             }
+
+            // create max light lists
+            var maxLights = {};
+            async.eachSeries(
+              data.items,
+              function (itemsByBuckets, callback) {
+                var bucketName;
+                async.eachSeries(
+                  itemsByBuckets,
+                  function (item, callback) {
+                    if (item.bucketNameTarget) {
+                      if (!maxLights[item.bucketNameTarget]) {
+                        maxLights[item.bucketNameTarget] = [];
+                      }
+                      maxLights[item.bucketNameTarget].push(item);
+                      bucketName = item.bucketNameTarget;
+                    }
+                    callback(null);
+                  },
+                  function (err) {
+                    maxLights[bucketName].sort(itemComparatorByLight);
+                    callback(err);
+                  }
+                )
+              },
+              function (err) {
+
+                var itemsToEquip = [];
+                var lightMax = 0;
+                var cpt1Legendary = 0;
+                var cpt2Legendary = 0;
+                var cpt3Legendary = 0;
+                maxLights["Kinetic Weapons"].forEach(
+                  function(item1, callback) {
+                    // If not first and first is not an exo, return
+                    if (cpt1Legendary > 0) {
+                      return callback;
+                    } else if (item1.tierType < 6) {
+                      cpt1Legendary++;
+                    }
+                    maxLights["Energy Weapons"].forEach(
+                      function(item2, callback) {
+                        // If not first and first is not an exo, return
+                        if (cpt2Legendary > 0) {
+                          return callback;
+                        } else if (item2.tierType < 6) {
+                          cpt2Legendary++;
+                        }
+                        maxLights["Power Weapons"].forEach(
+                          function(item3, callback) {
+                            // If not first and first is not an exo, return
+                            if (cpt3Legendary > 0) {
+                              return callback;
+                            } else if (item3.tierType < 6) {
+                              cpt3Legendary++;
+                            }
+                            var light =
+                              item1.lightLevel+item1.lightLevelBonus+
+                              item2.lightLevel+item2.lightLevelBonus+
+                              item3.lightLevel+item3.lightLevelBonus;
+                            if (light > lightMax) {
+                              itemsToEquip = [item1, item2, item3];
+                            }
+                          }
+                        )
+                      }
+                    )
+                  }
+                );
+                itemsToEquip.forEach(function(item, callback) {
+                  item.keep = KeepOrNot.KEEP_EQUIP;
+                  callback();
+                });
+                logger.info(JSON.stringify(data.items, null, 2));
+
+
+
+                callback(null, data, conf);
+              }
+            )
 
             //"Power Weapons", "Energy Weapons", "Kinetic Weapons",
             //  "Leg Armor", "Helmet", "Gauntlets", "Chest Armor", "Class Armor"
@@ -261,8 +341,6 @@ router.get('/api', function (request, response, next) {
             //Sort weapons by lights
             //data.items
 
-
-            callback(null, data, conf);
 
           },
           // Can we infuse ?
@@ -796,9 +874,9 @@ var itemComparator = function (i1, i2) {
 }
 
 var itemComparatorByLight = function (i1, i2) {
-  if (i1.lightLevel+i1.lightLevelBonus > i2.lightLevel+i2.lightLevelBonus) {
+  if (i1.lightLevel + i1.lightLevelBonus > i2.lightLevel + i2.lightLevelBonus) {
     return -1;
-  } else if (i2.lightLevel+i2.lightLevelBonus > i1.lightLevel+i1.lightLevelBonus) {
+  } else if (i2.lightLevel + i2.lightLevelBonus > i1.lightLevel + i1.lightLevelBonus) {
     return 1;
   }
   if (i1.tierType > i2.tierType) {
