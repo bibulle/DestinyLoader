@@ -14,10 +14,9 @@ var destinyDb = require("../lib/destinyDb");
 router.get('/', function (request, response, next) {
   if (request.originalUrl.slice(-1) == '/') return response.redirect('..' + request.originalUrl.slice(0, -1));
 
-  logger.info(JSON.stringify(request.header('Referer'), null, 2));
-  logger.info(JSON.stringify(request.originalUrl, null, 2));
-  logger.info(JSON.stringify(request.header('Referer').endsWith(request.originalUrl), null, 2));
+  //logger.info(JSON.stringify(request.originalUrl, null, 2));
   if (!request.session.user) {
+    delete request.session.lastAccess;
     response.redirect('monitorstuff/login');
   } else {
     var d = new Date();
