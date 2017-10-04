@@ -17,7 +17,7 @@ router.get('/', function (request, response, next) {
   //logger.info(JSON.stringify(request.originalUrl, null, 2));
   if (!request.session.user) {
     delete request.session.lastAccess;
-    response.redirect('monitorstuff/login');
+    return response.redirect('monitorstuff/login');
   } else {
     var d = new Date();
     if (request.session.lastAccess && (request.session.lastAccess > d.getTime()-2000)) {
@@ -754,8 +754,9 @@ router.get('/api', function (request, response, next) {
             response.send(err);
             //data.messages.push("ERROR : "+err);
             //return response.send(JSON.stringify({messages: err}, null, 2));
+          } else {
+            response.send(JSON.stringify(data, null, 2));
           }
-          response.send(JSON.stringify(data, null, 2));
         }
       )
       ;
