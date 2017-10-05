@@ -143,6 +143,7 @@ router.get('/api', function (request, response, next) {
                         // find witch to keep
                         function (callback) {
                           var count = 0;
+                          var countItemTooHigh = 0;
                           var found = [];
                           async.eachSeries(
                             itemsByType,
@@ -150,27 +151,36 @@ router.get('/api', function (request, response, next) {
                               // chosen exo                    -> INVENTORY
                               // chosen legendary              -> INVENTORY
                               // first                         -> INVENTORY (3 for not weapon)
+                              // first level too high          -> INVENTORY
                               // not chosen 3           more   -> VAULT
                               // first exo                     -> VAULT_EXO
                               // whatever useful for dismantle -> VAULT_TO_DISMANTLE (later)
 
-                              var countMax = 3;
+                              var countMaxNotChosen = 3;
                               if (item.itemType == 3) {
                                 // Weapon
-                                countMax = 1;
+                                countMaxNotChosen = 1;
                               }
                               //logger.info(JSON.stringify(item.itemType, null, 2));
 
                               item.keep = KeepOrNot.NO_KEEP;
-                              if ((item.chosen > -1) && (item.tierType == Tier.Exotic)) {
+                              if (item.equipRequiredLevel && (item.equipRequiredLevel > data.characters[0].baseCharacterLevel)) {
+                                if (countItemTooHigh == 0) {
+                                  item.keep = KeepOrNot.KEEP_INVENTORY
+                                  //logger.info("- 1 "+item.bucketNameTarget+" "+item.bucketName+" "+item.name+" "+item.lightLevel);
+                                } else {
+                                  item.keep = KeepOrNot.KEEP_VAULT
+                                }
+                                countItemTooHigh++;
+                              } else if ((item.chosen > -1) && (item.tierType == Tier.Exotic)) {
                                 item.keep = KeepOrNot.KEEP_INVENTORY
                               } else if ((item.chosen > -1) && (item.tierType == Tier.Legendary)) {
                                 item.keep = KeepOrNot.KEEP_INVENTORY
                                 count++;
                               } else if ((item.tierType <= Tier.Legendary)) {
-                                if (count < countMax) {
+                                if (count < countMaxNotChosen) {
                                   item.keep = KeepOrNot.KEEP_INVENTORY
-                                } else if (count < countMax + 3) {
+                                } else if (count < countMaxNotChosen + 3) {
                                   item.keep = KeepOrNot.KEEP_VAULT
                                 }
                                 count++;
@@ -277,8 +287,10 @@ router.get('/api', function (request, response, next) {
                       if (!maxLights[item.bucketNameTarget]) {
                         maxLights[item.bucketNameTarget] = [];
                       }
-                      maxLights[item.bucketNameTarget].push(item);
-                      bucketName = item.bucketNameTarget;
+                      if (item.equipRequiredLevel && (item.equipRequiredLevel <= data.characters[0].baseCharacterLevel)) {
+                        maxLights[item.bucketNameTarget].push(item);
+                        bucketName = item.bucketNameTarget;
+                      }
                     }
                     callback(null);
                   },
@@ -541,7 +553,7 @@ router.get('/api', function (request, response, next) {
                 async.eachSeries(
                   itemsByBukets,
                   function (item, callback) {
-                    //if (item.name == "A Single Clap") {
+                    //if (item.name == "Penumbra GSm") {
                     //logger.info(JSON.stringify(item,null,2));
                     //}
                     var toLock = false;
@@ -677,7 +689,7 @@ router.get('/api', function (request, response, next) {
 
                           if ((CONF_MODE[conf.mode] == CONF_MODE["optimize-inventory"]) || (CONF_MODE[conf.mode] == CONF_MODE["max-light"])) {
                             if (item.keep == KeepOrNot.KEEP_INVENTORY
-                              && (item.bucketName == "General") && (item.transferStatus < 2 )) {
+                              && ((item.bucketName == "General") || (item.characterId != data.characters[0].characterId)) && (item.transferStatus < 2 )) {
                               transfert = true;
                             } else if ((item.keep == KeepOrNot.KEEP_EQUIP) && !item.isEquipped) {
                               transfert = true;
@@ -893,8 +905,12 @@ router.get('/login/callback', function (request, response, next) {
 
           request.session.user = user;
 
-          response.redirect('..');
-          //logger.info(JSON.stringify(user, null, 2));
+          if (request.headers.referer) {
+            //logger.info(JSON.stringify(request.headers, null, 2));
+            response.redirect(request.headers.referer);
+          } else {
+            response.redirect('..');
+          }
 
         });
 
