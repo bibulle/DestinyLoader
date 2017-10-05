@@ -905,12 +905,7 @@ router.get('/login/callback', function (request, response, next) {
 
           request.session.user = user;
 
-          if (request.headers.referer) {
-            //logger.info(JSON.stringify(request.headers, null, 2));
-            response.redirect(request.headers.referer);
-          } else {
-            response.redirect('..');
-          }
+          response.redirect('..');
 
         });
 
