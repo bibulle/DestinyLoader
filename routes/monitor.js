@@ -14,12 +14,21 @@ var destinyDb = require("../lib/destinyDb");
 router.get('/', function (request, response, next) {
   if (request.originalUrl.slice(-1) == '/') return response.redirect('..' + request.originalUrl.slice(0, -1));
 
+  //logger.info(JSON.stringify(request.originalUrl, null, 2));
   if (!request.session.user) {
-    response.redirect('monitorstuff/login');
+    delete request.session.lastAccess;
+    return response.redirect('monitorstuff/login');
   } else {
-    //logger.info(JSON.stringify(request.session.user, null, 2));
-    //response.send("Welcome "+request.session.user.bungieNetUser.displayName);
-    response.render('monitor', {user: request.session.user});
+    var d = new Date();
+    if (request.session.lastAccess && (request.session.lastAccess > d.getTime()-2000)) {
+      delete request.session.user;
+      response.redirect('monitorstuff/login');
+    } else {
+      request.session.lastAccess = d.getTime();
+
+      //response.send("Welcome "+request.session.user.bungieNetUser.displayName);
+      response.render('monitor', {user: request.session.user});
+    }
 
   }
 });
@@ -741,11 +750,13 @@ router.get('/api', function (request, response, next) {
         ],
 
         function (err, data) {
-          if (err) {
+          if (err && err.error) {
+            response.send(err);
             //data.messages.push("ERROR : "+err);
             //return response.send(JSON.stringify({messages: err}, null, 2));
+          } else {
+            response.send(JSON.stringify(data, null, 2));
           }
-          response.send(JSON.stringify(data, null, 2));
         }
       )
       ;
