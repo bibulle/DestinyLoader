@@ -134,6 +134,7 @@ router.get('/api', function (request, response, next) {
                         // find witch to keep
                         function (callback) {
                           var count = 0;
+                          var countItemTooHigh = 0;
                           var found = [];
                           async.eachSeries(
                             itemsByType,
@@ -141,27 +142,35 @@ router.get('/api', function (request, response, next) {
                               // chosen exo                    -> INVENTORY
                               // chosen legendary              -> INVENTORY
                               // first                         -> INVENTORY (3 for not weapon)
+                              // first level too high          -> INVENTORY
                               // not chosen 3           more   -> VAULT
                               // first exo                     -> VAULT_EXO
                               // whatever useful for dismantle -> VAULT_TO_DISMANTLE (later)
 
-                              var countMax = 3;
+                              var countMaxNotChosen = 3;
                               if (item.itemType == 3) {
                                 // Weapon
-                                countMax = 1;
+                                countMaxNotChosen = 1;
                               }
                               //logger.info(JSON.stringify(item.itemType, null, 2));
 
                               item.keep = KeepOrNot.NO_KEEP;
-                              if ((item.chosen > -1) && (item.tierType == Tier.Exotic)) {
+                              if (item.equipRequiredLevel && (item.equipRequiredLevel > data.characters[0].baseCharacterLevel)) {
+                                if (countItemTooHigh == 0) {
+                                  item.keep = KeepOrNot.KEEP_INVENTORY
+                                } else {
+                                  item.keep = KeepOrNot.KEEP_VAULT
+                                }
+                                countItemTooHigh++;
+                              } else if ((item.chosen > -1) && (item.tierType == Tier.Exotic)) {
                                 item.keep = KeepOrNot.KEEP_INVENTORY
                               } else if ((item.chosen > -1) && (item.tierType == Tier.Legendary)) {
                                 item.keep = KeepOrNot.KEEP_INVENTORY
                                 count++;
                               } else if ((item.tierType <= Tier.Legendary)) {
-                                if (count < countMax) {
+                                if (count < countMaxNotChosen) {
                                   item.keep = KeepOrNot.KEEP_INVENTORY
-                                } else if (count < countMax + 3) {
+                                } else if (count < countMaxNotChosen + 3) {
                                   item.keep = KeepOrNot.KEEP_VAULT
                                 }
                                 count++;
@@ -882,8 +891,8 @@ router.get('/login/callback', function (request, response, next) {
 
           request.session.user = user;
 
+          logger.info(JSON.stringify(req.headers, null, 2));
           response.redirect('..');
-          //logger.info(JSON.stringify(user, null, 2));
 
         });
 
