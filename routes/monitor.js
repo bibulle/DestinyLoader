@@ -158,6 +158,7 @@ router.get('/api', function (request, response, next) {
                               if (item.equipRequiredLevel && (item.equipRequiredLevel > data.characters[0].baseCharacterLevel)) {
                                 if (countItemTooHigh == 0) {
                                   item.keep = KeepOrNot.KEEP_INVENTORY
+                                  //logger.info("- 1 "+item.bucketNameTarget+" "+item.bucketName+" "+item.name+" "+item.lightLevel);
                                 } else {
                                   item.keep = KeepOrNot.KEEP_VAULT
                                 }
@@ -277,8 +278,10 @@ router.get('/api', function (request, response, next) {
                       if (!maxLights[item.bucketNameTarget]) {
                         maxLights[item.bucketNameTarget] = [];
                       }
-                      maxLights[item.bucketNameTarget].push(item);
-                      bucketName = item.bucketNameTarget;
+                      if (item.equipRequiredLevel && (item.equipRequiredLevel <= data.characters[0].baseCharacterLevel)) {
+                        maxLights[item.bucketNameTarget].push(item);
+                        bucketName = item.bucketNameTarget;
+                      }
                     }
                     callback(null);
                   },
@@ -541,7 +544,7 @@ router.get('/api', function (request, response, next) {
                 async.eachSeries(
                   itemsByBukets,
                   function (item, callback) {
-                    //if (item.name == "A Single Clap") {
+                    //if (item.name == "Penumbra GSm") {
                     //logger.info(JSON.stringify(item,null,2));
                     //}
                     var toLock = false;
@@ -677,7 +680,7 @@ router.get('/api', function (request, response, next) {
 
                           if ((CONF_MODE[conf.mode] == CONF_MODE["optimize-inventory"]) || (CONF_MODE[conf.mode] == CONF_MODE["max-light"])) {
                             if (item.keep == KeepOrNot.KEEP_INVENTORY
-                              && (item.bucketName == "General") && (item.transferStatus < 2 )) {
+                              && ((item.bucketName == "General") || (item.characterId != data.characters[0].characterId)) && (item.transferStatus < 2 )) {
                               transfert = true;
                             } else if ((item.keep == KeepOrNot.KEEP_EQUIP) && !item.isEquipped) {
                               transfert = true;
@@ -891,8 +894,12 @@ router.get('/login/callback', function (request, response, next) {
 
           request.session.user = user;
 
-          logger.info(JSON.stringify(req.headers, null, 2));
-          response.redirect('..');
+          if (request.headers.referer) {
+            //logger.info(JSON.stringify(request.headers, null, 2));
+            response.redirect(request.headers.referer);
+          } else {
+            response.redirect('..');
+          }
 
         });
 
