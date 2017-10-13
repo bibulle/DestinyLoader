@@ -288,7 +288,9 @@ router.get('/api', function (request, response, next) {
                         maxLights[item.bucketNameTarget] = [];
                       }
                       if (item.equipRequiredLevel && (item.equipRequiredLevel <= data.characters[0].baseCharacterLevel)) {
-                        maxLights[item.bucketNameTarget].push(item);
+                        if (item.bucketName != "Lost Items") {
+                          maxLights[item.bucketNameTarget].push(item);
+                        }
                         bucketName = item.bucketNameTarget;
                       }
                     }
