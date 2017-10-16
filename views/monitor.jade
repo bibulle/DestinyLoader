@@ -1,0 +1,19 @@
+doctype html
+html
+  head
+    title= "Monitor"
+    link(rel='stylesheet', href='stylesheets/style.css')
+    script(src="javascripts/monitor.js")
+    script(src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js")
+  body(onLoad="init()")
+    div(id="title")= "Monitor Stuff for you : "+user.bungieNetUser.displayName
+    div(id="messages")
+    div(id="input")
+      textarea
+      div
+        button(id="do-nothing")= "Do nothing"
+        button(id="lock-chosen")= "Lock chosen"
+        button(id="optimize-inventory")= "Optimize inventories"
+        button(id="max-light")= "Optimize inventories and max light"
+        button(id="prepare-infuse")= "Prepare infusion"
+        button(id="prepare-cleanup")= "Prepare vault cleanup"

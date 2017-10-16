@@ -36,9 +36,11 @@ function calcList(callback) {
   var userList = [];
   try {
       userListJson = fs.readFileSync(__dirname+'/../data/clanMembers.js', 'utf8');
-      var userOnlineMap = {};
+    var userCharMap = {};
+    var userOnlineMap = {};
       var userList = JSON.parse(userListJson).map(function(users) {
-          userOnlineMap[users.displayName] =  users.isOnLine;
+        userOnlineMap[users.displayName] =  users.isOnLine;
+        userCharMap[users.displayName] =  users.characters;
           return users.displayName;
       });
       //ogger.info(JSON.stringify(userOnlineMap, null, 2));
@@ -99,7 +101,7 @@ function calcList(callback) {
           }
           //logger.info(d.userId);
           //logger.info(userList.includes(d.userId));
-          if (userList.indexOf(d.userId) >=0) {
+          if ((userList.indexOf(d.userId) >=0) && (userCharMap[d.userId].indexOf(d.id) >= 0)) {
               if (!result[key]) {
                   result[key] = {};
                   result[key].lightMax = d.light;
