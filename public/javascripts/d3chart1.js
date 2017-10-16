@@ -5,8 +5,10 @@ var svg;
 // const
 var MIN_LIGHT = 0;
 var DATE_MIN = new Date(2017, 1, 1);
-var Y_TICK_VALUES = [0, 200, 250, 300, 305];
-var POW = 6;
+//var Y_TICK_VALUES = [0, 200, 250, 300, 305];
+var Y_TICK_VALUES = [0, 1, 2, 3, 4];
+//var POW = 6;
+var POW = 1;
 //var RELOAD_EVERY = 20 * 1000;
 var RELOAD_EVERY = 10 * 60 * 1000;
 var TEXT_SPACE = 9;
@@ -93,11 +95,13 @@ function getX(d) {
 }
 
 function getYMax(d) {
-  return d.lightMax;
+  //return d.lightMax;
+  return d.allPvPKillsDeathsAssistsRatio;
 }
 
 function getYMin(d) {
-  return d.lightMin;
+  //return d.lightMin;
+  return d.allPvPKillsDeathsAssistsRatio;
 }
 
 function getTitle(d) {
@@ -124,6 +128,7 @@ function getTitle(d) {
   title += "\nstrike : " + d.values[d.values.length - 1].strikeCleared + " / " + d.values[d.values.length - 1].strikeEntered;
   title += "\nTrial of the nine : " + d.values[d.values.length - 1].trialsofthenineWon + " / " + d.values[d.values.length - 1].trialsofthenineEntered;
   title += "\nPvP : " + d.values[d.values.length - 1].allPvPWon + " / " + d.values[d.values.length - 1].allPvPEntered;
+  title += "\nPvP ratio : " + d.values[d.values.length - 1].allPvPKillsDeathsAssistsRatio;
 
   return title;
 }
