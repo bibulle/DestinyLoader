@@ -6,7 +6,7 @@ var svg;
 var MIN_LIGHT = 0;
 var DATE_MIN = new Date(2017, 1, 1);
 //var Y_TICK_VALUES = [0, 200, 250, 300, 305];
-var Y_TICK_VALUES = [0, 1, 2, 3, 4];
+var Y_TICK_VALUES = [0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4];
 //var POW = 6;
 var POW = 1;
 //var RELOAD_EVERY = 20 * 1000;
