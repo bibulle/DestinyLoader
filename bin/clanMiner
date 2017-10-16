@@ -1,0 +1,98 @@
+#!/usr/bin/env node
+
+/**
+ * Module dependencies.
+ */
+
+var debug = require('debug')('SeedMeHome2:server');
+var sprintf = require('sprintf-js').sprintf;
+var async = require('async');
+var CronJob = require('cron').CronJob;
+var fs = require('fs');
+
+var logger = require('../lib/logger');
+var destiny = require('../lib/destiny');
+var destinyDb = require('../lib/destinyDb');
+var grimoireGoogle = require('../lib/grimoireGoogle');
+var config = require('../lib/config');
+
+var CRON_TAB_MINE_DESTINY = config.crontab;
+logger.info("CronTab          : '" + CRON_TAB_MINE_DESTINY + "'");
+
+var postPageNum = 0;
+
+//========================================================================
+
+var mineDestiny;
+mineDestiny = function () {
+  async.waterfall(
+    [
+      function (callback) {
+        destiny.getPost(postPageNum, function (err, data) {
+          logger.info("retour des posts");
+          //logger.info(JSON.stringify(err, null, 2));
+          //logger.info(JSON.stringify(data, null, 2));
+          if (err) {
+            return callback(err);
+          }
+
+          //logger.info(data);
+
+          var authorsId = [];
+
+          data.relatedPosts.forEach(function (p) {
+            if (authorsId.indexOf(p.authorMembershipId) < 0) {
+              authorsId.push(p.authorMembershipId);
+            }
+          });
+          data.authors.forEach(function (a) {
+            if (authorsId.indexOf(a.membershipId) < 0) {
+              authorsId.push(a.membershipId);
+            }
+          });
+          data.results.forEach(function (p) {
+            if (authorsId.indexOf(p.authorMembershipId) < 0) {
+              authorsId.push(p.authorMembershipId);
+            }
+          });
+          //logger.info(JSON.stringify(authorsId, null, 2));
+
+          callback(null, authorsId);
+        })
+      },
+      function(authorsId, callback) {
+          async.eachSeries(
+            authorsId,
+            function(id, callback) {
+              destiny.getUserSummary(id, function (err, data) {
+                if (err) {
+                  return callback(err);
+                }
+                callback();
+              });
+            },
+            function(err) {
+              callback(err);
+            }
+          )
+      },
+    ],
+    function (err) {
+      if (err) {
+        logger.error(err);
+      }
+      postPageNum++;
+    }
+  )
+
+
+  //setTimeout(test, 1000);
+};
+
+//========================================================================
+new CronJob(CRON_TAB_MINE_DESTINY, mineDestiny, null, true, "GMT");
+//========================================================================
+
+// launch once on start
+mineDestiny();
+
