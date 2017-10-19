@@ -2,11 +2,22 @@
 var data = {};
 var svg;
 
+var graphType_LIGHT = "LIGHT";
+var graphType_RATIO = "RATIO";
+
 // const
 var MIN_LIGHT = 0;
 var DATE_MIN = new Date(2017, 1, 1);
-var Y_TICK_VALUES = [0, 200, 230, 260, 280, 290, 300, 305];
-var POW = 10;
+var Y_TICK_VALUES_LIGHT = [0, 200, 230, 260, 280, 290, 300, 305];
+//var Y_TICK_VALUES_RATIO = [0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4];
+var Y_TICK_VALUES_RATIO = null;
+var POW_LIGHT = 10;
+var POW_RATIO = 1;
+
+var pow = POW_LIGHT;
+var YTickValues = Y_TICK_VALUES_LIGHT;
+var graphType = graphType_LIGHT;
+
 //var RELOAD_EVERY = 20 * 1000;
 var RELOAD_EVERY = 10 * 60 * 1000;
 var TEXT_SPACE = 9;
@@ -33,9 +44,9 @@ var loadData = function () {
       //.sortKeys(d3.ascending)
       .entries(d);
 
-    data.sort(function (d1, d2) {
-      return d3.ascending(d2.values[d2.values.length - 1].lightMax, d1.values[d1.values.length - 1].lightMax);
-    });
+    //data.sort(function (d1, d2) {
+    //  return d3.ascending(getYMax(d2.values[d2.values.length - 1]), getYMax(d1.values[d1.values.length - 1]));
+    //});
 
     data.forEach(function (d) {
       d.label = d.values[d.values.length - 1].userId + " / " + d.values[d.values.length - 1].class + "";
@@ -93,11 +104,19 @@ function getX(d) {
 }
 
 function getYMax(d) {
-  return d.lightMax;
+  if (graphType == graphType_LIGHT) {
+    return d.lightMax;
+  } else {
+    return d.allPvPKillsDeathsAssistsRatio;
+  }
 }
 
 function getYMin(d) {
-  return d.lightMin;
+  if (graphType == graphType_LIGHT) {
+    return d.lightMin;
+  } else {
+    return d.allPvPKillsDeathsAssistsRatio;
+  }
 }
 
 function getTitle(d) {
@@ -124,6 +143,7 @@ function getTitle(d) {
   title += "\nstrike : " + d.values[d.values.length - 1].strikeCleared + " / " + d.values[d.values.length - 1].strikeEntered;
   title += "\nTrial of the nine : " + d.values[d.values.length - 1].trialsofthenineWon + " / " + d.values[d.values.length - 1].trialsofthenineEntered;
   title += "\nPvP : " + d.values[d.values.length - 1].allPvPWon + " / " + d.values[d.values.length - 1].allPvPEntered;
+  title += "\nPvP ratio : " + d.values[d.values.length - 1].allPvPKillsDeathsAssistsRatio.toFixed(2);
 
   return title;
 }
@@ -167,7 +187,7 @@ var createChart = function () {
   // define the axis
   var x = d3.time.scale().domain([DATE_MIN, new Date()]).range([0, width]);
   //var y = d3.scale.linear().domain([MIN_LIGHT, 335]).range([height, 0]);
-  var y = d3.scale.pow().exponent(POW).domain([MIN_LIGHT, 305]).range([height, 0]);
+  var y = d3.scale.pow().exponent(pow).domain([MIN_LIGHT, 305]).range([height, 0]);
   var xAxis = d3.svg.axis()
     .scale(x)
     .orient("bottom")
@@ -180,7 +200,7 @@ var createChart = function () {
     .innerTickSize(-width)
     .outerTickSize(0)
     .tickPadding(10)
-    .tickValues(Y_TICK_VALUES);
+    .tickValues(YTickValues);
 
   //console.log(x.domain());
 
@@ -191,20 +211,79 @@ var createChart = function () {
     .attr("transform", "translate(0," + height + ")")
     .call(xAxis);
 
-  svg.append("g")
+  var ax = svg.append("g")
     .attr("class", "y axis")
-    .call(yAxis)
-    .append("text")
+    .call(yAxis);
+  ax.append("text")
+    .attr("class", "y-axis-label-light")
     .attr("transform", "rotate(-90)")
     .attr("y", 6)
     .attr("dy", ".71em")
     .attr("dx", "-.2em")
     .style("text-anchor", "end")
     .text("Light");
+  ax.append("text")
+    .attr("class", "y-axis-label-ratio")
+    .attr("transform", "rotate(-90)")
+    .attr("y", 6)
+    .attr("dy", ".71em")
+    .attr("dx", "-.2em")
+    .style("text-anchor", "end")
+    .style("opacity", 0)
+    .text("Ratio");
+
+  // add the button
+  var buttonsGroup = svg.append("g")
+    .attr("class", "buttons")
+    .attr("transform", "translate(0,-20)")
+  ;
+  buttonsGroup
+    .append("text")
+    .attr("class", "ratio")
+    .text("-> Ratio");
+  buttonsGroup
+    .append("text")
+    .attr("class", "light")
+    .style("opacity", 0)
+    .on("click", function () {
+      if (graphType == graphType_LIGHT) {
+        graphType = graphType_RATIO
+        d3.select(".buttons .ratio").style("opacity", 0);
+        d3.select(".buttons .light").style("opacity", 1);
+        d3.select(".y-axis-label-ratio").style("opacity", 1);
+        d3.select(".y-axis-label-light").style("opacity", 0);
+      } else {
+        graphType = graphType_LIGHT
+        d3.select(".buttons .ratio").style("opacity", 1);
+        d3.select(".buttons .light").style("opacity", 0);
+        d3.select(".y-axis-label-ratio").style("opacity", 0);
+        d3.select(".y-axis-label-light").style("opacity", 1);
+      }
+      ;
+      updateChart();
+    })
+    .text("-> Lights");
+
 
 };
 
 var updateChart = function () {
+
+  if (graphType == graphType_LIGHT) {
+    pow = POW_LIGHT;
+    YTickValues = Y_TICK_VALUES_LIGHT;
+  } else {
+    pow = POW_RATIO;
+    YTickValues = Y_TICK_VALUES_RATIO;
+  }
+
+  data.sort(function (d1, d2) {
+    return d3.ascending(getYMax(d2.values[d2.values.length - 1]), getYMax(d1.values[d1.values.length - 1]));
+  });
+
+
+
+
   //console.log(data);
 
   // get the global list
@@ -216,7 +295,7 @@ var updateChart = function () {
   // calculate the scales
   var x = d3.time.scale().range([0, width]);
   //var y = d3.scale.linear().range([height, 0]);
-  var y = d3.scale.pow().exponent(POW).range([height, 0]);
+  var y = d3.scale.pow().exponent(pow).range([height, 0]);
   //x.domain(d3.extent(allData, getX));
   x.domain([DATE_MIN, new Date()])
   y.domain([Math.max(MIN_LIGHT, d3.min(allData, getYMin)), d3.max(allData, getYMax)]);
@@ -247,7 +326,7 @@ var updateChart = function () {
     .innerTickSize(-width)
     .outerTickSize(0)
     .tickPadding(10)
-    .tickValues(Y_TICK_VALUES);
+    .tickValues(YTickValues);
 
   // ---------
   // add axis
@@ -260,7 +339,8 @@ var updateChart = function () {
     .transition().duration(1000)
     .call(yAxis);
   d3.select(".y1.axis text.axisLabel")
-    .text("Light");
+  //.text("Light")
+  ;
 
   // ---------
   // add path
@@ -385,14 +465,14 @@ var updateChart = function () {
       return color(d.key);
     })
     .on("mouseover", function (d) {
-      d3.selectAll(".text.U"+d.userId).style("font-weight", "bolder");
-      d3.selectAll(".line.K"+d.key).style("stroke-width", "5px");
-      d3.selectAll(".area.K"+d.key).style("opacity", "0.9");
+      d3.selectAll(".text.U" + d.userId).style("font-weight", "bolder");
+      d3.selectAll(".line.K" + d.key).style("stroke-width", "5px");
+      d3.selectAll(".area.K" + d.key).style("opacity", "0.9");
     })
     .on("mouseout", function (d) {
-      d3.selectAll(".text.U"+d.userId).style("font-weight", "normal");
-      d3.selectAll(".line.K"+d.key).style("stroke-width", "1.5px")
-      d3.selectAll(".area.K"+d.key).style("opacity", "0.2");
+      d3.selectAll(".text.U" + d.userId).style("font-weight", "normal");
+      d3.selectAll(".line.K" + d.key).style("stroke-width", "1.5px")
+      d3.selectAll(".area.K" + d.key).style("opacity", "0.2");
     })
     .append("svg:title")
     .text(getTitle);
