@@ -29,7 +29,7 @@ mineDestiny = function () {
     [
       function (callback) {
         destiny.getPost(postPageNum, function (err, data) {
-          logger.info("retour des posts");
+          logger.info("retour des posts (page: "+postPageNum+")");
           //logger.info(JSON.stringify(err, null, 2));
           //logger.info(JSON.stringify(data, null, 2));
           if (err) {
@@ -61,21 +61,43 @@ mineDestiny = function () {
         })
       },
       function(authorsId, callback) {
+        var clans = [];
+        var clansId = [];
+
           async.eachSeries(
             authorsId,
             function(id, callback) {
-              destiny.getUserSummary(id, function (err, data) {
+              destiny.getUserForumSummary(id, function (err, userClans) {
                 if (err) {
                   return callback(err);
                 }
-                callback();
+                userClans.forEach(function(c) {
+                  if (c && clansId.indexOf(c.groupId) < 0) {
+                    clans.push(c);
+                    clansId.push(c.groupId);
+                  }
+                })
+                callback(null);
               });
             },
             function(err) {
-              callback(err);
+              callback(err, clans);
             }
           )
       },
+      function(clans, callback) {
+        async.eachSeries(
+          clans,
+          function(clan, callback) {
+            //logger.info(JSON.stringify(clan, null, 2));
+            logger.info('\t'+clan.groupId+'\t'+clan.name+'\t'+clan.memberCount+'\t'+clan.locale+'\t'+clan.membershipOption+'\t'+clan.weeklyProgress+'\t'+clan.level)
+            callback(null);
+          },
+          function(err) {
+            callback(err);
+          }
+        )
+      }
     ],
     function (err) {
       if (err) {
