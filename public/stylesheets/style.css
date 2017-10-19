@@ -37,6 +37,11 @@ p {
     opacity: 0.2;
 }
 
+.buttons text {
+    fill: lightgray;
+}
+
+
 #title {
     font-weight: bold;
     font-size: 2em;
