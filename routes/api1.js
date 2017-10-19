@@ -1,4 +1,5 @@
 var logger = require('../lib/logger');
+var config = require('../lib/config');
 var destinyDb = require('../lib/destinyDb');
 var CronJob = require('cron').CronJob;
 var fs = require('fs');
@@ -69,6 +70,10 @@ function calcList(callback) {
 
 
       var firstDate = new Date(2000, 0,1);
+      var limitDate = new Date(2000, 0,1);
+      try {
+        limitDate = new Date(config.startingDate);
+      } catch(e) {}
       var list = docs
         .reduce(function (result, d) {
           //console.log(d);
@@ -101,7 +106,7 @@ function calcList(callback) {
           }
           //logger.info(d.userId);
           //logger.info(userList.includes(d.userId));
-          if ((userList.indexOf(d.userId) >=0) && (userCharMap[d.userId].indexOf(d.id) >= 0)) {
+          if ((d.date.getTime() > limitDate.getTime()) && (userList.indexOf(d.userId) >=0) && (userCharMap[d.userId].indexOf(d.id) >= 0)) {
               if (!result[key]) {
                   result[key] = {};
                   result[key].lightMax = d.light;
