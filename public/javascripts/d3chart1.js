@@ -5,8 +5,8 @@ var svg;
 // const
 var MIN_LIGHT = 0;
 var DATE_MIN = new Date(2017, 1, 1);
-var Y_TICK_VALUES = [0, 200, 250, 300, 305];
-var POW = 6;
+var Y_TICK_VALUES = [0, 200, 230, 260, 280, 290, 300, 305];
+var POW = 10;
 //var RELOAD_EVERY = 20 * 1000;
 var RELOAD_EVERY = 10 * 60 * 1000;
 var TEXT_SPACE = 9;
@@ -61,7 +61,7 @@ var w = window,
 
 var BODY_PADDING = 0.02 * x;
 x = x - 2 * BODY_PADDING;
-y = y - 2 * BODY_PADDING - 5;
+//y = y - 2 * BODY_PADDING - 5;
 
 //Chart dimensions
 var margin = {top: 40, right: 150, bottom: 40, left: 70};
@@ -448,7 +448,7 @@ var updateChart = function () {
     }
     if (!count) {
       count = 1;
-    } else if (count > 200) {
+    } else if (count > 800) {
       return 2 * height;
     }
     //console.log(count);
@@ -464,7 +464,7 @@ var updateChart = function () {
     //console.log(nextStep);
 
     var ok = true;
-    if ((pos > height) || (pos < -1 * TEXT_SPACE)) {
+    if ((pos > height) || (pos < -1 * (margin.top - TEXT_SPACE))) {
       ok = false;
     }
     //console.log(pos);
