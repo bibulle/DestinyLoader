@@ -139,7 +139,7 @@ function calcList(callback) {
               result[key].allPvPWon = d.allPvPWon;
               result[key].trialsofthenineEntered = d.trialsofthenineEntered;
               result[key].trialsofthenineWon = d.trialsofthenineWon;
-
+              result[key].allPvPKillsDeathsAssistsRatio = (d.allPvPKills+d.allPvPAssists/2)/Math.max(1, d.allPvPDeaths);
           }
 
           return result;
