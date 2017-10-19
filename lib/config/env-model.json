@@ -4,6 +4,7 @@
     "crontab": "0 * * * * *",
     "crontabGrimoire": "0 * * * * *",
     "clanId": 1234567,
+    "startingDate": "2017/10/17 00:00:00",
     "accountsGrimoire": [
       {"id": "your google id", "docKey": "your google key"}
     ],
@@ -16,6 +17,7 @@
     "dbPath": "../../data/destinyDb.prd.db",
     "crontab": "0 1,10,20,30,40,50 * * * *",
     "crontabGrimoire": "0 0 6 * * *",
+    "startingDate": "2017/10/17 00:00:00",
     "clanId": 1234567,
     "accountsGrimoire": [
       {"id": "your google id", "docKey": "your google key"}
