@@ -16,7 +16,7 @@ router.get('/', function (req, res, next) {
   res.setHeader('Last-Modified', (new Date()).toUTCString());
 
   if ((new Date() - dateCache) > 1000 * 60 * 12) {
-    logger.err("Cache not loaded !! " + dateCache);
+    logger.error("Cache not loaded !! " + dateCache);
     calcList(function (err, list) {
       if (err) {
         res.send(err);
