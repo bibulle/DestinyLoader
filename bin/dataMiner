@@ -28,23 +28,43 @@ mineDestiny = function () {
     async.waterfall(
         [
             function (callback) {
-                destiny.getClan(config.clanId, function(err, data) {
+                if (config.clanId > 0) {
+                  destiny.getClan(config.clanId, function(err, data) {
                     //logger.info("retour du clan");
                     //logger.info(JSON.stringify(err, null, 2));
                     //logger.info(JSON.stringify(data, null, 2));
                     if (err) {
-                        return callback(err);
+                      return callback(err);
                     }
                     var accounts = data;
                     //logger.info(JSON.stringify(__dirname+'/../data/accountsLight1.js', null, 2));
                     fs.writeFileSync(__dirname+'/../data/clanMembers.js', JSON.stringify(accounts, null, 2)); // write it back
 
                     try {
-                        data = fs.readFileSync(__dirname+'/../data/clanMembers.js', 'utf8');
-                        config.clanMembers = JSON.parse(data);
+                      data = fs.readFileSync(__dirname+'/../data/clanMembers.js', 'utf8');
+                      config.clanMembers = JSON.parse(data);
                     } catch(e) {}
                     callback();
-                } )
+                  } )
+                } else {
+                  destiny.getGroup(config.accountsClan, function(err, data) {
+                    //logger.info("retour du group");
+                    //logger.info(JSON.stringify(err, null, 2));
+                    //logger.info(JSON.stringify(data, null, 2));
+                    if (err) {
+                      return callback(err);
+                    }
+                    var accounts = data;
+                    //logger.info(JSON.stringify(__dirname+'/../data/accountsLight1.js', null, 2));
+                    fs.writeFileSync(__dirname+'/../data/clanMembers.js', JSON.stringify(accounts, null, 2)); // write it back
+
+                    try {
+                      data = fs.readFileSync(__dirname+'/../data/clanMembers.js', 'utf8');
+                      config.clanMembers = JSON.parse(data);
+                    } catch(e) {}
+                    callback();
+                  } )
+                }
             },
             function(callback) {
                 async.eachSeries(
