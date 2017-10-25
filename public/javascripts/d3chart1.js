@@ -51,6 +51,14 @@ var loadData = function () {
 
     data.forEach(function (d) {
       d.label = d.values[d.values.length - 1].userId + " / " + d.values[d.values.length - 1].class + "";
+
+      if (d.values[d.values.length - 1].isOnLine == null) {
+        try {
+          if (d.values[d.values.length - 2].minutesPlayedTotal != d.values[d.values.length - 1].minutesPlayedTotal) {
+            d.values[d.values.length - 1].isOnLine = true;
+          }
+        } catch(e) {}
+      }
       if (d.values[d.values.length - 1].isOnLine) {
         d.label = d.label + " &bull;";
       }
