@@ -30,6 +30,7 @@ var loadData = function () {
 
     d.forEach(function (v) {
       v.date = new Date(v.date);
+      v.userId = v.userId.replace(/#[0-9]*$/,"");
 
       if ((v.date.getTime() < dateMin.getTime()) && (v.lightMax > MIN_LIGHT - 10)) {
         dateMin = v.date;
