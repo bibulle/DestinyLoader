@@ -8,7 +8,7 @@ var graphType_RATIO = "RATIO";
 // const
 var MIN_LIGHT = 0;
 var DATE_MIN = new Date(2017, 1, 1);
-var Y_TICK_VALUES_LIGHT = [0, 230, 260, 280, 290, 300, 310, 320 , 330 , 335];
+var Y_TICK_VALUES_LIGHT = [260, 280, 290, 300, 310, 320 , 330 , 335];
 //var Y_TICK_VALUES_RATIO = [0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4];
 var Y_TICK_VALUES_RATIO = null;
 var POW_LIGHT = 10;
