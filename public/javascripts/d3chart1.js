@@ -11,7 +11,7 @@ var DATE_MIN = new Date(2017, 1, 1);
 var Y_TICK_VALUES_LIGHT = [260, 280, 290, 300, 310, 320 , 330 , 340, 350, 360, 370, 380, 385];
 //var Y_TICK_VALUES_RATIO = [0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4];
 var Y_TICK_VALUES_RATIO = null;
-var POW_LIGHT = 10;
+var POW_LIGHT = 3;
 var POW_RATIO = 1;
 
 var pow = POW_LIGHT;
@@ -196,7 +196,7 @@ var createChart = function () {
   // define the axis
   var x = d3.time.scale().domain([DATE_MIN, new Date()]).range([0, width]);
   //var y = d3.scale.linear().domain([MIN_LIGHT, 335]).range([height, 0]);
-  var y = d3.scale.pow().exponent(pow).domain([MIN_LIGHT, 335]).range([height, 0]);
+  var y = d3.scale.pow().exponent(pow).domain([MIN_LIGHT, 600]).range([height, 0]);
   var xAxis = d3.svg.axis()
     .scale(x)
     .orient("bottom")
@@ -209,7 +209,8 @@ var createChart = function () {
     .innerTickSize(-width)
     .outerTickSize(0)
     .tickPadding(10)
-    .tickValues(YTickValues);
+    //.tickValues(YTickValues)
+  ;
 
   //console.log(x.domain());
 
@@ -335,7 +336,8 @@ var updateChart = function () {
     .innerTickSize(-width)
     .outerTickSize(0)
     .tickPadding(10)
-    .tickValues(YTickValues);
+    //.tickValues(YTickValues)
+  ;
 
   // ---------
   // add axis
