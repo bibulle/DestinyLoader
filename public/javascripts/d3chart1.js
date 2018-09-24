@@ -8,10 +8,10 @@ var graphType_RATIO = "RATIO";
 // const
 var MIN_LIGHT = 0;
 var DATE_MIN = new Date(2017, 1, 1);
-var Y_TICK_VALUES_LIGHT = [260, 280, 290, 300, 310, 320 , 330 , 340, 350, 360, 370, 380, 385];
+var Y_TICK_VALUES_LIGHT = [300, 350, 400, 450, 500, 540];
 //var Y_TICK_VALUES_RATIO = [0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4];
 var Y_TICK_VALUES_RATIO = null;
-var POW_LIGHT = 3;
+var POW_LIGHT = 5;
 var POW_RATIO = 1;
 
 var pow = POW_LIGHT;
@@ -209,7 +209,7 @@ var createChart = function () {
     .innerTickSize(-width)
     .outerTickSize(0)
     .tickPadding(10)
-    //.tickValues(YTickValues)
+    .tickValues(YTickValues)
   ;
 
   //console.log(x.domain());
@@ -336,7 +336,7 @@ var updateChart = function () {
     .innerTickSize(-width)
     .outerTickSize(0)
     .tickPadding(10)
-    //.tickValues(YTickValues)
+    .tickValues(YTickValues)
   ;
 
   // ---------
