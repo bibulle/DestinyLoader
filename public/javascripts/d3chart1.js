@@ -67,19 +67,26 @@ var loadData = function () {
       }
       d.userId = d.values[d.values.length - 1].userId;
 
-      var prevDate = null;
-      var prevVal = null;
+      var prevDate = [];
+      var prevVal = [];
       // Calculate the played time
       d.values.forEach(function(v) {
         v.playedRatio = 0;
-        if (prevDate && prevVal) {
-          var deltaTime = (v.date - prevDate)/(60*1000);
+        if ((prevDate.length != 0) && (prevVal.length != 0)) {
+          var deltaTime = (v.date - prevDate[0])/(60*1000);
           if (deltaTime != 0) {
-            v.playedRatio = (v.minutesPlayedTotal - prevVal)/deltaTime;
+            v.playedRatio = (v.minutesPlayedTotal - prevVal[0])/deltaTime;
+            if (v.playedRatio > 1) {
+              v.playedRatio = 1;
+            }
           }
         }
-        prevDate = v.date;
-        prevVal = v.minutesPlayedTotal;
+        prevDate.push(v.date);
+        prevVal.push(v.minutesPlayedTotal);
+        while (prevDate.length > 20) {
+          prevDate.shift();
+          prevVal.shift();
+        }
       })
     });
 
