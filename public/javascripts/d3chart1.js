@@ -4,15 +4,18 @@ var svg;
 
 var graphType_LIGHT = "LIGHT";
 var graphType_RATIO = "RATIO";
+var graphType_TIME = "TIME";
 
 // const
 var MIN_LIGHT = 0;
 var DATE_MIN = new Date(2017, 1, 1);
-var Y_TICK_VALUES_LIGHT = [300, 350, 400, 450, 500, 540];
+var Y_TICK_VALUES_LIGHT = [350, 400, 450, 500, 520, 540, 560];
 //var Y_TICK_VALUES_RATIO = [0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4];
 var Y_TICK_VALUES_RATIO = null;
+var Y_TICK_VALUES_TIME = null;
 var POW_LIGHT = 5;
 var POW_RATIO = 1;
+var POW_TIME = 1/2;
 
 var pow = POW_LIGHT;
 var YTickValues = Y_TICK_VALUES_LIGHT;
@@ -63,6 +66,21 @@ var loadData = function () {
         d.label = d.label + " &bull;";
       }
       d.userId = d.values[d.values.length - 1].userId;
+
+      var prevDate = null;
+      var prevVal = null;
+      // Calculate the played time
+      d.values.forEach(function(v) {
+        v.playedRatio = 0;
+        if (prevDate && prevVal) {
+          var deltaTime = (v.date - prevDate)/(60*1000);
+          if (deltaTime != 0) {
+            v.playedRatio = (v.minutesPlayedTotal - prevVal)/deltaTime;
+          }
+        }
+        prevDate = v.date;
+        prevVal = v.minutesPlayedTotal;
+      })
     });
 
     updateChart();
@@ -115,6 +133,8 @@ function getX(d) {
 function getYMax(d) {
   if (graphType == graphType_LIGHT) {
     return d.lightMax;
+  } else if (graphType == graphType_TIME) {
+    return d.playedRatio;
   } else {
     return d.allPvPKillsDeathsAssistsRatio;
   }
@@ -123,6 +143,8 @@ function getYMax(d) {
 function getYMin(d) {
   if (graphType == graphType_LIGHT) {
     return d.lightMin;
+  } else if (graphType == graphType_TIME) {
+    return d.playedRatio;
   } else {
     return d.allPvPKillsDeathsAssistsRatio;
   }
@@ -241,6 +263,15 @@ var createChart = function () {
     .style("text-anchor", "end")
     .style("opacity", 0)
     .text("Ratio");
+  ax.append("text")
+    .attr("class", "y-axis-label-time")
+    .attr("transform", "rotate(-90)")
+    .attr("y", 6)
+    .attr("dy", ".71em")
+    .attr("dx", "-.2em")
+    .style("text-anchor", "end")
+    .style("opacity", 0)
+    .text("Time");
 
   // add the button
   var buttonsGroup = svg.append("g")
@@ -250,7 +281,12 @@ var createChart = function () {
   buttonsGroup
     .append("text")
     .attr("class", "ratio")
-    .text("-> Ratio");
+    .text("-> Ratio/Time");
+  buttonsGroup
+    .append("text")
+    .attr("class", "time")
+    .style("opacity", 0)
+    .text("-> Time/Light");
   buttonsGroup
     .append("text")
     .attr("class", "light")
@@ -258,21 +294,33 @@ var createChart = function () {
     .on("click", function () {
       if (graphType == graphType_LIGHT) {
         graphType = graphType_RATIO
+        d3.select(".buttons .light").style("opacity", 0);
         d3.select(".buttons .ratio").style("opacity", 0);
-        d3.select(".buttons .light").style("opacity", 1);
+        d3.select(".buttons .time").style("opacity", 1);
         d3.select(".y-axis-label-ratio").style("opacity", 1);
         d3.select(".y-axis-label-light").style("opacity", 0);
+        d3.select(".y-axis-label-time").style("opacity", 0);
+      } else if (graphType == graphType_RATIO) {
+        graphType = graphType_TIME
+        d3.select(".buttons .light").style("opacity", 1);
+        d3.select(".buttons .ratio").style("opacity", 0);
+        d3.select(".buttons .time").style("opacity", 0);
+        d3.select(".y-axis-label-ratio").style("opacity", 0);
+        d3.select(".y-axis-label-light").style("opacity", 0);
+        d3.select(".y-axis-label-time").style("opacity", 1);
       } else {
         graphType = graphType_LIGHT
-        d3.select(".buttons .ratio").style("opacity", 1);
         d3.select(".buttons .light").style("opacity", 0);
+        d3.select(".buttons .ratio").style("opacity", 1);
+        d3.select(".buttons .time").style("opacity", 0);
         d3.select(".y-axis-label-ratio").style("opacity", 0);
         d3.select(".y-axis-label-light").style("opacity", 1);
+        d3.select(".y-axis-label-time").style("opacity", 0);
       }
       ;
       updateChart();
     })
-    .text("-> Lights");
+    .text("-> Lights/Ratio");
 
 
 };
@@ -282,6 +330,9 @@ var updateChart = function () {
   if (graphType == graphType_LIGHT) {
     pow = POW_LIGHT;
     YTickValues = Y_TICK_VALUES_LIGHT;
+  } else if (graphType == graphType_TIME) {
+    pow = POW_TIME;
+    YTickValues = Y_TICK_VALUES_TIME;
   } else {
     pow = POW_RATIO;
     YTickValues = Y_TICK_VALUES_RATIO;
