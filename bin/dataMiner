@@ -83,7 +83,7 @@ mineDestiny = function () {
                             async.eachSeries(data,
                                 function (character, callback) {
                                   //logger.info(character.userId+" / " + character.class + " light:" + character.light + " level:"+character.baseCharacterLevel+" minutes:"+character.minutesPlayedTotal);
-                                  logger.info(sprintf('%-20s %s -> light:%3d, level:%2d, minutes:%5d', character.userId, character.class, character.light, character.baseCharacterLevel, character.minutesPlayedTotal));
+                                  logger.info(sprintf('%-20s %s -> light:%3d, level:%2d, minutes:%5d, triumph:%6d', character.userId, character.class, character.light, character.baseCharacterLevel, character.minutesPlayedTotal, character.triumphScore));
                                   //logger.info(JSON.stringify(character, null, 2));
 
                                     destinyDb.insert(character, function (err, newDoc) {
