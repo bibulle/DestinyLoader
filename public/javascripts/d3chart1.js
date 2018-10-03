@@ -2,26 +2,50 @@
 var data = {};
 var svg;
 
-var graphType_LIGHT = "LIGHT";
-var graphType_RATIO = "RATIO";
-var graphType_TIME = "TIME";
+var graphType_LIGHT = 0;
+var graphType_RATIO = 1;
+var graphType_TIME = 2;
+var graphType_TRIUMPH = 3;
 
-// const
-var MIN_LIGHT = 0;
-var DATE_MIN = new Date(2017, 1, 1);
-var Y_TICK_VALUES_LIGHT = [350, 400, 450, 500, 520, 540, 560];
-//var Y_TICK_VALUES_RATIO = [0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4];
-var Y_TICK_VALUES_RATIO = null;
-var Y_TICK_VALUES_TIME = null;
-var POW_LIGHT = 5;
-var POW_RATIO = 1;
-var POW_TIME = 1/2;
+var GRAPHTYPE_length = 4;
 
-var pow = POW_LIGHT;
-var YTickValues = Y_TICK_VALUES_LIGHT;
+var DATE_MIN = [
+  new Date(2017, 1, 1),
+  new Date(2017, 1, 1),
+  new Date(2017, 10, 1),
+  new Date(2017, 10, 1)
+];
+var MIN_VALUES = [
+  0,
+  0,
+  0,
+  0
+];
+var Y_TICK_VALUES = [
+  [350, 400, 450, 500, 520, 540, 560],
+  null,
+  null,
+  null
+];
+var POW_VALUES = [
+  5,
+  1,
+  1,
+  1
+];
+var Y_LABEL = [
+  "Light",
+  "Ratio",
+  "Time played (ratio)",
+  "Triumphs"
+];
+
+// Init to light graph
 var graphType = graphType_LIGHT;
+var pow = POW_VALUES[graphType];
+var YTickValues = Y_TICK_VALUES[graphType];
 
-//var RELOAD_EVERY = 20 * 1000;
+
 var RELOAD_EVERY = 10 * 60 * 1000;
 var TEXT_SPACE = 9;
 
@@ -29,17 +53,11 @@ var loadData = function () {
   createChart();
   d3.json("api1", function (d) {
 
-    var dateMin = new Date();
-
     d.forEach(function (v) {
       v.date = new Date(v.date);
-      v.userId = v.userId.replace(/#[0-9]*$/,"");
-
-      if ((v.date.getTime() < dateMin.getTime()) && (v.lightMax > MIN_LIGHT - 10)) {
-        dateMin = v.date;
-      }
+      v.userId = v.userId.replace(/#[0-9]*$/, "");
     });
-    DATE_MIN = dateMin;
+
 
     data = d3.nest()
       .key(function (v) {
@@ -52,43 +70,116 @@ var loadData = function () {
     //  return d3.ascending(getYMax(d2.values[d2.values.length - 1]), getYMax(d1.values[d1.values.length - 1]));
     //});
 
+    var charCounter = [];
+    var isOnLine = [];
+    var minutePlayedTotalTotal = [];
+    var minutePlayed = [];
     data.forEach(function (d) {
-      d.label = d.values[d.values.length - 1].userId + " / " + d.values[d.values.length - 1].class + "";
+      // Calculate the labels
+      d.userId = d.values[d.values.length - 1].userId;
+      d.labelClass = d.values[d.values.length - 1].userId + " / " + d.values[d.values.length - 1].class + "";
+      d.label = d.userId;
 
       if (d.values[d.values.length - 1].isOnLine == null) {
         try {
-          if (d.values[d.values.length - 2].minutesPlayedTotal != d.values[d.values.length - 1].minutesPlayedTotal) {
+          if (d.values[d.values.length - 2].minutesPlayedTotal !== d.values[d.values.length - 1].minutesPlayedTotal) {
             d.values[d.values.length - 1].isOnLine = true;
           }
-        } catch(e) {}
+        } catch (e) {
+        }
       }
       if (d.values[d.values.length - 1].isOnLine) {
-        d.label = d.label + " &bull;";
+        d.labelClass = d.labelClass + " &bull;";
+        isOnLine[d.userId] = true;
       }
-      d.userId = d.values[d.values.length - 1].userId;
 
-      var prevDate = [];
-      var prevVal = [];
+      // calculate the total played time
+      if (!minutePlayedTotalTotal[d.userId]) {
+        minutePlayedTotalTotal[d.userId] = 0;
+      }
+      minutePlayedTotalTotal[d.userId] += 1 * d.values[d.values.length - 1].minutesPlayedTotal;
+      //console.log(d.userId+" "+minutePlayedTotalTotal[d.userId]);
+
+      // Calc the char num
+      if (charCounter[d.userId]) {
+        charCounter[d.userId]++;
+      } else {
+        charCounter[d.userId] = 1;
+      }
+      d.charNum = charCounter[d.userId];
+      //console.log(d.userId+" "+d.charNum);
+
       // Calculate the played time
-      d.values.forEach(function(v) {
-        v.playedRatio = 0;
-        if ((prevDate.length != 0) && (prevVal.length != 0)) {
-          var deltaTime = (v.date - prevDate[0])/(60*1000);
-          if (deltaTime != 0) {
-            v.playedRatio = (v.minutesPlayedTotal - prevVal[0])/deltaTime;
-            if (v.playedRatio > 1) {
-              v.playedRatio = 1;
-            }
-          }
+      d.values.forEach(function (v) {
+
+        // calculate the played time per user (not character)
+        if (!minutePlayed[d.userId]) {
+          minutePlayed[d.userId] = [];
         }
-        prevDate.push(v.date);
-        prevVal.push(v.minutesPlayedTotal);
-        while (prevDate.length > 20) {
-          prevDate.shift();
-          prevVal.shift();
+        if (!minutePlayed[d.userId][v.date]) {
+          minutePlayed[d.userId][v.date] = 0;
         }
+        minutePlayed[d.userId][v.date] += 1*v.minutesPlayedTotal;
       })
     });
+
+    // Calculate the sums (for the time played for example)
+    data.forEach(function (d) {
+      if (isOnLine[d.userId]) {
+        d.isOnLine = true;
+        d.label = d.label + " &bull;";
+      } else {
+        d.isOnLine = false;
+      }
+
+      d.minutePlayedTotalTotal = minutePlayedTotalTotal[d.userId]
+      //console.log(d.userId+" "+d.minutePlayedTotalTotal);
+
+      // Calculate the played percentage
+      var prevDate = [];
+      var prevVal = [];
+      d.values.forEach(function (v) {
+        if (minutePlayed[d.userId][v.date]) {
+          v.minutePlayedTotalTotal = minutePlayed[d.userId][v.date];
+
+          v.playedRatio = 0;
+          if ((prevDate.length !== 0) && (prevVal.length !== 0)) {
+            var deltaTime = (v.date - prevDate[0]) / (60 * 1000);
+            if (deltaTime !== 0) {
+              v.playedRatio = (v.minutePlayedTotalTotal - prevVal[0]) / deltaTime;
+              //if (v.playedRatio > 1) {
+              //  v.playedRatio = 1;
+              //}
+            }
+          }
+          prevDate.push(v.date);
+          prevVal.push(v.minutePlayedTotalTotal);
+          while (prevDate.length > 20) {
+            prevDate.shift();
+            prevVal.shift();
+          }
+        }
+
+      });
+
+    });
+
+    // Calculate de date_min
+    var savedgraphType = graphType;
+    for (var i = 0; i < GRAPHTYPE_length; i++) {
+      graphType = i;
+      var dateMin = new Date();
+
+      d.forEach(function (v) {
+        if ((v.date.getTime() < dateMin.getTime()) && (getYMax(v) > MIN_VALUES[i])) {
+          dateMin = v.date;
+          //console.log(i + " " + MIN_VALUES[i] + " " + v.userId + " " + v.date);
+        }
+      });
+      DATE_MIN[i] = dateMin;
+    }
+    graphType = savedgraphType;
+
 
     updateChart();
 
@@ -137,29 +228,62 @@ function getX(d) {
   return d.date;
 }
 
+function getLabel(d) {
+  switch (graphType) {
+    case graphType_LIGHT:
+    case  graphType_RATIO:
+    default:
+      return d.labelClass;
+    case graphType_TIME:
+    case graphType_TRIUMPH:
+      return d.label;
+  }
+}
+
 function getYMax(d) {
-  if (graphType == graphType_LIGHT) {
-    return d.lightMax;
-  } else if (graphType == graphType_TIME) {
-    return d.playedRatio;
-  } else {
-    return d.allPvPKillsDeathsAssistsRatio;
+  switch (graphType) {
+    case graphType_LIGHT:
+    default:
+      return d.lightMax;
+    case  graphType_RATIO:
+      return d.allPvPKillsDeathsAssistsRatio;
+    case graphType_TIME:
+      return d.playedRatio;
+    case graphType_TRIUMPH:
+      return d.triumphScore ? d.triumphScore : 0;
   }
 }
 
 function getYMin(d) {
-  if (graphType == graphType_LIGHT) {
-    return d.lightMin;
-  } else if (graphType == graphType_TIME) {
-    return d.playedRatio;
-  } else {
-    return d.allPvPKillsDeathsAssistsRatio;
+  switch (graphType) {
+    case graphType_LIGHT:
+    default:
+      return d.lightMin;
+    case  graphType_RATIO:
+      return d.allPvPKillsDeathsAssistsRatio;
+    case graphType_TIME:
+      return d.playedRatio;
+    case graphType_TRIUMPH:
+      return d.triumphScore ? d.triumphScore : 0;
   }
 }
 
 function getTitle(d) {
-  var title = "name / class : " + d.values[d.values.length - 1].userId + " / " + d.values[d.values.length - 1].class;
-  title += "\nlight : " + d3.format(".0f")(getYMax(d.values[d.values.length - 1]));
+  var title = "";
+
+  switch (graphType) {
+    case graphType_LIGHT:
+    case graphType_RATIO:
+      title += "name / class : " + d.values[d.values.length - 1].userId + " / " + d.values[d.values.length - 1].class;
+      break;
+    case graphType_TIME:
+    case graphType_TRIUMPH:
+      title += "name : " + d.values[d.values.length - 1].userId;
+      break;
+
+  }
+  title += "\nlight : " + d3.format(".0f")(d.values[d.values.length - 1].lightMax);
+  title += "\ntriumph : " + d3.format(".0f")(d.values[d.values.length - 1].triumphScore);
 
   var minutes = d.values[d.values.length - 1].minutesPlayedTotal;
 
@@ -169,10 +293,24 @@ function getTitle(d) {
     title += "\nplayed : " + d3.format(".2f")(minutes / 60) + " hours";
   } else if (minutes < 2 * 7 * 24 * 60) {
     title += "\nplayed : " + d3.format(".2f")(minutes / (24 * 60)) + " days";
-  } else if (minutes < 1 * 30 * 24 * 60) {
+  } else if (minutes < 30 * 24 * 60) {
     title += "\nplayed : " + d3.format(".2f")(minutes / (7 * 24 * 60)) + " weeks";
   } else {
     title += "\nplayed : " + d3.format(".2f")(minutes / (30 * 24 * 60)) + " months";
+  }
+
+  var minutes = d.minutePlayedTotalTotal;
+
+  if (minutes < 2 * 60) {
+    title += "\nplayed total : " + minutes + " minutes";
+  } else if (minutes < 2 * 24 * 60) {
+    title += "\nplayed total : " + d3.format(".2f")(minutes / 60) + " hours";
+  } else if (minutes < 2 * 7 * 24 * 60) {
+    title += "\nplayed total : " + d3.format(".2f")(minutes / (24 * 60)) + " days";
+  } else if (minutes < 30 * 24 * 60) {
+    title += "\nplayed total : " + d3.format(".2f")(minutes / (7 * 24 * 60)) + " weeks";
+  } else {
+    title += "\nplayed total : " + d3.format(".2f")(minutes / (30 * 24 * 60)) + " months";
   }
 
   title += "\nraid : " + d.values[d.values.length - 1].raidCleared + " / " + d.values[d.values.length - 1].raidEntered;
@@ -200,7 +338,7 @@ function updateWindow() {
 
   svg
     .attr("width", width + margin.left + margin.right)
-    .attr("height", height + margin.top + margin.bottom)
+    .attr("height", height + margin.top + margin.bottom);
 
   updateChart();
 }
@@ -223,9 +361,9 @@ var createChart = function () {
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
   // define the axis
-  var x = d3.time.scale().domain([DATE_MIN, new Date()]).range([0, width]);
-  //var y = d3.scale.linear().domain([MIN_LIGHT, 335]).range([height, 0]);
-  var y = d3.scale.pow().exponent(pow).domain([MIN_LIGHT, 600]).range([height, 0]);
+  var x = d3.time.scale().domain([DATE_MIN[graphType], new Date()]).range([0, width]);
+  //var y = d3.scale.linear().domain([MIN_VALUES[graphType], 335]).range([height, 0]);
+  var y = d3.scale.pow().exponent(pow).domain([MIN_VALUES[graphType], 600]).range([height, 0]);
   var xAxis = d3.svg.axis()
     .scale(x)
     .orient("bottom")
@@ -245,7 +383,7 @@ var createChart = function () {
 
 
   // define the axis
-  var context = svg.append("g")
+  svg.append("g")
     .attr("class", "x axis")
     .attr("transform", "translate(0," + height + ")")
     .call(xAxis);
@@ -254,31 +392,13 @@ var createChart = function () {
     .attr("class", "y axis")
     .call(yAxis);
   ax.append("text")
-    .attr("class", "y-axis-label-light")
+    .attr("class", "y-axis-label")
     .attr("transform", "rotate(-90)")
     .attr("y", 6)
     .attr("dy", ".71em")
     .attr("dx", "-.2em")
     .style("text-anchor", "end")
-    .text("Light");
-  ax.append("text")
-    .attr("class", "y-axis-label-ratio")
-    .attr("transform", "rotate(-90)")
-    .attr("y", 6)
-    .attr("dy", ".71em")
-    .attr("dx", "-.2em")
-    .style("text-anchor", "end")
-    .style("opacity", 0)
-    .text("Ratio");
-  ax.append("text")
-    .attr("class", "y-axis-label-time")
-    .attr("transform", "rotate(-90)")
-    .attr("y", 6)
-    .attr("dy", ".71em")
-    .attr("dx", "-.2em")
-    .style("text-anchor", "end")
-    .style("opacity", 0)
-    .text("Time");
+    .text(Y_LABEL[graphType]);
 
   // add the button
   var buttonsGroup = svg.append("g")
@@ -287,69 +407,26 @@ var createChart = function () {
   ;
   buttonsGroup
     .append("text")
-    .attr("class", "ratio")
-    .text("-> Ratio/Time");
-  buttonsGroup
-    .append("text")
-    .attr("class", "time")
-    .style("opacity", 0)
-    .text("-> Time/Light");
-  buttonsGroup
-    .append("text")
     .attr("class", "light")
-    .style("opacity", 0)
     .on("click", function () {
-      if (graphType == graphType_LIGHT) {
-        graphType = graphType_RATIO
-        d3.select(".buttons .light").style("opacity", 0);
-        d3.select(".buttons .ratio").style("opacity", 0);
-        d3.select(".buttons .time").style("opacity", 1);
-        d3.select(".y-axis-label-ratio").style("opacity", 1);
-        d3.select(".y-axis-label-light").style("opacity", 0);
-        d3.select(".y-axis-label-time").style("opacity", 0);
-      } else if (graphType == graphType_RATIO) {
-        graphType = graphType_TIME
-        d3.select(".buttons .light").style("opacity", 1);
-        d3.select(".buttons .ratio").style("opacity", 0);
-        d3.select(".buttons .time").style("opacity", 0);
-        d3.select(".y-axis-label-ratio").style("opacity", 0);
-        d3.select(".y-axis-label-light").style("opacity", 0);
-        d3.select(".y-axis-label-time").style("opacity", 1);
-      } else {
-        graphType = graphType_LIGHT
-        d3.select(".buttons .light").style("opacity", 0);
-        d3.select(".buttons .ratio").style("opacity", 1);
-        d3.select(".buttons .time").style("opacity", 0);
-        d3.select(".y-axis-label-ratio").style("opacity", 0);
-        d3.select(".y-axis-label-light").style("opacity", 1);
-        d3.select(".y-axis-label-time").style("opacity", 0);
-      }
-      ;
+      graphType = (graphType + 1) % GRAPHTYPE_length;
+      d3.select(".y-axis-label").text(Y_LABEL[graphType]);
+
+      d3.select(".Char_2").style("opacity", "0")
       updateChart();
     })
-    .text("-> Lights/Ratio");
+    .text("-> Next");
 
 
 };
 
 var updateChart = function () {
-
-  if (graphType == graphType_LIGHT) {
-    pow = POW_LIGHT;
-    YTickValues = Y_TICK_VALUES_LIGHT;
-  } else if (graphType == graphType_TIME) {
-    pow = POW_TIME;
-    YTickValues = Y_TICK_VALUES_TIME;
-  } else {
-    pow = POW_RATIO;
-    YTickValues = Y_TICK_VALUES_RATIO;
-  }
+  pow = POW_VALUES[graphType];
+  YTickValues = Y_TICK_VALUES[graphType];
 
   data.sort(function (d1, d2) {
     return d3.ascending(getYMax(d2.values[d2.values.length - 1]), getYMax(d1.values[d1.values.length - 1]));
   });
-
-
 
 
   //console.log(data);
@@ -365,8 +442,9 @@ var updateChart = function () {
   //var y = d3.scale.linear().range([height, 0]);
   var y = d3.scale.pow().exponent(pow).range([height, 0]);
   //x.domain(d3.extent(allData, getX));
-  x.domain([DATE_MIN, new Date()])
-  y.domain([Math.max(MIN_LIGHT, d3.min(allData, getYMin)), d3.max(allData, getYMax)]);
+
+  x.domain([DATE_MIN[graphType], new Date()]);
+  y.domain([Math.max(MIN_VALUES[graphType], d3.min(allData, getYMin)), d3.max(allData, getYMax)]);
   var color = d3.scale.ordinal().range(myD3Category).domain(data.map(function (d) {
     return d.key;
   }));
@@ -436,8 +514,8 @@ var updateChart = function () {
   areas.enter()
     .append("path")
     .attr("class", function (d) {
-      //console.log(d.key);
-      return "area K" + d.key
+      //console.log("area K" + d.key + " Char_" + d.charNum);
+      return "area K" + d.key + " Char_" + d.charNum;
     })
     .attr("d", function (d) {
       return area(d.values);
@@ -448,7 +526,7 @@ var updateChart = function () {
     .style("fill", function (d) {
       return color(d.key);
     })
-    .style("opacity", function (d) {
+    .style("opacity", function () {
       return 0.2;
     });
 
@@ -475,7 +553,7 @@ var updateChart = function () {
   lines.enter()
     .append("path")
     .attr("class", function (d) {
-      return "line K" + d.key
+      return "line K" + d.key + " Char_" + d.charNum
     })
     .attr("d", function (d) {
       return line(d.values);
@@ -493,19 +571,20 @@ var updateChart = function () {
       return d.key;
     })
     .attr("transform", function (d) {
-      var pos = y(Math.max(MIN_LIGHT, getYMax(d.values[d.values.length - 1])));
-      //console.log(d.key+" "+pos);
-      pos = checkPosition(pos, textsPositions);
-      textsPositions.push(pos);
-      //console.log(d.key + " " + pos + " " + getYMax(d.values[d.values.length - 1]));
+      var pos = y(Math.max(MIN_VALUES[graphType], getYMax(d.values[d.values.length - 1])));
+
+      if (((graphType !== graphType_TRIUMPH) && (graphType !== graphType_TIME)) || (d.charNum === 1)) {
+        //console.log(d.key+" "+pos);
+        pos = checkPosition(pos, textsPositions);
+        textsPositions.push(pos);
+        //console.log(d.key + " " + pos + " " + getYMax(d.values[d.values.length - 1]));
+      }
       return "translate(" + x(getX(d.values[d.values.length - 1])) + "," + pos + ")";
     })
     .attr("x", 8)
     .attr("dy", ".35em")
     .style("font-size", "0.7em")
-    .html(function (d) {
-      return d.label;
-    });
+    .html(getLabel);
   texts.append("svg:title")
     .text(getTitle);
 
@@ -513,10 +592,10 @@ var updateChart = function () {
     .append("text")
     .attr("class", function (d) {
       //console.log(d);
-      return "text U" + d.userId
+      return "text U" + d.userId + " Char_" + d.charNum
     })
     .attr("transform", function (d) {
-      var pos = y(Math.max(MIN_LIGHT, getYMax(d.values[d.values.length - 1])));
+      var pos = y(Math.max(MIN_VALUES[graphType], getYMax(d.values[d.values.length - 1])));
       //console.log(d.key+" "+pos);
       pos = checkPosition(pos, textsPositions);
       textsPositions.push(pos);
@@ -526,10 +605,7 @@ var updateChart = function () {
     .attr("x", 8)
     .attr("dy", ".35em")
     .style("font-size", "0.7em")
-    .html(function (d) {
-      //return d.key+" "+getYMax(d.values[d.values.length - 1]);
-      return d.label;
-    })
+    .html(getLabel)
     .attr("fill", function (d) {
       return color(d.key);
     })
@@ -540,12 +616,26 @@ var updateChart = function () {
     })
     .on("mouseout", function (d) {
       d3.selectAll(".text.U" + d.userId).style("font-weight", "normal");
-      d3.selectAll(".line.K" + d.key).style("stroke-width", "1.5px")
+      d3.selectAll(".line.K" + d.key).style("stroke-width", "1.5px");
       d3.selectAll(".area.K" + d.key).style("opacity", "0.2");
     })
     .append("svg:title")
     .text(getTitle);
 
+
+  // Disable lines
+  switch (graphType) {
+    case graphType_TRIUMPH:
+    case graphType_TIME:
+      d3.selectAll(".Char_3").style("display", "none");
+      d3.selectAll(".Char_2").style("display", "none");
+      break;
+    default:
+      d3.selectAll(".Char_3").style("display", "inline");
+      d3.selectAll(".Char_2").style("display", "inline");
+      break;
+
+  }
   // ---------
   // Add the points
   // ---------
@@ -585,11 +675,11 @@ var updateChart = function () {
   //   });
 
 
-  function symbol() {
-    return d3.svg.symbol()
-      .size(30)
-      .type('circle');
-  }
+  //  function symbol() {
+  //    return d3.svg.symbol()
+  //      .size(30)
+  //      .type('circle');
+  //  }
 
   function checkPosition(pos, textPositions, step, count) {
     if (!step) {
@@ -613,7 +703,7 @@ var updateChart = function () {
     //console.log(nextStep);
 
     var ok = true;
-    if ((pos > height+TEXT_SPACE) || (pos < -1 * (margin.top - TEXT_SPACE))) {
+    if ((pos > height + TEXT_SPACE) || (pos < -1 * (margin.top - TEXT_SPACE))) {
       ok = false;
     }
     //console.log(pos);
@@ -631,4 +721,4 @@ var updateChart = function () {
 
   }
 
-}
+};
