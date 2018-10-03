@@ -467,6 +467,15 @@ var updateChart = function () {
   ;
 
   // ---------
+  // create clip path
+  // ---------
+  svg.append("defs").append("clipPath")
+    .attr("id", "clip")
+    .append("rect")
+    .attr("width", width)
+    .attr("height", height);
+
+  // ---------
   // add path
   // ---------
   var area = d3.svg.area()
@@ -489,6 +498,8 @@ var updateChart = function () {
       return area(d.values);
     });
   areas.enter()
+    .append("g")
+    .attr("clip-path", "url(#clip)")
     .append("path")
     .attr("class", function (d) {
       //console.log("area K" + d.key + " Char_" + d.charNum);
@@ -528,6 +539,8 @@ var updateChart = function () {
       return line(d.values);
     });
   lines.enter()
+    .append("g")
+    .attr("clip-path", "url(#clip)")
     .append("path")
     .attr("class", function (d) {
       return "line K" + d.key + " Char_" + d.charNum
