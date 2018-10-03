@@ -132,7 +132,7 @@ var loadData = function () {
         d.isOnLine = false;
       }
 
-      d.minutePlayedTotalTotal = minutePlayedTotalTotal[d.userId]
+      d.minutePlayedTotalTotal = minutePlayedTotalTotal[d.userId];
       //console.log(d.userId+" "+d.minutePlayedTotalTotal);
 
       // Calculate the played percentage
@@ -275,51 +275,29 @@ function getTitle(d) {
     case graphType_LIGHT:
     case graphType_RATIO:
       title += "name / class : " + d.values[d.values.length - 1].userId + " / " + d.values[d.values.length - 1].class;
+      title += "\ntriumph : " + d3.format(".0f")(d.values[d.values.length - 1].triumphScore);
+      title += "\nplayed total : " + niceDate(d.minutePlayedTotalTotal);
+
+      title += "\nlight : " + d3.format(".0f")(d.values[d.values.length - 1].lightMax);
+
+      title += "\nplayed : " + niceDate(d.values[d.values.length - 1].minutesPlayedTotal);
+
+      title += "\nraid : " + d.values[d.values.length - 1].raidCleared + " / " + d.values[d.values.length - 1].raidEntered;
+      title += "\nnightfall : " + d.values[d.values.length - 1].nightfallCleared + " / " + d.values[d.values.length - 1].nightfallEntered;
+      title += "\nheroic Nightfall : " + d.values[d.values.length - 1].heroicNightfallCleared + " / " + d.values[d.values.length - 1].heroicNightfallEntered;
+      title += "\nstrike : " + d.values[d.values.length - 1].strikeCleared + " / " + d.values[d.values.length - 1].strikeEntered;
+      title += "\nTrial of the nine : " + d.values[d.values.length - 1].trialsofthenineWon + " / " + d.values[d.values.length - 1].trialsofthenineEntered;
+      title += "\nPvP : " + d.values[d.values.length - 1].allPvPWon + " / " + d.values[d.values.length - 1].allPvPEntered;
+      title += "\nPvP ratio : " + d.values[d.values.length - 1].allPvPKillsDeathsAssistsRatio.toFixed(2);
       break;
     case graphType_TIME:
     case graphType_TRIUMPH:
       title += "name : " + d.values[d.values.length - 1].userId;
+      title += "\ntriumph : " + d3.format(".0f")(d.values[d.values.length - 1].triumphScore);
+      title += "\nplayed total : " + niceDate(d.minutePlayedTotalTotal);
       break;
 
   }
-  title += "\nlight : " + d3.format(".0f")(d.values[d.values.length - 1].lightMax);
-  title += "\ntriumph : " + d3.format(".0f")(d.values[d.values.length - 1].triumphScore);
-
-  var minutes = d.values[d.values.length - 1].minutesPlayedTotal;
-
-  if (minutes < 2 * 60) {
-    title += "\nplayed : " + minutes + " minutes";
-  } else if (minutes < 2 * 24 * 60) {
-    title += "\nplayed : " + d3.format(".2f")(minutes / 60) + " hours";
-  } else if (minutes < 2 * 7 * 24 * 60) {
-    title += "\nplayed : " + d3.format(".2f")(minutes / (24 * 60)) + " days";
-  } else if (minutes < 30 * 24 * 60) {
-    title += "\nplayed : " + d3.format(".2f")(minutes / (7 * 24 * 60)) + " weeks";
-  } else {
-    title += "\nplayed : " + d3.format(".2f")(minutes / (30 * 24 * 60)) + " months";
-  }
-
-  var minutes = d.minutePlayedTotalTotal;
-
-  if (minutes < 2 * 60) {
-    title += "\nplayed total : " + minutes + " minutes";
-  } else if (minutes < 2 * 24 * 60) {
-    title += "\nplayed total : " + d3.format(".2f")(minutes / 60) + " hours";
-  } else if (minutes < 2 * 7 * 24 * 60) {
-    title += "\nplayed total : " + d3.format(".2f")(minutes / (24 * 60)) + " days";
-  } else if (minutes < 30 * 24 * 60) {
-    title += "\nplayed total : " + d3.format(".2f")(minutes / (7 * 24 * 60)) + " weeks";
-  } else {
-    title += "\nplayed total : " + d3.format(".2f")(minutes / (30 * 24 * 60)) + " months";
-  }
-
-  title += "\nraid : " + d.values[d.values.length - 1].raidCleared + " / " + d.values[d.values.length - 1].raidEntered;
-  title += "\nnightfall : " + d.values[d.values.length - 1].nightfallCleared + " / " + d.values[d.values.length - 1].nightfallEntered;
-  title += "\nheroic Nightfall : " + d.values[d.values.length - 1].heroicNightfallCleared + " / " + d.values[d.values.length - 1].heroicNightfallEntered;
-  title += "\nstrike : " + d.values[d.values.length - 1].strikeCleared + " / " + d.values[d.values.length - 1].strikeEntered;
-  title += "\nTrial of the nine : " + d.values[d.values.length - 1].trialsofthenineWon + " / " + d.values[d.values.length - 1].trialsofthenineEntered;
-  title += "\nPvP : " + d.values[d.values.length - 1].allPvPWon + " / " + d.values[d.values.length - 1].allPvPEntered;
-  title += "\nPvP ratio : " + d.values[d.values.length - 1].allPvPKillsDeathsAssistsRatio.toFixed(2);
 
   return title;
 }
@@ -412,7 +390,6 @@ var createChart = function () {
       graphType = (graphType + 1) % GRAPHTYPE_length;
       d3.select(".y-axis-label").text(Y_LABEL[graphType]);
 
-      d3.select(".Char_2").style("opacity", "0")
       updateChart();
     })
     .text("-> Next");
@@ -722,3 +699,20 @@ var updateChart = function () {
   }
 
 };
+
+function niceDate(minutes) {
+  if (minutes < 2 * 60) {
+    return minutes + " minutes";
+  } else if (minutes < 2 * 24 * 60) {
+    return d3.format(".2f")(minutes / 60) + " hours";
+  } else if (minutes < 2 * 7 * 24 * 60) {
+    return d3.format(".2f")(minutes / (24 * 60)) + " days";
+  } else if (minutes < 30 * 24 * 60) {
+    return d3.format(".2f")(minutes / (7 * 24 * 60)) + " weeks";
+  } else {
+    return d3.format(".2f")(minutes / (30 * 24 * 60)) + " months";
+  }
+
+}
+
+
