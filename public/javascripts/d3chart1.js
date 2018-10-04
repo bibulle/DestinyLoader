@@ -4,39 +4,39 @@ var svg;
 
 var graphType_LIGHT = 0;
 var graphType_RATIO = 1;
-var graphType_TIME = 2;
-var graphType_TRIUMPH = 3;
+//var graphType_TIME = 2;
+var graphType_TRIUMPH = 2;
 
-var GRAPHTYPE_length = 4;
+var GRAPHTYPE_length = 3;
 
 var DATE_MIN = [
   new Date(2017, 1, 1),
   new Date(2017, 1, 1),
-  new Date(2017, 10, 1),
+  //new Date(2017, 10, 1),
   new Date(2017, 10, 1)
 ];
 var MIN_VALUES = [
   0,
   0,
-  0,
+  //0,
   0
 ];
 var Y_TICK_VALUES = [
   [350, 400, 450, 500, 520, 540, 560],
   null,
-  null,
+  //null,
   null
 ];
 var POW_VALUES = [
   5,
   1,
-  1,
+  //1,
   1
 ];
 var Y_LABEL = [
   "Light",
   "Ratio",
-  "Time played (ratio)",
+  //"Time played (ratio)",
   "Triumphs"
 ];
 
@@ -234,7 +234,7 @@ function getLabel(d) {
     case  graphType_RATIO:
     default:
       return d.labelClass;
-    case graphType_TIME:
+    //case graphType_TIME:
     case graphType_TRIUMPH:
       return d.label;
   }
@@ -247,8 +247,8 @@ function getYMax(d) {
       return d.lightMax;
     case  graphType_RATIO:
       return d.allPvPKillsDeathsAssistsRatio;
-    case graphType_TIME:
-      return d.playedRatio;
+//    case graphType_TIME:
+//      return d.playedRatio;
     case graphType_TRIUMPH:
       return d.triumphScore ? d.triumphScore : 0;
   }
@@ -261,8 +261,8 @@ function getYMin(d) {
       return d.lightMin;
     case  graphType_RATIO:
       return d.allPvPKillsDeathsAssistsRatio;
-    case graphType_TIME:
-      return d.playedRatio;
+//    case graphType_TIME:
+//      return d.playedRatio;
     case graphType_TRIUMPH:
       return d.triumphScore ? d.triumphScore : 0;
   }
@@ -290,7 +290,7 @@ function getTitle(d) {
       title += "\nPvP : " + d.values[d.values.length - 1].allPvPWon + " / " + d.values[d.values.length - 1].allPvPEntered;
       title += "\nPvP ratio : " + d.values[d.values.length - 1].allPvPKillsDeathsAssistsRatio.toFixed(2);
       break;
-    case graphType_TIME:
+//    case graphType_TIME:
     case graphType_TRIUMPH:
       title += "name : " + d.values[d.values.length - 1].userId;
       title += "\ntriumph : " + d3.format(".0f")(d.values[d.values.length - 1].triumphScore);
@@ -563,7 +563,8 @@ var updateChart = function () {
     .attr("transform", function (d) {
       var pos = y(Math.max(MIN_VALUES[graphType], getYMax(d.values[d.values.length - 1])));
 
-      if (((graphType !== graphType_TRIUMPH) && (graphType !== graphType_TIME)) || (d.charNum === 1)) {
+      //if (((graphType !== graphType_TRIUMPH) && (graphType !== graphType_TIME)) || (d.charNum === 1)) {
+      if (((graphType !== graphType_TRIUMPH) && (graphType !== graphType_TRIUMPH)) || (d.charNum === 1)) {
         //console.log(d.key+" "+pos);
         pos = checkPosition(pos, textsPositions);
         textsPositions.push(pos);
@@ -616,7 +617,7 @@ var updateChart = function () {
   // Disable lines
   switch (graphType) {
     case graphType_TRIUMPH:
-    case graphType_TIME:
+    //case graphType_TIME:
       d3.selectAll(".Char_3").style("display", "none");
       d3.selectAll(".Char_2").style("display", "none");
       break;
