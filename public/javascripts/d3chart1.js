@@ -250,6 +250,7 @@ function getYMax(d) {
 //    case graphType_TIME:
 //      return d.playedRatio;
     case graphType_TRIUMPH:
+      console.log(d);
       return d.triumphScore ? d.triumphScore : 0;
   }
 }
@@ -264,7 +265,7 @@ function getYMin(d) {
 //    case graphType_TIME:
 //      return d.playedRatio;
     case graphType_TRIUMPH:
-      return d.triumphScore ? d.triumphScore : 0;
+      return d.triumphScoreMin ? d.triumphScoreMin : 0;
   }
 }
 

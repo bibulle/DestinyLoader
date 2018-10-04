@@ -114,6 +114,8 @@ function calcList(callback) {
               result[key].lightMin = lightMin;
               result[key].name = d.name;
               result[key].date = new Date(year, month - 1, day, hours, minutes);
+              result[key].triumphScore = d.triumphScore;
+              result[key].triumphScoreMin = d.triumphScore;
             } else {
               if (d.light > result[key].lightMax) {
                 result[key].lightMax = d.light;
@@ -121,13 +123,19 @@ function calcList(callback) {
               if (lightMin < result[key].lightMin) {
                 result[key].lightMin = lightMin;
               }
+              if (d.triumphScore > (result[key].triumphScore ? result[key].triumphScore : 0)) {
+                result[key].triumphScore = d.triumphScore;
+              }
+              if (d.triumphScore < (result[key].triumphScoreMin ? result[key].triumphScoreMin : 10000000)) {
+                result[key].triumphScoreMin = d.triumphScore;
+              }
+
             }
             result[key].id = d.id;
             result[key].class = d.class;
             result[key].userId = d.userId;
             result[key].isOnLine = userOnlineMap[d.userId];
             result[key].minutesPlayedTotal = d.minutesPlayedTotal;
-            result[key].triumphScore = d.triumphScore;
 
             result[key].nightfallEntered = d.nightfallEntered;
             result[key].nightfallCleared = d.nightfallCleared;
