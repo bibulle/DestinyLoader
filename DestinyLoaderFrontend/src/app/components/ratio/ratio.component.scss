@@ -1,0 +1,10 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+
+  app-chart {
+    flex: 1 1 100%;
+  }
+}
+

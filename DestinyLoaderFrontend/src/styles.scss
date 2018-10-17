@@ -1,0 +1,31 @@
+@import '~@angular/material/theming';
+
+// always include only once per project
+@include mat-core();
+
+// Define the light theme.
+$primary: mat-palette($mat-indigo);
+$accent:  mat-palette($mat-pink, A200, A100, A400);
+
+$theme: mat-light-theme($primary, $accent);
+
+// import custom component themes
+@import 'app/components/not-found/not-found.component.theme';
+
+@mixin custom-components-theme($theme) {
+  @include not-found-component-theme($theme);
+}
+
+
+@include angular-material-theme($theme);
+@include custom-components-theme($theme);
+
+
+body {
+  font-family: "Roboto","Helvetica Neue Light","Helvetica Neue",Helvetica,Arial,"Lucida Grande",sans-serif;
+  margin: 0;
+}
+
+.docs-button[md-button], .docs-button[md-raised-button] {
+  text-transform: uppercase;
+}

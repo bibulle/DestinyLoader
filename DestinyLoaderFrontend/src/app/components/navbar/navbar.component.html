@@ -1,0 +1,16 @@
+<nav class="docs-navbar-header">
+  <a mat-button class="docs-button title" routerLink="/" attr.aria-label="{{'title' | translate}}">
+    <span>{{'title' | translate}}</span>
+  </a>
+  <a mat-button class="docs-navbar-hide-small docs-button" color="{{ link.selected ? 'primary' : 'none'}}"
+     *ngFor="let link of links"
+     routerLink="{{link.path}}">{{link.label|translate}}</a>
+  <div class="flex-spacer"></div>
+  <!--<version-picker></version-picker>-->
+  <!--<theme-picker></theme-picker>-->
+</nav>
+<nav class="docs-navbar docs-navbar-show-small">
+  <a mat-button class="docs-navbar-link"
+     *ngFor="let link of links"
+     routerLink="{{link.path}}">{{link.label|translate}}</a>
+</nav>
