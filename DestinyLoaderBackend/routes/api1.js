@@ -173,5 +173,5 @@ function calcList(callback) {
 
 calcList();
 
-new CronJob("0 * * * * *", calcList, null, true, "GMT");
+new CronJob("0 */10 * * * *", calcList, null, true, "GMT");
 //new CronJob("0 * * * * *", calcList, null, true, "GMT");
