@@ -17,3 +17,10 @@ sleep 5
 sudo service destinyserver stop
 sudo service destinyserver start
 
+echo "Building frontend"
+cd ../DestinyLoaderFrontend
+npm install
+npm run-script build
+
+
+cd ..

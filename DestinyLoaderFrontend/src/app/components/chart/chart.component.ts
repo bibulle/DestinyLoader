@@ -45,7 +45,7 @@ export class ChartComponent implements OnInit, OnChanges {
     '#1397a3', '#f940a5', '#66aeff', '#d097e7', '#fe6ef9', '#d86507', '#8b900a', '#d47270', '#e8ac48', '#cf7c97', '#cebb11', '#718a90', '#e78139', '#ff7463', '#bea1fd'
   ];
 
-  private needToUpdate = false;
+  needToUpdate = false;
 
   constructor (private _translateService: TranslateService) {
   }

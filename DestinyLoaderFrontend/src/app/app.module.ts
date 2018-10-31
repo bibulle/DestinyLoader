@@ -5,7 +5,6 @@ import { HttpClient, HttpClientModule } from '@angular/common/http';
 
 
 import { AppComponent } from './app.component';
-import { NotFoundComponent } from './components/not-found/not-found.component';
 import { AppRoutingModule } from './app-routing.module';
 import { MaterialModule } from './material.module';
 import { LightComponent } from './components/light/light.component';
@@ -18,13 +17,15 @@ import localeFr from '@angular/common/locales/fr';
 import localeEn from '@angular/common/locales/en';
 import { RatioComponent } from './components/ratio/ratio.component';
 import { TriumphComponent } from './components/triumph/triumph.component';
+import { NotFoundComponent } from './components/not-found/not-found.component';
 
 export class MyMissingTranslationHandler implements MissingTranslationHandler {
-  handle(params: MissingTranslationHandlerParams) {
+  handle (params: MissingTranslationHandlerParams) {
     console.log(params);
     return '?' + params.key + '?';
   }
 }
+
 registerLocaleData(localeFr, 'fr');
 registerLocaleData(localeEn, 'en');
 
@@ -54,14 +55,14 @@ registerLocaleData(localeEn, 'en');
       // useDefaultLang: false
     })
   ],
-  providers: [
-  ],
+  providers: [],
   bootstrap: [
     AppComponent
   ]
 })
-export class AppModule { }
+export class AppModule {
+}
 
-export function HttpLoaderFactory(http: HttpClient) {
+export function HttpLoaderFactory (http: HttpClient) {
   return new TranslateHttpLoader(http);
 }
