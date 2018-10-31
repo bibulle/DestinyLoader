@@ -7,7 +7,8 @@ echo "Updating to server revision..."
 git fetch --all
 git reset --hard origin/master
 
-echo "Building ..."
+echo "Building backend"
+cd DestinyLoaderBackend
 npm install
 
 echo "Restarting backend"

@@ -57,7 +57,7 @@
 NAME="destinyserver"
 NODE_BIN_DIR="/usr/local/bin"
 NODE_PATH="/usr/local/lib/node_modules"
-APPLICATION_PATH="/opt/DestinyLoader/bin/www"
+APPLICATION_PATH="/opt/DestinyLoader1/bin/www"
 PIDFILE="/var/run/destinyserver.pid"
 LOGFILE="/var/log/destinyserver.log"
 MIN_UPTIME="5000"
