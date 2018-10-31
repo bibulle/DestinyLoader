@@ -28,7 +28,7 @@ Graph.Y_TICK_VALUES[GraphTypeKey.LIGHT] = [400, 450, 500, 520, 540, 560, 580, 60
 Graph.Y_TICK_VALUES[GraphTypeKey.RATIO] = null;
 Graph.Y_TICK_VALUES[GraphTypeKey.TRIUMPH] = null;
 
-Graph.POW_VALUES[GraphTypeKey.LIGHT] = 5;
+Graph.POW_VALUES[GraphTypeKey.LIGHT] = 7;
 Graph.POW_VALUES[GraphTypeKey.RATIO] = 1;
 Graph.POW_VALUES[GraphTypeKey.TRIUMPH] = 1;
 

@@ -168,7 +168,7 @@ var getLight = function (userId, isOnLine, callback) {
 
     _getFromBungie(url, function (err, data) {
       //logger.info(JSON.stringify(err, null, 2));
-      logger.info(JSON.stringify(data, null, 2));
+      //logger.info(JSON.stringify(data, null, 2));
 
       var triumphScore = 0;
       if (data.profileRecords.data) {
