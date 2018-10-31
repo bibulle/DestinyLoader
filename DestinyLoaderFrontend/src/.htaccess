@@ -15,6 +15,6 @@
    RewriteRule ^(.*)$ http://localhost:4001/$1 [P]
 
    # otherwise forward it to index.html
-   RewriteRule ^(.*) /lights/index.html [NC,L]
+   RewriteRule ^(.*) /index.html [NC,L]
 
 </IfModule>
