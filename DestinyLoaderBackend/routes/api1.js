@@ -75,6 +75,7 @@ function calcList(callback) {
         limitDate = new Date(config.startingDate);
       } catch (e) {
       }
+      var previousRatio= [];
       var list = docs
         .reduce(function (result, d) {
           //console.log(d);
@@ -150,6 +151,13 @@ function calcList(callback) {
             result[key].trialsofthenineEntered = d.trialsofthenineEntered;
             result[key].trialsofthenineWon = d.trialsofthenineWon;
             result[key].allPvPKillsDeathsAssistsRatio = (d.allPvPKills + d.allPvPAssists / 2) / Math.max(1, d.allPvPDeaths);
+
+            if ((result[key].allPvPKillsDeathsAssistsRatio === 0) && (previousRatio[d.id])) {
+              result[key].allPvPKillsDeathsAssistsRatio = previousRatio[d.id];
+            }
+
+            previousRatio[d.id] = result[key].allPvPKillsDeathsAssistsRatio;
+            //console.log(previousRatio[d.id]+" "+key);
           }
 
           return result;
