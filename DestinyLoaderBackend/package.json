@@ -3,7 +3,8 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "node ./bin/www"
+    "start": "node ./bin/www",
+    "devel-www": "cd ./bin && DEBUG=server:* nodemon --watch .. --ignore ../data/ ./www"
   },
   "dependencies": {
     "async": "latest",
@@ -29,5 +30,8 @@
     "sprintf-js": "^1.1.1",
     "sqlite3": "^4.0.3",
     "winston": "~1.1.0"
+  },
+  "devDependencies": {
+    "nodemon": "^1.18.7"
   }
 }

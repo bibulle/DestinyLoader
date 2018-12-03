@@ -81,12 +81,12 @@ router.get('/api', function (request, response, next) {
           // Calculate order and what to keep
           function (data, conf, callback) {
             //logger.info(JSON.stringify(conf, null, 2));
-            //logger.info(JSON.stringify(data.items.length, null, 2));
+            //logger.info(JSON.stringify(data.items, null, 2));
 
             async.eachSeries(
               data.items,
               function (itemsByBukets, callback) {
-                //logger.info(JSON.stringify(bucket, null, 2));
+                //logger.info(JSON.stringify(itemsByBukets, null, 2));
                 async.eachSeries(
                   itemsByBukets,
                   function (itemsByType, callback) {
@@ -240,6 +240,8 @@ router.get('/api', function (request, response, next) {
                           }
                           items[item.bucketNameTarget].push(item);
                           lastBucketNameTarget = item.bucketNameTarget;
+                        //} else {
+                          //logger.info(JSON.stringify(item.bucketNameTarget, null, 2));
                         }
                         callback(null);
                       },
@@ -1015,6 +1017,7 @@ var CONF_MODE = {
 var BucketsToManaged = [
   "Power Weapons", "Energy Weapons", "Kinetic Weapons",
   "Leg Armor", "Helmet", "Gauntlets", "Chest Armor", "Class Armor",
+  "Pursuits"
   //"Ghost", "Vehicle", "Ships"
 ]
 
