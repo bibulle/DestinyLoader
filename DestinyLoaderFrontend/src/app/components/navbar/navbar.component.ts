@@ -8,7 +8,8 @@ import { NavigationEnd, Router } from '@angular/router';
 })
 export class NavbarComponent implements OnInit {
 
-  links: { path: string, label: string, selected: boolean }[] = [];
+  linksLeft: { path: string, label: string, selected: boolean }[] = [];
+  linksRight: { path: string, label: string, selected: boolean }[] = [];
 
   selectedPath: string;
 
@@ -35,7 +36,14 @@ export class NavbarComponent implements OnInit {
 //
 //      }
       if (data instanceof NavigationEnd) {
-        this.links.forEach(link => {
+        this.linksLeft.forEach(link => {
+          if ('/' + link.path === data.urlAfterRedirects) {
+            link.selected = true;
+          } else {
+            link.selected = false;
+          }
+        });
+        this.linksRight.forEach(link => {
           if ('/' + link.path === data.urlAfterRedirects) {
             link.selected = true;
           } else {
@@ -50,15 +58,21 @@ export class NavbarComponent implements OnInit {
 
   ngOnInit() {
 
-    const newLinks: { path: string, label: string, selected: boolean }[] = [];
+    const newLinksLeft: { path: string, label: string, selected: boolean }[] = [];
+    const newLinksRight: { path: string, label: string, selected: boolean }[] = [];
 
     this._router.config.forEach(obj => {
       // console.log(obj);
       if (!obj.redirectTo && obj.data && obj.data['menu']) {
-        newLinks.push({path: obj.path, label: obj.data['label'], selected: false});
+        if (obj.data['right']) {
+          newLinksRight.push({path: obj.path, label: obj.data['label'], selected: false});
+        } else {
+          newLinksLeft.push({path: obj.path, label: obj.data['label'], selected: false});
+        }
       }
     });
-    this.links = newLinks;
+    this.linksLeft = newLinksLeft;
+    this.linksRight = newLinksRight;
 
   }
 

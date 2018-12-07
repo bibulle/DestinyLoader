@@ -6,7 +6,6 @@ import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { Observable } from 'rxjs/Observable';
 import * as d3 from 'd3';
 import { Character } from '../models/character';
-import { d } from '@angular/core/src/render3';
 
 @Injectable({
   providedIn: 'root'

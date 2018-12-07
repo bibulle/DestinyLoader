@@ -3,28 +3,31 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "node ./bin/www",
-    "devel-www": "cd ./bin && DEBUG=server:* nodemon --watch .. --ignore ../data/ ./www"
+    "start": "node ./src/bin/www",
+    "devel-www": "tsc -p ./src && concurrently \"tsc -w -p ./src\" \"DEBUG=server:* nodemon --ignore ./data/ ./src/bin/www.js\"",
+    "devel-dataminer": "tsc -p ./src && concurrently \"tsc -w -p ./src\" \"DEBUG=server:* nodemon --ignore ./data/ ./src/bin/dataminer.js\" "
   },
   "dependencies": {
     "async": "latest",
     "body-parser": "^1.18.3",
-    "config": "./lib/config",
+    "compression": "^1.7.3",
+    "connect-flash": "^0.1.1",
     "cookie-parser": "~1.3.5",
     "cors": "^2.8.4",
     "cron": "latest",
     "debug": "^4.1.0",
-    "destiny": "./lib/destiny",
-    "destinyDb": "./lib/destinyDb",
     "express": "^4.16.4",
     "express-session": "^1.15.5",
     "google-spreadsheet": "latest",
     "jade": "~1.11.0",
+    "jsonwebtoken": "^8.4.0",
     "mongodb": "^2.2.31",
     "morgan": "^1.9.1",
     "nedb": "^1.8.0",
     "node-stream-zip": "^1.3.7",
     "passport": "^0.3.2",
+    "passport-bungie-oauth2": "^1.0.0",
+    "passport-http-bearer": "^1.0.1",
     "passport-oauth2": "^1.4.0",
     "serve-favicon": "^2.5.0",
     "sprintf-js": "^1.1.1",
@@ -32,6 +35,11 @@
     "winston": "~1.1.0"
   },
   "devDependencies": {
-    "nodemon": "^1.18.7"
+    "@types/async": "^2.0.50",
+    "@types/debug": "0.0.31",
+    "@types/node": "^10.12.12",
+    "concurrently": "^4.1.0",
+    "nodemon": "^1.18.7",
+    "typescript": "^3.2.1"
   }
 }
