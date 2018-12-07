@@ -4,6 +4,7 @@
 
 *.js
 *.js.map
+!src/public/*.js
 
 # Logs
 logs
