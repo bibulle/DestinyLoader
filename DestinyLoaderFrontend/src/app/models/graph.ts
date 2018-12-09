@@ -24,7 +24,7 @@ Graph.MAX_VALUES[GraphTypeKey.LIGHT] = 600;
 Graph.MAX_VALUES[GraphTypeKey.RATIO] = 1;
 Graph.MAX_VALUES[GraphTypeKey.TRIUMPH] = 30000;
 
-Graph.Y_TICK_VALUES[GraphTypeKey.LIGHT] = [400, 450, 500, 520, 540, 560, 580, 600];
+Graph.Y_TICK_VALUES[GraphTypeKey.LIGHT] = [400, 500, 550, 600, 610, 630, 650];
 Graph.Y_TICK_VALUES[GraphTypeKey.RATIO] = null;
 Graph.Y_TICK_VALUES[GraphTypeKey.TRIUMPH] = null;
 
