@@ -10,6 +10,9 @@ git reset --hard origin/master
 echo "Building backend"
 cd DestinyLoaderBackend
 npm install
+tsc -p ./src
+
+sudo systemctl daemon-reload
 
 echo "Restarting backend"
 sudo service destinyloader stop
