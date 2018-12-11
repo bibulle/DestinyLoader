@@ -1,22 +1,19 @@
 import * as _ from "lodash";
-import { pbkdf2Sync, randomBytes } from "crypto";
 import { sign, verify } from "jsonwebtoken";
 import { refreshBungieToken } from "../routes/authent";
 import { Destiny } from "./destiny/destiny";
 
-const debug = require('debug')('server:debug:user');
+const debug = require('debug')('server:debugLogger:user');
 
 
 export class User {
 
   id: string;
-  created: Date;
-  updated: Date;
 
 
 //  constructor(options: {}) {
 //
-//    // debug(options);
+//    // debugLogger(options);
 //    // TODO : Remove this part when data will be migrated
 //    let changed = false;
 //    if (options['history'] && options['history']['bookDownloaded']) {
@@ -49,12 +46,12 @@ export class User {
 //    if (changed) {
 //      DbMyCalibre.saveUser(this, false)
 //        .catch(err => {
-//          debug(err)
+//          debugLogger(err)
 //        });
 //    }
 //    // TODO END : Remove this part when data will be migrated
 //
-//    // debug(options);
+//    // debugLogger(options);
 //    if (!this.local.salt) {
 //      this.local.salt = User.generateSalt();
 //    }
@@ -78,7 +75,7 @@ export class User {
 //        callback(null, user);
 //      })
 //      .catch(err => {
-//        debug(err);
+//        debugLogger(err);
 //        callback(err, null);
 //      })
 //  }
@@ -90,7 +87,7 @@ export class User {
 //        callback(null, user);
 //      })
 //      .catch(err => {
-//        debug(err);
+//        debugLogger(err);
 //        callback(err, null);
 //      })
 //  }
@@ -102,7 +99,7 @@ export class User {
 //        callback(null, user);
 //      })
 //      .catch(err => {
-//        //debug(err);
+//        //debugLogger(err);
 //        callback(err, null);
 //      })
 //  }
@@ -114,7 +111,7 @@ export class User {
 //        callback(null, user);
 //      })
 //      .catch(err => {
-//        //debug(err);
+//        //debugLogger(err);
 //        callback(err, null);
 //      })
 //  }
@@ -126,7 +123,7 @@ export class User {
 //        callback(null);
 //      })
 //      .catch(err => {
-//        debug(err);
+//        debugLogger(err);
 //        callback(err);
 //      })
 //
@@ -139,7 +136,7 @@ export class User {
 //        callback(null);
 //      })
 //      .catch(err => {
-//        debug(err);
+//        debugLogger(err);
 //        callback(err);
 //      })
 //
@@ -157,8 +154,8 @@ export class User {
 //      trg.created = src.created;
 //    }
 //
-//    //debug(src.local);
-//    //debug(trg.local);
+//    //debugLogger(src.local);
+//    //debugLogger(trg.local);
 //    _.mergeWith(trg.local, src.local, (objValue, srcValue) => {
 //      if (objValue) {
 //        return objValue
@@ -250,7 +247,7 @@ export class User {
 //    this.history.lastConnection = new Date();
 //    this.save(err => {
 //      if (err) {
-//        debug(err);
+//        debugLogger(err);
 //      }
 //    }, false)
 //  }
@@ -336,7 +333,7 @@ export class User {
 //      });
 //      this.save(err => {
 //        if (err) {
-//          debug(err);
+//          debugLogger(err);
 //        }
 //      }, true)
 //    }
@@ -352,7 +349,7 @@ export class User {
    * @returns {string|void}
    */
   static createToken (user): string {
-    //debug(user);
+    //debugLogger(user);
     let sendUser = _.pick(user, ['destinyMemberships', 'bungieNetUser', 'auth']);
     sendUser.tokenDate = new Date();
 
@@ -370,11 +367,12 @@ export class User {
 //  }
 
   /**
-   * Check tocken
+   * Check token
    * @param token
    * @param done callback (err, user)
    */
   static checkToken (token, done: (err: Error, user: User) => any): void {
+    debug('checkToken');
     return verify(token, "myReallySecret", (err, decoded) => {
       if (err) {
         return done(err, null);
@@ -415,20 +413,20 @@ export class User {
 //
 //
 //  static init() {
-//    debug("init...");
+//    debugLogger("init...");
 //    DbMyCalibre
 //      .getConf()
 //      .then(conf => {
 //        User.conf = conf;
-//        debug("init...done");
+//        debugLogger("init...done");
 //
 //        //User.findByEmail("", (err, user) => {
-//        //  debug(err);
-//        //  debug(user);
+//        //  debugLogger(err);
+//        //  debugLogger(user);
 //        //});
 //        //User.findByEmail("eric@eric.fr", (err, user) => {
-//        //  debug(err);
-//        //  debug(user);
+//        //  debugLogger(err);
+//        //  debugLogger(user);
 //        //});
 //        //var user = new User({
 //        //  local : {
@@ -438,12 +436,12 @@ export class User {
 //        //});
 //
 //        //user.save((err) => {
-//        //  debug(err);
+//        //  debugLogger(err);
 //        //})
 //
 //      })
 //      .catch(err => {
-//        debug(err);
+//        debugLogger(err);
 //      })
 //  }
 //

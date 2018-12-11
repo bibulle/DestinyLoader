@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Router, CanActivate } from '@angular/router';
 import { UserService } from '../../services/user.service';
-import { async } from 'rxjs/internal/scheduler/async';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -18,18 +17,19 @@ export class AuthGuard implements CanActivate {
       if (this._userService.isAuthent()) {
         // console.log('canActivate true');
         resolve(true);
+      } else {
+        // not logged in so try to login
+        this._userService.startLoginBungie()
+            .then(() => {
+              // console.log('then OK');
+              resolve(true);
+            })
+            .catch((reason) => {
+              console.log(reason);
+              reject(reason);
+            });
       }
 
-      // not logged in so try to login
-      this._userService.startLoginBungie()
-          .then(() => {
-            // console.log('then OK');
-            resolve(true);
-          })
-          .catch((reason) => {
-            console.log(reason);
-            reject(reason);
-          });
 
     });
 

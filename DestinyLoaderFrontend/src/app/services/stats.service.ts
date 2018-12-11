@@ -6,6 +6,8 @@ import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { Observable } from 'rxjs/Observable';
 import * as d3 from 'd3';
 import { Character } from '../models/character';
+import { UserService } from './user.service';
+import { HeaderService } from './header.service';
 
 @Injectable({
   providedIn: 'root'
@@ -16,11 +18,13 @@ export class StatsService {
   // private static statsList: [ {key: string, values: Stats[]} ];
   private static REFRESH_EVERY = 60 * 1000;
 
-  private currentStatsSubject: BehaviorSubject<Character[]>;
+  private readonly currentStatsSubject: BehaviorSubject<Character[]>;
 
   private booksUrl = environment.serverUrl + 'api1';
 
-  constructor (private httpClient: HttpClient) {
+  constructor (private httpClient: HttpClient,
+               private _userService: UserService,
+               private _headerService: HeaderService) {
     this.currentStatsSubject = new BehaviorSubject<Character[]>([]);
 
 
@@ -50,14 +54,21 @@ export class StatsService {
   _loadStats (): Promise<Character[]> {
     // console.log('_loadStats ');
 
+    this._headerService.startReloading();
     return new Promise<Character[]>((resolve, reject) => {
       this.httpClient.get(this.booksUrl)
       // .map((res: Response) => res.json().data as Book[])
           .subscribe(
             (data: Object) => {
-              //console.log(data);
+              // console.log(data);
 
-              const stats = data as Stats[];
+              // is the token refreshed ?
+              if (data['refreshedToken']) {
+                UserService.tokenSetter(data['refreshedToken']);
+                this._userService.checkAuthent();
+              }
+
+              const stats = data['data'] as Stats[];
 
               stats.forEach(function (v) {
                 v.date = new Date(v.date);
@@ -99,7 +110,7 @@ export class StatsService {
                 if (!minutePlayedTotalTotal[d.userId]) {
                   minutePlayedTotalTotal[d.userId] = 0;
                 }
-                minutePlayedTotalTotal[d.userId] += 1 * d.values[d.values.length - 1].minutesPlayedTotal;
+                minutePlayedTotalTotal[d.userId] += d.values[d.values.length - 1].minutesPlayedTotal;
                 // console.log(d.userId + ' ' + minutePlayedTotalTotal[d.userId]);
 
                 // Calc the char num
@@ -183,15 +194,18 @@ export class StatsService {
 //              graphType = savedgraphType;
 
 
+              this._headerService.stopReloading();
               resolve(StatsService.statsList);
             },
             err => {
+              this._headerService.stopReloading();
               reject(err);
             },
           );
     });
   }
 
+  //noinspection JSUnusedGlobalSymbols
   /**
    * Get the characters list
    */
@@ -199,7 +213,7 @@ export class StatsService {
     // console.log('_loadStats ');
 
     if (StatsService.statsList) {
-      return new Promise<Character[]>((resolve, reject) => {
+      return new Promise<Character[]>((resolve) => {
         resolve(StatsService.statsList);
       });
     } else {

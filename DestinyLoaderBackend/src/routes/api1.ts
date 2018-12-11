@@ -3,7 +3,7 @@ import { Router, Response, Request, NextFunction } from "express";
 const CronJob = require('cron').CronJob;
 const fs = require('fs');
 
-const debug = require('debug')('server:debug:routes:api1');
+const debug = require('debug')('server:debugLogger:routes:api1');
 const error = require('debug')('server:error:routes:api1');
 
 import { DestinyDb } from "../utils/destinyDb/destinyDb";
@@ -25,23 +25,36 @@ function api1Router (passport): Router {
         .get((request: Request, response: Response) => {
           debug("GET /");
 
-          response.setHeader('Last-Modified', (new Date()).toUTCString());
+          // Check authentication (only to know if we are authenticate)
+          passport.authenticate('jwt-check', {session: false}, (err, user): any => {
 
-          if ((new Date().getTime() - dateCache.getTime()) > 1000 * 60 * 12) {
-            error("Cache not loaded !! " + dateCache);
-            calcList(function (err, list) {
-              if (err) {
-                response.send(err);
-              } else {
-                //noinspection JSIgnoredPromiseFromCall
-                response.json(list);
-              }
-            });
-          } else {
-            //noinspection JSIgnoredPromiseFromCall
-            response.json(resultCache);
-          }
+            response.setHeader('Last-Modified', (new Date()).toUTCString());
 
+            if ((new Date().getTime() - dateCache.getTime()) > 1000 * 60 * 12) {
+              error("Cache not loaded !! " + dateCache);
+              calcList(function (err, list) {
+                if (err) {
+                  response.send(err);
+                } else {
+                  //noinspection JSIgnoredPromiseFromCall
+                  let result = {
+                    data: list,
+                    refreshedToken: user.refreshedToken
+                  };
+                  response.send(JSON.stringify(result, null, 2));
+                  debug("GET / done");
+                }
+              });
+            } else {
+              //noinspection JSIgnoredPromiseFromCall
+              let result = {
+                data: resultCache,
+                refreshedToken: user.refreshedToken
+              };
+              response.send(JSON.stringify(result, null, 2));
+              debug("GET / done");
+            }
+          })(request, response);
         });
 
   return router;
@@ -62,14 +75,14 @@ const calcList = _.throttle((callback) => {
 
     try {
       let userListJson = fs.readFileSync(Config.CLAN_MEMBER_LIST, 'utf8');
-      //debug(userListJson);
+      //debugLogger(userListJson);
       userList = JSON.parse(userListJson).map(function (users) {
         userOnlineMap[users.displayName] = users.isOnLine;
         userCharMap[users.displayName] = users.characters;
         return users.displayName;
       });
-      //debug(JSON.stringify(userOnlineMap, null, 2));
-      //debug(JSON.stringify(userList, null, 2));
+      //debugLogger(JSON.stringify(userOnlineMap, null, 2));
+      //debugLogger(JSON.stringify(userList, null, 2));
     } catch (e) {
       error(e);
       if (callback) {
@@ -81,7 +94,7 @@ const calcList = _.throttle((callback) => {
     }
 
 
-    // debug("calcList");
+    // debugLogger("calcList");
     DestinyDb.list(function (err, docs) {
       if (err) {
         if (callback) {
@@ -100,7 +113,7 @@ const calcList = _.throttle((callback) => {
         let previousRatio = [];
         let list = docs
           .reduce(function (result, d) {
-            // debug(d);
+            // debugLogger(d);
             let month = d.date.getMonth() + 1; //months from 1-12
             let day = d.date.getDate();
             let year = d.date.getFullYear();
@@ -127,7 +140,7 @@ const calcList = _.throttle((callback) => {
             if (!d.userId) {
               d.userId = d.name.replace(/ \/ [1-3]$/, "");
             }
-            //debug(d.userId);
+            //debugLogger(d.userId);
             if ((d.date.getTime() > limitDate.getTime()) && (userList.indexOf(d.userId) >= 0) && (userCharMap[d.userId].indexOf(d.id) >= 0)) {
               if (!result[key]) {
                 result[key] = {};
@@ -179,7 +192,7 @@ const calcList = _.throttle((callback) => {
               previousRatio[d.id] = result[key].allPvPKillsDeathsAssistsRatio;
               //console.log(previousRatio[d.id]+" "+key);
             }
-            //debug(result);
+            //debugLogger(result);
             return result;
 
           }, {});
@@ -207,5 +220,5 @@ calcList(function (err, list) {
   }
 });
 
-//new CronJob("0 */10 * * * *", calcList, null, true, "GMT");
-new CronJob("0 * * * * *", calcList, null, true, "GMT");
+new CronJob("0 */10 * * * *", calcList, null, true, "GMT");
+//new CronJob("0 * * * * *", calcList, null, true, "GMT");

@@ -10,7 +10,7 @@ const passport = require('passport');
 const session = require('express-session');
 const flash = require('connect-flash');
 
-const debug = require('debug')('server:debug:app');
+// const debug = require('debug')('server:debugLogger:app');
 // const error = require('debug')('server:error:app');
 
 
@@ -50,6 +50,7 @@ let originsWhiteList = ['http://localhost:4200', 'http://r2d2', 'http://192.168.
 if (process.env['frontend']) {
   originsWhiteList = JSON.parse(process.env['frontend']);
 }
+//noinspection JSUnusedGlobalSymbols
 const corsOptions = {
   origin: function (origin, callback) {
     const isWhiteListed = originsWhiteList.indexOf(origin) !== -1;
@@ -72,6 +73,7 @@ app.use(session({
   saveUninitialized: true
 }));
 app.use(passport.initialize());
+//noinspection TypeScriptValidateJSTypes
 app.use(passport.session()); // persistent login sessions
 app.use(flash()); // use connect-flash for flash messages stored in session
 
@@ -104,7 +106,7 @@ if (app.get('env') === 'development') {
 }
 
 // production error handler
-// no stacktraces leaked to user
+// no stacktrace leaked to user
 app.use(function(err, req, res) {
   res.status(err.status || 500);
   res.render('error', {

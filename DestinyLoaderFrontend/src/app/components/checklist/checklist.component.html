@@ -1,1 +1,70 @@
-CHecklist working
+<div class="page" *ngIf="checklist">
+  <div class="character" *ngFor="let character of checklist.characters" [style.flex]="'1 1 '+(100/checklist.characters.length)+'%'">
+    <mat-card class="character-card">
+      <mat-card-title
+          [style.background-image]="'url(http://www.bungie.net'+character.emblemBackgroundPath+')'">
+        <div class="type">{{'class' + character.classType|translate}}<span class="light">{{character.light}}</span>
+        </div>
+
+      </mat-card-title>
+    </mat-card>
+    <mat-card class="pursuit-item" *ngFor="let pursuit of character.pursuits" title="{{pursuit.description}}">
+      <mat-card-title class="pursuit-title">
+          <img class="pursuit-item-icon" *ngIf="pursuit.icon" src="http://www.bungie.net{{pursuit.icon}}"
+               alt="{{pursuit.itemTypeDisplayName}}" title="{{pursuit.itemTypeDisplayName}}">
+        <div class="pursuit-text">
+          <span class="pursuit-itemType" *ngIf="!pursuit.icon">{{pursuit.itemTypeDisplayName}} : </span>
+          {{pursuit.name}}
+          <div class="pursuit-description">{{pursuit.description}}</div>
+        </div>
+      </mat-card-title>
+      <mat-card-subtitle class="reward" *ngFor="let reward of pursuit.rewards">
+        <div *ngIf="!reward.redeemed">
+          <img class="reward-icon" *ngIf="reward.icon" src="http://www.bungie.net{{reward.icon}}" alt="{{reward.name}}">
+          <span *ngIf="reward.identifier && (reward.identifier != pursuit.name)">
+            <img class="reward-identifier-icon" *ngIf="reward.identifierIcon"
+                 src="http://www.bungie.net{{reward.identifierIcon}}" title="{{reward.identifier}}" alt="{{reward.identifier}}">
+          </span>
+          <span>{{reward.name}} {{reward.quantity < 2 ? '' : '+' + reward.quantity}}</span>
+        </div>
+      </mat-card-subtitle>
+      <div *ngIf="pursuit.objectives">
+        <mat-card-subtitle class="objective" *ngFor="let objective of pursuit.objectives">
+          <mat-checkbox class="objective-checkbox"
+                        [ngClass]="{'objective-checkbox-border': (objective.completionValue >= 1)}" readonly
+                        [ngModel]="objective.complete">
+            <div class="objective-progressbar" [style.width]="(100*objective.progress/objective.completionValue)+'%'">
+              &nbsp;
+            </div>
+            <span class="objective-description">{{objective.item.progressDescription}}</span><span
+              class="objective-progress">{{objective.progress}}/{{objective.completionValue}}</span>
+          </mat-checkbox>
+        </mat-card-subtitle>
+      </div>
+
+    </mat-card>
+  </div>
+</div>
+
+<!--baseCharacterLevel: 50-->
+<!--characterId: "2305843009262856643"-->
+<!--checklists: (3) [{…}, {…}, {…}]-->
+<!--classHash: 3655393761-->
+<!--classType: 0-->
+<!--dateLastPlayed: "2018-12-09T22:11:34Z"-->
+<!--emblemBackgroundPath: "/common/destiny2_content/icons/fc8a4349dc04777c474ec140c7b66d9e.jpg"-->
+<!--emblemColor: {red: 5, green: 4, blue: 5, alpha: 255}-->
+<!--emblemHash: 4085986809-->
+<!--emblemPath: "/common/destiny2_content/icons/9d59645b596c0adf3e164c90a41c4702.jpg"-->
+<!--genderHash: 3111576190-->
+<!--genderType: 0-->
+<!--levelProgression: {progressionHash: 1716568313, dailyProgress: 0, dailyLimit: 0, weeklyProgress: 0, weeklyLimit: 0, …}-->
+<!--light: 612-->
+<!--membershipId: "4611686018447976074"-->
+<!--membershipType: 2-->
+<!--milestones: (10) [{…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}]-->
+<!--minutesPlayedThisSession: "63"-->
+<!--minutesPlayedTotal: "37796"-->
+<!--percentToNextLevel: 0-->
+<!--raceHash: 2803282938-->
+<!--raceType: 1-->

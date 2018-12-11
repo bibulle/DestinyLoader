@@ -1,7 +1,7 @@
 import { Router, Response, Request, NextFunction } from "express";
 
-const debug = require('debug')('server:debug:routes:index');
-//const error = require('debug')('server:error:routes:index');
+const debug = require('debug')('server:debugLogger:routes:index');
+//const error = require('debugLogger')('server:error:routes:index');
 
 //noinspection JSUnusedLocalSymbols
 function defaultRouter (passport): Router {

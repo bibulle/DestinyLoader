@@ -5,7 +5,7 @@ import { User } from "./utils/user";
 const BearerStrategy = require('passport-http-bearer').Strategy;
 const BungieOAuth2Strategy = require('passport-bungie-oauth2').Strategy;
 
-const debug = require('debug')('server:debug:config_passport');
+const debug = require('debug')('server:debugLogger:config_passport');
 
 module.exports = function (passport) {
   debug('init');
@@ -18,10 +18,10 @@ module.exports = function (passport) {
 //      callbackURL: "https://lights.bibulle.fr/monitorStuff/login/callback"
 //    },
 //    function(accessToken, refreshToken, profile, cb) {
-//      debug(accessToken);
-//      debug(refreshToken);
-//      debug(profile);
-//      debug(cb);
+//      debugLogger(accessToken);
+//      debugLogger(refreshToken);
+//      debugLogger(profile);
+//      debugLogger(cb);
 //
 //      return cb(null, profile);
 //    }
@@ -32,7 +32,7 @@ module.exports = function (passport) {
 //  // =========================================================================
 //
 //  oAuth2Strategy.userProfile = function (accesstoken, done) {
-//    debug('userProfile');
+//    debugLogger('userProfile');
 //    // choose your own adventure, or use the Strategy's oauth client
 //    Destiny.getCurrentUser(accesstoken, done);
 //  };
@@ -42,16 +42,18 @@ module.exports = function (passport) {
   // =========================================================================
   // CHECK JWT ===============================================================
   // =========================================================================
+  //noinspection TypeScriptValidateJSTypes
   passport.use('jwt-check', new BearerStrategy(
     {
       passReqToCallback: true
     },
     (request, payload, done) => {
-      //debug("jwt-check ");
+      // debugLogger("jwt-check ");
+
 
       User.checkToken(payload, function (err, decoded) {
         if (err) {
-          //debug(err);
+          //debugLogger(err);
           return done(err);
         }
         request.user = decoded;
@@ -64,6 +66,7 @@ module.exports = function (passport) {
   // =========================================================================
   // BUNGIE ==================================================================
   // =========================================================================
+  //noinspection TypeScriptValidateJSTypes
   passport.use(new BungieOAuth2Strategy({
       clientID: "21550",
       //callbackURL: "https://lights.bibulle.fr/monitorStuff/login/callback",

@@ -21,7 +21,9 @@ app-navbar {
   top: 0;
   left: 0;
   right: 0;
-  z-index: 2;
+  z-index: 50;
+  background-color: #303030;
+  color: white;
 }
 
 app-root > app-component-sidenav {

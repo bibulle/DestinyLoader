@@ -3,8 +3,9 @@ import { JwtHelperService } from '@auth0/angular-jwt';
 import { User } from '../models/user';
 import { environment } from '../../environments/environment';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { BehaviorSubject, timer } from 'rxjs';
+import { BehaviorSubject, Observable, timer } from 'rxjs';
 import { WindowService } from './window.service';
+import 'rxjs-compat/add/operator/distinctUntilChanged';
 
 @Injectable({
   providedIn: 'root'
@@ -32,10 +33,12 @@ export class UserService {
 
     this.userSubject = new BehaviorSubject<User>(this.user);
 
-//    const timer1 = timer(3 * 1000, 3 * 1000);
-//    timer1.subscribe(() => {
-//      this.checkAuthent();
-//    });
+    this.checkAuthent();
+
+    const timer1 = timer(3 * 1000, 3 * 1000);
+    timer1.subscribe(() => {
+      this.checkAuthent();
+    });
   }
 
 
@@ -56,6 +59,7 @@ export class UserService {
     localStorage.setItem(UserService.KEY_TOKEN_LOCAL_STORAGE, token);
   }
 
+  //noinspection JSUnusedGlobalSymbols
   /**
    * Remove token from local storage
    */
@@ -112,6 +116,23 @@ export class UserService {
     return this._doGet(environment.serverUrl + 'authent/bungie/login?code=' + parsed.code);
   }
 
+  //noinspection JSUnusedGlobalSymbols
+  /**
+   * Get the observable on user changes
+   * @returns {Observable<User>}
+   */
+  userObservable(): Observable<User> {
+    return this.userSubject
+               // .debounceTime(200)
+               .distinctUntilChanged(
+                 (a, b) => {
+                   // console.log(JSON.stringify(a.local));
+                   // console.log(JSON.stringify(b.local));
+                   return JSON.stringify(a) === JSON.stringify(b);
+                 }
+               );
+  }
+
   /**
    * Check authentication locally (is the jwt not expired)
    * @returns {boolean} are we authenticate
@@ -122,7 +143,7 @@ export class UserService {
 
     const jwt = UserService.tokenGetter();
 
-    const oldUser = this.user;
+//    const oldUser = this.user;
 
     if (!jwt || this.jwtHelper.isTokenExpired(jwt)) {
       this.user = {} as User;
@@ -131,10 +152,11 @@ export class UserService {
       ret = true;
     }
 
-    // if it's a new user, refresh it (to complete the token) else recall last complement
-    if (this.user && this.user.id && (this.user.id !== oldUser.id)) {
-      this.refreshUser();
-    }
+//    // if it's a new user, refresh it (to complete the token) else recall last complement
+//    if (this.user && this.user.id && (this.user.id !== oldUser.id)) {
+//      //noinspection JSIgnoredPromiseFromCall
+//      this.refreshUser();
+//    }
 
     // console.log(this.user);
 
@@ -149,44 +171,44 @@ export class UserService {
    * Is logged ?
    */
   isAuthent (): Boolean {
+    // console.log('isAuthent');
 
     this.checkAuthent();
 
-    return !!(this.user && this.user.id);
+    return !!(this.user && this.user['bungieNetUser']);
 
   }
 
-  /**
-   * Refresh the JWT token (if user is updated)
-   * @returns {Promise<void>}
-   */
-  refreshUser (): Promise<User | string> {
-    return new Promise<User>((resolve, reject) => {
-      this._http
-          .get(environment.serverUrl + 'authent/user')
-          // .map((res: Response) => res.json().data as User[])
-          .subscribe(
-            (data: Object) => {
-              const user = data['data'] as User;
-              if (user.id) {
-                this.user = user;
-                this.userSubject.next(this.user);
-              }
-              resolve(this.user);
-            },
-            err => {
-              reject(err);
-            },
-          );
-    });
-
-    // return this._doGet(environment.serverUrl + 'authent/refreshToken');
-  }
+//  /**
+//   * Refresh the JWT token (if user is updated)
+//   * @returns {Promise<void>}
+//   */
+//  refreshUser (): Promise<User | string> {
+//    return new Promise<User>((resolve, reject) => {
+//      this._http
+//          .get(environment.serverUrl + 'authent/user')
+//          // .map((res: Response) => res.json().data as User[])
+//          .subscribe(
+//            (data: Object) => {
+//              const user = data['data'] as User;
+//              if (user.id) {
+//                this.user = user;
+//                this.userSubject.next(this.user);
+//              }
+//              resolve(this.user);
+//            },
+//            err => {
+//              reject(err);
+//            },
+//          );
+//    });
+//
+//    // return this._doGet(environment.serverUrl + 'authent/refreshToken');
+//  }
 
   /**
    * Start logging process
    * @param oAuthURL
-   * @param loginProvider
    * @returns {Promise<void>}
    * @private
    */
@@ -335,7 +357,9 @@ export class UserService {
       return {};
     }
 
+    //noinspection TypeScriptValidateJSTypes
     return str.split('&').reduce(function (ret, param) {
+      //noinspection TypeScriptValidateJSTypes
       const parts = param.replace(/[+]/g, ' ').split('=');
       // Firefox (pre 40) decodes `%3D` to `=`
       // https://github.com/sindresorhus/query-string/pull/37

@@ -3,7 +3,7 @@ import { Router, Response, Request, NextFunction } from "express";
 const async = require('async');
 const https = require('https');
 
-const debug = require('debug')('server:debug:routes:monitor');
+const debug = require('debug')('server:debugLogger:routes:monitor');
 const error = require('debug')('server:error:routes:monitor');
 
 import { DestinyDb } from "../utils/destinyDb/destinyDb";
@@ -59,7 +59,7 @@ function monitorRouter (passport): Router {
               return response.status(401).send({status: 401, message: msg});
             }
 
-            // debug(user);
+            // debugLogger(user);
             async.waterfall([
                 // Read the configuration (choice of the user)
                 function (callback) {
@@ -803,7 +803,7 @@ function monitorRouter (passport): Router {
                   let result = {
                     data: data,
                     refreshedToken: user.refreshedToken
-                  }
+                  };
                   response.send(JSON.stringify(result, null, 2));
                   debug("GET /api done");
                 }
@@ -883,13 +883,13 @@ function monitorRouter (passport): Router {
 
   router.route('/login/callback')
         // ====================================
-        // route for calback from bungie (after login)
+        // route for callback from bungie (after login)
         // ====================================
         .get((request: Request, response: Response) => {
           debug("GET /login/callback");
 
 
-          //debug(request.query.code);
+          //debugLogger(request.query.code);
 
           if (!request.query || !request.query.code) {
             return response.redirect('/login');
@@ -912,29 +912,29 @@ function monitorRouter (passport): Router {
               method: 'POST'
             };
 
-            //debug(JSON.stringify(options, null, 2));
-            //debug(JSON.stringify(postData, null, 2));
+            //debugLogger(JSON.stringify(options, null, 2));
+            //debugLogger(JSON.stringify(postData, null, 2));
 
             const req = https.request(options, function (res) {
-              //debug("statusCode: ", res.statusCode);
-              //debug("headers: ", res.headers);
-              //debug(res);
+              //debugLogger("statusCode: ", res.statusCode);
+              //debugLogger("headers: ", res.headers);
+              //debugLogger(res);
 
               let content = '';
 
               res.on('data', function (d) {
-                //debug("data");
-                //debug(d.toString());
+                //debugLogger("data");
+                //debugLogger(d.toString());
                 content += d.toString();
               });
               res.on('end', function () {
-                //debug('end');
-                //debug(d);
+                //debugLogger('end');
+                //debugLogger(d);
 
                 let val;
 
                 try {
-                  //debug('end : '+content);
+                  //debugLogger('end : '+content);
                   val = JSON.parse(content);
                 } catch (e) {
                   error("Error in getting Bungie data : " + e + 'from ' + url);
@@ -987,6 +987,7 @@ function monitorRouter (passport): Router {
 
 export { monitorRouter };
 
+//noinspection JSUnusedLocalSymbols
 const itemComparator = function (i1, i2) {
   if (i1.keep > i2.keep) {
     return -1;
@@ -1031,6 +1032,7 @@ const itemComparator = function (i1, i2) {
   return 0;
 };
 
+//noinspection JSUnusedLocalSymbols
 const itemComparatorByLight = function (i1, i2) {
   if (i1.lightLevel + i1.lightLevelBonus > i2.lightLevel + i2.lightLevelBonus) {
     return -1;
@@ -1050,6 +1052,7 @@ const itemComparatorByLight = function (i1, i2) {
   return 0;
 };
 
+//noinspection JSUnusedLocalSymbols
 const KeepOrNot = {
   KEEP_EQUIP: 15,
   KEEP_INVENTORY: 10,
@@ -1059,6 +1062,7 @@ const KeepOrNot = {
   NO_KEEP: 0
 };
 
+//noinspection JSUnusedLocalSymbols
 const CONF_MODE = {
   "do-nothing": 0,
   "lock-chosen": 5,
@@ -1068,6 +1072,7 @@ const CONF_MODE = {
   "prepare-cleanup": 20
 };
 
+//noinspection JSUnusedLocalSymbols
 const BucketsToManaged = [
   "Power Weapons", "Energy Weapons", "Kinetic Weapons",
   "Leg Armor", "Helmet", "Gauntlets", "Chest Armor", "Class Armor",

@@ -20,13 +20,14 @@
     right: 0;
     left: 0;
     z-index: 1;
+    color: #FFF;
 
     .axis {
       font-size: inherit;
       font-family: inherit;
       path, line {
         fill: none;
-        stroke: #000;
+        stroke: #FFF;
         shape-rendering: crispEdges;
       }
       .tick line {

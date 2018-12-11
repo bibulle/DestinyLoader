@@ -1,24 +1,40 @@
-<nav class="docs-navbar-header">
-  <a mat-button class="docs-button title" routerLink="/" attr.aria-label="{{'title' | translate}}">
-    <span>{{'title' | translate}}</span>
-  </a>
-  <a mat-button class="docs-navbar-hide-small docs-button" color="{{ link.selected ? 'primary' : 'none'}}"
-     *ngFor="let link of linksLeft"
-     routerLink="{{link.path}}">{{link.label|translate}}</a>
-  <div class="flex-spacer"></div>
-  <a mat-button class="docs-navbar-hide-small docs-button" color="{{ link.selected ? 'primary' : 'none'}}"
-     *ngFor="let link of linksRight"
-     routerLink="{{link.path}}">{{link.label|translate}}</a>
-  <!--<version-picker></version-picker>-->
-  <!--<theme-picker></theme-picker>-->
-</nav>
-<nav class="docs-navbar docs-navbar-show-small">
-  <a mat-button class="docs-navbar-link"
-     *ngFor="let link of linksLeft"
-     routerLink="{{link.path}}">{{link.label|translate}}</a>
-</nav>
-<nav class="docs-navbar docs-navbar-show-small">
-  <a mat-button class="docs-navbar-link"
-     *ngFor="let link of linksRight"
-     routerLink="{{link.path}}">{{link.label|translate}}</a>
-</nav>
+<div class="docs-header">
+  <div class="docs-header-left">
+    <nav class="docs-navbar-header">
+      <a mat-button class="docs-button title" routerLink="/" attr.aria-label="{{'title' | translate}}">
+        <span>{{'title' | translate}}</span>
+      </a>
+      <a mat-button class="docs-navbar-hide-small docs-button" color="{{ link.selected ? 'primary' : 'none'}}"
+         *ngFor="let link of linksLeft"
+         routerLink="{{link.path}}">{{link.label|translate}}</a>
+      <div class="flex-spacer"></div>
+      <a mat-button class="docs-navbar-hide-small docs-button" color="{{ link.selected ? 'primary' : 'none'}}"
+         *ngFor="let link of linksRight"
+         routerLink="{{link.path}}">{{link.label|translate}}</a>
+    </nav>
+    <nav class="docs-navbar docs-navbar-show-small">
+      <a mat-button class="docs-navbar-link"
+         *ngFor="let link of linksLeft"
+         routerLink="{{link.path}}">{{link.label|translate}}</a>
+    </nav>
+    <nav class="docs-navbar docs-navbar-show-small">
+      <a mat-button class="docs-navbar-link"
+         *ngFor="let link of linksRight"
+         routerLink="{{link.path}}">{{link.label|translate}}</a>
+      <div class="docs-navbar-show-small not-reloading" *ngIf="!reloading"></div>
+      <mat-spinner class="docs-navbar-show-small reloading" diameter="20" *ngIf="reloading"></mat-spinner>
+      <div class="docs-navbar-show-small connected-user" *ngIf="user['bungieNetUser']">
+        <img
+            src="{{'http://www.bungie.net'+user['bungieNetUser'].profilePicturePath}}" alt="{{user['bungieNetUser'].displayName}}"> {{user['bungieNetUser'].displayName}}
+      </div>
+    </nav>
+  </div>
+  <div class="docs-header-right">
+    <div class="docs-navbar-hide-small not-reloading" *ngIf="!reloading"></div>
+    <mat-spinner class="docs-navbar-hide-small reloading" diameter="20" *ngIf="reloading"></mat-spinner>
+    <div class="docs-navbar-hide-small connected-user" *ngIf="user['bungieNetUser']">
+      <img
+          src="{{'http://www.bungie.net'+user['bungieNetUser'].profilePicturePath}}" alt="{{user['bungieNetUser'].displayName}}"> {{user['bungieNetUser'].displayName}}
+    </div>
+  </div>
+</div>

@@ -3,7 +3,7 @@ import {DestinyDb} from "../utils/destinyDb/destinyDb";
 import {GrimoireGoogle} from "../utils/grimoireGoogle/grimoireGoogle";
 import {Config} from "../utils/config/config";
 
-const debug = require('debug')('server:debug:dataMiner');
+const debug = require('debug')('server:debugLogger:dataMiner');
 const error = require('debug')('server:error:dataMiner');
 const sprintf = require('sprintf-js').sprintf;
 const async = require('async');
@@ -30,7 +30,7 @@ let mineDestiny = function () {
                     if (err) {
                       return callback(err);
                     }
-                    //debug(path.resolve(__dirname+CLAN_MEMBER_LIST));
+                    //debugLogger(path.resolve(__dirname+CLAN_MEMBER_LIST));
                     fs.writeFileSync(Config.CLAN_MEMBER_LIST, JSON.stringify(data, null, 2)); // write it back
 
                     try {
@@ -47,7 +47,7 @@ let mineDestiny = function () {
                     if (err) {
                       return callback(err);
                     }
-                    //debug(path.resolve(__dirname+CLAN_MEMBER_LIST));
+                    //debugLogger(path.resolve(__dirname+CLAN_MEMBER_LIST));
                     fs.writeFileSync(Config.CLAN_MEMBER_LIST, JSON.stringify(data, null, 2)); // write it back
 
                     try {

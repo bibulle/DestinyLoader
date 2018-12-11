@@ -1,4 +1,4 @@
-import {Config} from "../config/config";
+import { Config } from "../config/config";
 
 const debug = require('debug')('server:debug:Destiny');
 const error = require('debug')('server:error:Destiny');
@@ -880,7 +880,7 @@ export class Destiny {
                   })
                 } else {
                   error("Empty checklist definition");
-                  error(JSON.stringify(checklist.instanceId, null, 2));
+                  //error(JSON.stringify(checklist.instanceId, null, 2));
                   callback(null);
                 }
               },
@@ -899,10 +899,22 @@ export class Destiny {
                     if (err) return callback(err);
                     milestone.definition = definition;
                     milestone.milestoneName = definition.displayProperties.name;
+                    milestone.icon = definition.displayProperties.icon;
+
+                    // if no name, unknown one
                     if (!milestone.milestoneName) {
                       //debug.error("Empty definition name");
                       //debug.warn(JSON.stringify(definition, null, 2));
                       milestone.milestoneName = "Unknown name";
+                    }
+
+                    // if no icon, search elsewhere
+                    if (!milestone.icon && definition.quests) {
+                      Object.keys(definition.quests).forEach(q => {
+                        if (definition.quests[q].displayProperties.icon) {
+                          milestone.icon = definition.quests[q].displayProperties.icon;
+                        }
+                      })
                     }
 
                     // filling the rewards with definition
@@ -923,6 +935,7 @@ export class Destiny {
                                 if (err) return callback(err);
                                 item.definition = definition;
                                 item.itemName = definition.displayProperties.name;
+                                item.icon = definition.displayProperties.icon;
                                 if (!item.itemName) {
                                   item.itemName = "Unknown name";
                                 }
@@ -1021,7 +1034,7 @@ export class Destiny {
                         })
                       } else {
                         error("Empty definition");
-                        error(JSON.stringify(item, null, 2));
+                        //error(JSON.stringify(item, null, 2));
                         callback(null, item);
                       }
                     },
@@ -1029,9 +1042,9 @@ export class Destiny {
                     function (item, callback) {
                       //  debug(JSON.stringify(item.item.itemTypeDisplayName, null, 2));
                       //debug(JSON.stringify(result.characters[0].classType, null, 2));
-                      //if (item.bucketHash == pursuitsBucket.hash) {
-                      //  debug(JSON.stringify(item, null, 2));
-                      //}
+//                      if (item.bucketHash == Destiny.pursuitsBucket.hash) {
+//                        debug(JSON.stringify(item, null, 2));
+//                      }
                       // class corresponding to unknown (all)
                       if (item.item.classType == 3) {
                         callback(null, item);
@@ -1141,7 +1154,7 @@ export class Destiny {
                         })
                       } else {
                         error("Empty bucket");
-                        error(JSON.stringify(item, null, 2));
+                        //error(JSON.stringify(item, null, 2));
                         callback(null, item);
                       }
                     },
@@ -1166,7 +1179,7 @@ export class Destiny {
                         })
                       } else {
                         error("Empty bucket");
-                        error(JSON.stringify(item, null, 2));
+                        //error(JSON.stringify(item, null, 2));
                         callback(null, item);
                       }
                     },
@@ -1182,6 +1195,29 @@ export class Destiny {
                           function (value, callback) {
                             Destiny.queryItemById(value.itemHash, function (err, itemValue) {
                               value.item = itemValue;
+                              callback();
+                            })
+                          },
+                          function (err) {
+                            callback(err, item);
+                          }
+                        );
+                      } else {
+                        callback(null, item);
+                      }
+                    },
+                    // Add objectives values
+                    function (item, callback) {
+                      if (!item) {
+                        return callback(null, null);
+                      }
+                      //debug(JSON.stringify(item, null, 2));
+                      if (item.objective && item.objective.objectives) {
+                        async.eachSeries(
+                          item.objective.objectives,
+                          function (objective, callback) {
+                            Destiny.queryObjectiveById(objective.objectiveHash, function (err, itemValue) {
+                              objective.item = itemValue;
                               callback();
                             })
                           },
@@ -1219,6 +1255,9 @@ export class Destiny {
                       //  return callback(null, null);
                       //}
                       //if ((item.item.displayProperties.name == "AUriel's Gift") || (item.item.displayProperties.name == "Rat King's Crew")) {
+                      //if (item.bucketHash == Destiny.pursuitsBucket.hash) {
+                      //  debug(JSON.stringify(item, null, 2));
+                      //}
                       try {
                         const newItem = {
                           "bucketName": item.bucketName,
@@ -1244,13 +1283,16 @@ export class Destiny {
                           "tierType": item.item.inventory.tierType,
                           "lightLevelBonus": item.lightLevelBonus,
                           "expirationDate": item.expirationDate,
-                          "rewards": []
+                          "rewards": [],
+                          'icon': item.item.displayProperties.icon,
+                          'objectives': []
                         };
 
-//                      if (item.item.displayProperties.name == "Before the Storm") {
-//                        //debug(JSON.stringify(item, null, 2));
-//                        newItem.temp = item;
-//                      }
+
+                        //if (item.item.displayProperties.name == "WANTED: Gravetide Summoner") {
+                        //  //debug(JSON.stringify(item, null, 2));
+                        //  newItem['temp'] = item;
+                        //}
 
 
                         if (item.item.value && item.item.value.itemValue) {
@@ -1261,7 +1303,8 @@ export class Destiny {
                               const newReward = {
                                 itemHash: it.itemHash,
                                 quantity: it.quantity,
-                                name: it.item.displayProperties.name
+                                name: it.item.displayProperties.name,
+                                icon: it.item.displayProperties.icon
                               };
                               newItem.rewards.push(newReward);
                               //console.log(it);
@@ -1269,15 +1312,20 @@ export class Destiny {
                           })
                         }
 
+                        if (item.objective && item.objective.objectives) {
+                          newItem.objectives = item.objective.objectives;
+                          //debug(item.objective.objectives);
+                        }
 
-//                      if (!newItem.itemTypeDisplayName) {
-//                        debug(JSON.stringify(item, null, 2));
-//                      }
+
+                        //if (!newItem.itemTypeDisplayName) {
+                        //  debug(JSON.stringify(item, null, 2));
+                        //}
 
                         callback(null, newItem);
                       } catch (e) {
-                        error(JSON.stringify(e, null, 2));
-                        error(JSON.stringify(item, null, 2));
+                        error(e);
+                        //error(JSON.stringify(item, null, 2));
                         callback(null);
                       }
                     }
@@ -1463,6 +1511,7 @@ export class Destiny {
     }, user.auth.access_token);
   };
 
+  //noinspection JSUnusedGlobalSymbols
   public static lockItem (user, item, characterId, state, callback) {
     //debug("lockItem");
 
@@ -1782,6 +1831,7 @@ export class Destiny {
     }
 
   };
+
   private static itemHashCacheById;
 
   private static queryItemByName (itemName, callback) {
@@ -1815,6 +1865,7 @@ export class Destiny {
     }
 
   };
+
   private static itemHashCacheByName;
 
 // get checklist definition
@@ -1848,6 +1899,7 @@ export class Destiny {
     }
 
   };
+
   private static checklistHashCacheById;
 
 // get milestone definition
@@ -1881,6 +1933,7 @@ export class Destiny {
     }
 
   };
+
   private static milestoneHashCacheById;
 
 // get objective definition
@@ -1915,6 +1968,7 @@ export class Destiny {
     }
 
   };
+
   private static objectiveHashCacheById;
 
 // get vendor definition
@@ -1948,6 +2002,7 @@ export class Destiny {
     }
 
   };
+
   private static vendorHashCacheById;
 
   //noinspection JSUnusedLocalSymbols

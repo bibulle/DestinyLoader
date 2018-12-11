@@ -3,5 +3,8 @@
 	"label.ratio": "Ratio",
 	"label.triumph": "Triumph",
 	"label.checklist": "Checklist",
-	"title": "Bibulle's tools"
+	"title": "Bibulle's tools",
+	"class0": "Titan",
+	"class1": "Hunter",
+	"class2": "Warlock"
 }

@@ -1,6 +1,6 @@
 import * as path from "path";
 
-// const debug = require('debug')('server:debug:config');
+// const debugLogger = require('debugLogger')('server:debugLogger:config');
 const error = require('debug')('server:error:config');
 const fs = require('fs');
 
@@ -26,7 +26,7 @@ export class Config {
   private static node_env = process.env.NODE_ENV || 'development';
 
   static initialize () {
-    // debug(Config.CLAN_MEMBER_LIST);
+    // debugLogger(Config.CLAN_MEMBER_LIST);
 
     // Check the user env
     if (!fs.existsSync(__dirname + "/env-myown.json")) {
@@ -36,9 +36,10 @@ export class Config {
     }
 
     // read it
-    const env = require('./env-myown.json')
+    const env = require('./env-myown.json');
 
     for (const attrname in env[Config.node_env]) {
+      //noinspection JSUnfilteredForInLoop
       Config[attrname] = env[Config.node_env][attrname];
     }
 

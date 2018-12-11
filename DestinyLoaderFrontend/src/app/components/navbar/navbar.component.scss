@@ -1,3 +1,16 @@
+.docs-header {
+  display: flex;
+
+  .docs-header-left {
+    flex: 1 1 100%;
+  }
+  .docs-header-right {
+    flex: 1 0 auto;
+    display: flex;
+    align-items: center;
+    margin-right: 1em;
+  }
+}
 .docs-navbar-header {
   display: flex;
   flex-wrap: wrap;
@@ -26,10 +39,25 @@
 
 .docs-navbar {
   display: none;
+  align-items: center;
 }
 
 .docs-navbar-show-small {
   display: none;
+}
+
+.reloading, .not-reloading {
+  margin-left: 1em;
+  margin-right: 0.5em;
+  width: 20px;
+  height: 20px;
+}
+.connected-user {
+  font-size: 1.2em;
+  img {
+    width: 1.2em;
+    vertical-align: middle;
+  }
 }
 
 /**
@@ -37,6 +65,9 @@
   * Moves content two rows instead of one.
   */
 @media (max-width: 720px) {
+  .docs-navbar-header .title {
+    display: none;
+  }
   .docs-navbar-hide-small {
     display: none;
   }

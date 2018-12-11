@@ -1,10 +1,133 @@
+@import '~@angular/material/theming';
+
 :host {
   display: flex;
   flex-direction: column;
   height: 100%;
 
-  app-chart {
-    flex: 1 1 100%;
+  .page {
+    display: flex;
+
+    .character {
+      flex: 1 1 auto;
+
+      .character-card {
+
+        .mat-card-title {
+          background-position: center;
+          background-repeat: no-repeat;
+          background-size: contain;
+          height: 3em;
+          text-align: center;
+          color: white;
+          display: flex;
+          align-items: stretch;
+          justify-content: center;
+
+          .type {
+            padding-top: 0.8em;
+            width: 14em;
+            position: relative;
+
+            .light {
+              font-size: 0.8em;
+              position: absolute;
+              right: 0;
+              bottom: 0.5em;
+            }
+          }
+
+        }
+
+      }
+
+      .pursuit-item {
+
+        .pursuit-title {
+          display: flex;
+          align-items: center;
+        }
+        .pursuit-text {
+          margin-left: 0.5em;
+        }
+        .pursuit-itemType {
+          color: rgba(0,0,0,0.6);
+        }
+        .pursuit-item-icon {
+          width: 2em;
+          vertical-align: middle;
+        }
+        .pursuit-description {
+          font-size: 0.5em;
+        }
+
+        .reward {
+          padding-left: 4em;
+
+          span {
+            vertical-align: middle;
+          }
+          .reward-icon, .reward-identifier-icon {
+            width: 1.5em;
+            vertical-align: middle;
+            padding-right: 0.5em;
+          }
+        }
+
+        .objective {
+          padding-left: 4em;
+
+          .objective-checkbox {
+
+            ::ng-deep label {
+              width: 100%;
+
+              .mat-checkbox-inner-container {
+                margin-left: 0;
+              }
+              .mat-checkbox-label {
+                width: 100%;
+                position: relative;
+              }
+            }
+          }
+          .objective-checkbox-border {
+            ::ng-deep .mat-checkbox-label {
+              border-style: solid;
+              border-width: 1px;
+              border-color: #1b5e20;
+            }
+          }
+          .objective-description {
+            z-index: 10;
+            opacity: 1;
+            position:relative;
+          }
+          .objective-progress {
+            z-index: 10;
+            opacity: 1;
+            position: relative;
+            float: right;
+          }
+          .objective-progressbar {
+            background-color: #2e7d32;
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            opacity: 0.3;
+            z-index: 1;
+          }
+
+        }
+      }
+    }
+  }
+}
+
+@media (max-width: 720px) {
+  .page {
+    flex-direction: column;
   }
 }
 

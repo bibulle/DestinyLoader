@@ -1,5 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { NavigationEnd, Router } from '@angular/router';
+import { UserService } from '../../services/user.service';
+import { HeaderService } from '../../services/header.service';
 
 @Component({
   selector: 'app-navbar',
@@ -11,12 +13,18 @@ export class NavbarComponent implements OnInit {
   linksLeft: { path: string, label: string, selected: boolean }[] = [];
   linksRight: { path: string, label: string, selected: boolean }[] = [];
 
-  selectedPath: string;
+  user: {};
 
-  constructor(private _router: Router) {
+  reloading = false;
+
+  // selectedPath: string;
+
+  constructor (private _router: Router,
+               private _userService: UserService,
+               private _headerService: HeaderService) {
 
     this._router.events.subscribe((data) => {
-       // console.log(data);
+      // console.log(data);
 //      if (data instanceof RoutesRecognized) {
 //        // Title has bee recognized, add it to history
 //        let backUrl: string = null;
@@ -37,18 +45,10 @@ export class NavbarComponent implements OnInit {
 //      }
       if (data instanceof NavigationEnd) {
         this.linksLeft.forEach(link => {
-          if ('/' + link.path === data.urlAfterRedirects) {
-            link.selected = true;
-          } else {
-            link.selected = false;
-          }
+          link.selected = ('/' + link.path === data.urlAfterRedirects);
         });
         this.linksRight.forEach(link => {
-          if ('/' + link.path === data.urlAfterRedirects) {
-            link.selected = true;
-          } else {
-            link.selected = false;
-          }
+          link.selected = ('/' + link.path === data.urlAfterRedirects);
         });
 
       }
@@ -56,7 +56,7 @@ export class NavbarComponent implements OnInit {
 
   }
 
-  ngOnInit() {
+  ngOnInit () {
 
     const newLinksLeft: { path: string, label: string, selected: boolean }[] = [];
     const newLinksRight: { path: string, label: string, selected: boolean }[] = [];
@@ -74,6 +74,16 @@ export class NavbarComponent implements OnInit {
     this.linksLeft = newLinksLeft;
     this.linksRight = newLinksRight;
 
+    this._userService.userObservable().subscribe(
+      user => {
+        this.user = user;
+        // console.log(user);
+      });
+
+    this._headerService.reloadingObservable().subscribe(
+      rel => {
+        this.reloading = rel;
+      });
   }
 
 }

@@ -1,6 +1,7 @@
 export class User {
 
   id: string;
+  profilePicturePath: string;
 
   constructor(options) {
 

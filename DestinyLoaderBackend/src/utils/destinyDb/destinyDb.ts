@@ -1,7 +1,6 @@
 import {Config} from "../config/config";
-import { Destiny } from "../destiny/destiny";
 
-const debug = require('debug')('server:debug:destinyDb');
+const debug = require('debug')('server:debugLogger:destinyDb');
 const error = require('debug')('server:error:destinyDb');
 const DataStore = require('nedb');
 const async = require('async');
@@ -26,7 +25,7 @@ export class DestinyDb {
           DestinyDb._initDb(callback)
         },
         function (callback) {
-          // debug("before the list");
+          // debugLogger("before the list");
           DestinyDb.list(callback);
 
         }
@@ -42,14 +41,14 @@ export class DestinyDb {
   }
 
   private static _initDb(callback) {
-    // debug("_initDb");
-    //debug(this._db && this._colStats && this._colConfigurations);
+    // debugLogger("_initDb");
+    //debugLogger(this._db && this._colStats && this._colConfigurations);
 
     if (this._db && this._colStats && this._colConfigurations) {
-      // debug("_initDb nothing to do");
+      // debugLogger("_initDb nothing to do");
       callback()
     } else {
-      //debug("_initDb try to connect");
+      //debugLogger("_initDb try to connect");
       this.MongoClient.connect(Config.mongoUrl + "/" + DestinyDb.DB_NAME, function (err, db) {
         DestinyDb._db = db;
         if (err) {
@@ -62,8 +61,8 @@ export class DestinyDb {
           db.listCollections({name: DestinyDb.DB_COLL_NAME_STATS})
             //db.listCollections()
             .next(function (err, columnInfo) {
-              // debug(err);
-              // debug(JSON.stringify(columnInfo, null, 2));
+              // debugLogger(err);
+              // debugLogger(JSON.stringify(columnInfo, null, 2));
               if (columnInfo) {
                 // The collection exists
                 DestinyDb._colStats = DestinyDb._db.collection(DestinyDb.DB_COLL_NAME_STATS);
@@ -162,34 +161,34 @@ export class DestinyDb {
   };
 
   public static readConf(user, callback) {
-    //debug("readConf ------ 1");
+    //debugLogger("readConf ------ 1");
 
     const doc = {
       _id: user.bungieNetUser.displayName,
     };
     this._initDb(function (err) {
-      //debug("readConf ------ 2");
+      //debugLogger("readConf ------ 2");
       if (err) {
-        //debug("readConf ------ 2.1");
+        //debugLogger("readConf ------ 2.1");
         return callback(err);
       }
-      //debug("readConf ------ 3");
+      //debugLogger("readConf ------ 3");
       DestinyDb._colConfigurations.findOne(doc)
                         .then(function (data) {
-                          //debug("readConf ------ 4");
-                          //debug(JSON.stringify(data, null, 2))
+                          //debugLogger("readConf ------ 4");
+                          //debugLogger(JSON.stringify(data, null, 2))
                           return callback(null, data);
                           //})
                           //.catch(function (err) {
-                          //  debug("readConf ------ 5");
-                          //  debug(JSON.stringify(err, null, 2))
+                          //  debugLogger("readConf ------ 5");
+                          //  debugLogger(JSON.stringify(err, null, 2))
                           //  return callback(err);
                         });
     });
   };
 
   public static insert(data, callback) {
-    //debug("insert");
+    //debugLogger("insert");
     this._initDb(function (err) {
       if (err) {
         return callback(err);
@@ -206,7 +205,7 @@ export class DestinyDb {
   };
 
   public static list(callback) {
-    // debug("list");
+    // debugLogger("list");
     this._initDb(function (err) {
       if (err) {
         return callback(err);
@@ -226,11 +225,11 @@ export class DestinyDb {
 
 
 // var init = function () {
-//     debug("init");
+//     debugLogger("init");
 //     async.waterfall([
 //             this._initDb,
 //             function (callback) {
-//                 debug("before the list");
+//                 debugLogger("before the list");
 //                 list(callback);
 //
 //             }

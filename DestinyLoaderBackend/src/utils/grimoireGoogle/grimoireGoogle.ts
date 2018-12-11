@@ -1,5 +1,5 @@
 
-const debug = require('debug')('server:debug:grimoireGoogle');
+const debug = require('debug')('server:debugLogger:grimoireGoogle');
 const error = require('debug')('server:error:grimoireGoogle');
 const async = require('async');
 const GoogleSpreadsheet = require("google-spreadsheet");
@@ -40,7 +40,7 @@ export class GrimoireGoogle {
             error(err);
             return step(err);
           }
-          //debug('Loaded doc: ' + info.title + ' by ' + info.author.email);
+          //debugLogger('Loaded doc: ' + info.title + ' by ' + info.author.email);
           sheet = info.worksheets[DOC_SHEET];
           debug('sheet : "' + sheet.title + '" ' + sheet.rowCount + 'x' + sheet.colCount);
           step();
@@ -70,7 +70,7 @@ export class GrimoireGoogle {
           if (!firstEmptyColumn) {
             step("No empty column");
           }
-          //debug("firstEmptyColumn = " + firstEmptyColumn);
+          //debugLogger("firstEmptyColumn = " + firstEmptyColumn);
           step();
         });
       },
@@ -90,7 +90,7 @@ export class GrimoireGoogle {
           ids[1] = 'TOTAL';
           cells.some(function (cell) {
             //console.log('Cell R' + cell.row + 'C' + cell.col + ' = ' + cell.value);
-            //debug(cell.col+" "+COL_CARD_ID);
+            //debugLogger(cell.col+" "+COL_CARD_ID);
             if (cell.col === COL_CARD_ID) {
               currCardId = cell.value;
             }
@@ -103,7 +103,7 @@ export class GrimoireGoogle {
             //return firstEmptyColumn;
             return;
           });
-          //debug("ids = " + JSON.stringify(ids));
+          //debugLogger("ids = " + JSON.stringify(ids));
           step();
         });
       },
@@ -129,7 +129,7 @@ export class GrimoireGoogle {
                 error("Stats not found : " + statsId);
                 cells[parseInt(row) - ROW_MIN].numericValue = 0;
               } else {
-                //debug(statsId+" "+data[statsId]);
+                //debugLogger(statsId+" "+data[statsId]);
                 cells[parseInt(row) - ROW_MIN].numericValue = data[statsId];
               }
 

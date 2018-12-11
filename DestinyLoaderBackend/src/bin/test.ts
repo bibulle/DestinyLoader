@@ -3,16 +3,16 @@
 /**
  * Module dependencies.
  */
+const debug = require('debug')('SeedMeHome2:server');
+const async = require('async');
+const fs = require('fs');
+const logger = require('../lib/logger/logger');
+const destiny = require('../lib/destiny/destiny');
+const destinyDb = require('../lib/destinyDb/destinyDb');
+const grimoireGoogle = require('../lib/grimoireGoogle/grimoireGoogle');
+const config = require('../lib/config/config');
 
-var debug = require('debug')('SeedMeHome2:server');
-var async = require('async');
-var fs = require('fs');
-var logger = require('../lib/logger/logger');
-var destiny = require('../lib/destiny/destiny');
-var destinyDb = require('../lib/destinyDb/destinyDb');
-var grimoireGoogle = require('../lib/grimoireGoogle/grimoireGoogle');
-var config = require('../lib/config/config');
-
+//noinspection JSUnusedGlobalSymbols
 function testGrimoire() {
   async.each(
     config.accountsGrimoire,
@@ -75,7 +75,7 @@ function testLight() {
             logger.info(character.userId + " / " + character.class + " light:" + character.light + " level:" + character.baseCharacterLevel + " minutes:" + character.minutesPlayedTotal);
             //logger.info(JSON.stringify(character, null, 2));
 
-            destinyDb.insert(character, function (err, newDoc) {
+            destinyDb.insert(character, function (err) {
               //logger.info(JSON.stringify(newDoc, null, 2));
               logger.info("6");
               return callback(err);
@@ -108,6 +108,7 @@ function testLight() {
 
 }
 
+//noinspection JSUnusedGlobalSymbols
 function testClan() {
   destiny.getClan(config.clanId, function (err, data) {
     logger.info("retour du clan");
@@ -115,10 +116,9 @@ function testClan() {
     //logger.info(JSON.stringify(data, null, 2));
     if (err) {
       return logger.error("Err : " + err);
-      ;
+
     }
-    var members = data;
-    var json = JSON.stringify(members);
+    const json = JSON.stringify(data);
     //logger.info(JSON.stringify(__dirname+'/../data/accountsLight1.js', null, 2));
     fs.writeFileSync(__dirname + '/../data/clanMembers1.js', json); // write it back
 
