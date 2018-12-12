@@ -16,6 +16,7 @@
           <span class="pursuit-itemType" *ngIf="!pursuit.icon">{{pursuit.itemTypeDisplayName}} : </span>
           {{pursuit.name}}
           <div class="pursuit-description">{{pursuit.description}}</div>
+          <div class="pursuit-expiration" *ngIf="pursuit.expirationDate">{{pursuit.expirationDate | timeExpiration }}</div>
         </div>
       </mat-card-title>
       <mat-card-subtitle class="reward" *ngFor="let reward of pursuit.rewards">

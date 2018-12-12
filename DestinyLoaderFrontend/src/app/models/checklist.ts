@@ -22,6 +22,7 @@ export class Character {
   dateLastPlayed: string;
   milestones: {
     milestoneName: string;
+    description: string;
     icon: string;
     rewards: {
       definition: {
@@ -37,7 +38,13 @@ export class Character {
       };
       redeemed: boolean;
       earned: boolean;
-    }[]
+    }[];
+    objectives: {
+      completionValue: number;
+      complete: boolean;
+      progress: number;
+      itemName: string;
+    }[];
   }[];
   light: number;
   pursuits: (Pursuit|Milestone)[];
@@ -57,7 +64,9 @@ export class Pursuit {
 export class Milestone {
   itemTypeDisplayName: string;
   name: string;
+  description: string;
   icon: string;
+  expirationDate: string;
   rewards: Reward[];
   objectives: Objective[];
 }
@@ -72,13 +81,9 @@ export class Reward {
   earned: boolean;
 }
 export class Objective {
-  //noinspection JSUnusedGlobalSymbols
   completionValue: number;
-  //noinspection JSUnusedGlobalSymbols
   complete: boolean;
-  //noinspection JSUnusedGlobalSymbols
   progress: number;
-  //noinspection JSUnusedGlobalSymbols
   item: {
     progressDescription: string;
   };

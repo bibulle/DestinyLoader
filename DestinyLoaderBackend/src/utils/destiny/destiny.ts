@@ -821,33 +821,73 @@ export class Destiny {
                     const milestone = {
                       data: data.characterProgressions.data[character.characterId].milestones[milestoneId],
                       instanceId: milestoneId,
+                      objectives: [],
                       rewards: []
                     };
                     milestone.data = data.characterProgressions.data[character.characterId].milestones[milestoneId];
                     milestone.instanceId = milestoneId;
 
-                    // Read the rewards
-                    milestone.rewards = [];
-                    async.eachSeries(
-                      milestone.data.rewards,
-                      function (rewardCategory, callback) {
-                        async.eachSeries(
-                          rewardCategory.entries,
-                          function (reward, callback) {
-                            reward.rewardCategoryHash = rewardCategory.rewardCategoryHash;
-                            milestone.rewards.push(reward);
-                            //debug.warn(JSON.stringify(reward, null, 2));
-                            callback();
-                          },
-                          function (err) {
-                            callback(err);
-                          });
-                      },
+                    async.waterfall([
+                        function (callback) {
+                          // Read the objectives
+                          milestone.objectives = [];
+                          async.eachSeries(
+                            milestone.data.activities,
+                            function (activity, callback) {
+                              async.eachSeries(
+                                activity.challenges,
+                                function (challenge, callback) {
+                                  let found = false;
+                                  milestone.objectives.forEach(obj => {
+                                    if (obj.objectiveHash === challenge.objective.objectiveHash) {
+                                      found = true;
+                                    }
+                                  });
+                                  if (!found) {
+                                    milestone.objectives.push(challenge.objective);
+                                  }
+                                  callback();
+                                },
+                                function (err) {
+                                  callback(err);
+                                });
+                            },
+                            function (err) {
+                              callback(err);
+                            });
+                        },
+                        function (callback) {
+                          // Read the rewards
+                          milestone.rewards = [];
+                          async.eachSeries(
+                            milestone.data.rewards,
+                            function (rewardCategory, callback) {
+                              async.eachSeries(
+                                rewardCategory.entries,
+                                function (reward, callback) {
+                                  reward.rewardCategoryHash = rewardCategory.rewardCategoryHash;
+                                  milestone.rewards.push(reward);
+                                  //debug.warn(JSON.stringify(reward, null, 2));
+                                  callback();
+                                },
+                                function (err) {
+                                  callback(err);
+                                });
+                            },
+                            function (err) {
+                              callback(err);
+                            });
+                        }
+                      ],
                       function (err) {
+                        //if (milestoneId === '157823523') {
+                        //  debug(milestone);
+                        //}
                         character.milestones.push(milestone);
                         milestoneToLoad.push(milestone);
                         callback(err);
                       });
+
 
                   },
                   function (err) {
@@ -900,6 +940,7 @@ export class Destiny {
                     milestone.definition = definition;
                     milestone.milestoneName = definition.displayProperties.name;
                     milestone.icon = definition.displayProperties.icon;
+                    milestone.description = definition.displayProperties.description;
 
                     // if no name, unknown one
                     if (!milestone.milestoneName) {
@@ -917,43 +958,81 @@ export class Destiny {
                       })
                     }
 
-                    // filling the rewards with definition
-                    if (milestone.definition.rewards) {
-                      //(JSON.stringify(milestone.definition.rewards, null, 2));
-                      async.eachSeries(
-                        milestone.rewards,
-                        function (reward, callback) {
-                          //debug.warn(JSON.stringify(reward, null, 2));
-                          //debug.warn(JSON.stringify(milestone.definition.rewards[reward.rewardCategoryHash].rewardEntries[reward.rewardEntryHash], null, 2));
-                          reward.definition = milestone.definition.rewards[reward.rewardCategoryHash].rewardEntries[reward.rewardEntryHash];
+                    async.waterfall([
+                        function (callback) {
+                          // filling the rewards with definition
+                          if (milestone.definition.rewards) {
+                            //(JSON.stringify(milestone.definition.rewards, null, 2));
+                            async.eachSeries(
+                              milestone.rewards,
+                              function (reward, callback) {
+                                //debug.warn(JSON.stringify(reward, null, 2));
+                                //debug.warn(JSON.stringify(milestone.definition.rewards[reward.rewardCategoryHash].rewardEntries[reward.rewardEntryHash], null, 2));
+                                reward.definition = milestone.definition.rewards[reward.rewardCategoryHash].rewardEntries[reward.rewardEntryHash];
 
-                          reward.items = [];
-                          async.eachSeries(
-                            reward.definition.items,
-                            function (item, callback) {
-                              Destiny.queryItemById(item.itemHash, function (err, definition) {
-                                if (err) return callback(err);
-                                item.definition = definition;
-                                item.itemName = definition.displayProperties.name;
-                                item.icon = definition.displayProperties.icon;
-                                if (!item.itemName) {
-                                  item.itemName = "Unknown name";
-                                }
-                                callback(null);
-                              });
-                            },
-                            function (err) {
-                              callback(err);
-                            }
-                          );
+                                reward.items = [];
+                                async.eachSeries(
+                                  reward.definition.items,
+                                  function (item, callback) {
+                                    Destiny.queryItemById(item.itemHash, function (err, definition) {
+                                      if (err) return callback(err);
+                                      item.definition = definition;
+                                      item.itemName = definition.displayProperties.name;
+                                      item.icon = definition.displayProperties.icon;
+                                      if (!item.itemName) {
+                                        item.itemName = "Unknown name";
+                                      }
+                                      callback(null);
+                                    });
+                                  },
+                                  function (err) {
+                                    callback(err);
+                                  }
+                                );
+                              },
+                              function (err) {
+                                callback(err);
+                              }
+                            );
+                          } else {
+                            callback();
+                          }
                         },
-                        function (err) {
-                          callback(err);
+                        function (callback) {
+                          // filling the objectives with definition
+                          if (milestone.objectives) {
+                            //(JSON.stringify(milestone.objectives, null, 2));
+                            async.eachSeries(
+                              milestone.objectives,
+                              function (objective, callback) {
+                                Destiny.queryObjectiveById(objective.objectiveHash, function (err, definition) {
+                                  if (err) return callback(err);
+                                  objective.definition = definition;
+                                  objective.itemName = definition.progressDescription;
+                                  objective.icon = definition.displayProperties.icon;
+                                  if (!objective.itemName) {
+                                    objective.itemName = "Unknown name";
+                                  }
+                                  callback(null);
+                                });
+                              },
+                              function (err) {
+                                callback(err);
+                              }
+                            );
+                          } else {
+                            callback();
+                          }
+
                         }
-                      );
-                    } else {
-                      callback();
-                    }
+                      ],
+                      (err) => {
+                        if (milestone.instanceId === '157823523') {
+                          debug(milestone);
+                        }
+
+                        callback(err);
+                      });
                   })
                 } else {
                   error("Empty milestone definition");
@@ -1289,9 +1368,9 @@ export class Destiny {
                         };
 
 
-                        //if (item.item.displayProperties.name == "WANTED: Gravetide Summoner") {
-                        //  //debug(JSON.stringify(item, null, 2));
-                        //  newItem['temp'] = item;
+                        //if (item.item.displayProperties.name == "Weekly Crucible Challenge") {
+                        //  debug(JSON.stringify(item, null, 2));
+                        //  //newItem['temp'] = item;
                         //}
 
 

@@ -16,6 +16,7 @@ export class ChecklistService {
   private static KEY_CHECKLIST_LOCAL_STORAGE = 'checklist';
   private static REFRESH_EVERY = 60 * 1000;
 
+  private static _refreshIsRunning = false;
   private readonly currentChecklistSubject: BehaviorSubject<Object>;
 
   private checklistUrl = environment.serverUrl + 'monitorstuff/api';
@@ -30,16 +31,15 @@ export class ChecklistService {
       this.currentChecklistSubject = new BehaviorSubject<Object>({});
     }
 
-
-    ChecklistService._refreshChecklist(this);
-
   }
 
   /**
    * Refresh characters every...
    * @private
    */
-  static _refreshChecklist (_service) {
+  static _refreshChecklist (_service: ChecklistService) {
+    if (_service.currentChecklistSubject.observers.length > 0) {
+      ChecklistService._refreshIsRunning = true;
     _service._loadChecklistFromBungie()
             .then(checklist => {
               // console.log('currentChecklistSubject.next ' + checklist.length);
@@ -57,6 +57,9 @@ export class ChecklistService {
                 }, ChecklistService.REFRESH_EVERY
               );
             });
+    } else {
+      ChecklistService._refreshIsRunning = false;
+    }
   }
 
 
@@ -69,6 +72,15 @@ export class ChecklistService {
       return JSON.parse(localStorage.getItem(ChecklistService.KEY_CHECKLIST_LOCAL_STORAGE));
     } catch {
       return {};
+    }
+  }
+
+  /**
+   * Initialize the loading of stats
+   */
+  startLoadingChecklist () {
+    if (!ChecklistService._refreshIsRunning) {
+      ChecklistService._refreshChecklist(this);
     }
   }
 

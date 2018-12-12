@@ -1,15 +1,15 @@
 /* tslint:disable:member-ordering */
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Subscription } from 'rxjs/Subscription';
 import { ChecklistService } from '../../services/checklist.service';
-import { Character, Checklist, Milestone, Reward } from '../../models/checklist';
+import { Character, Checklist, Milestone, Objective, Reward } from '../../models/checklist';
 
 @Component({
   selector: 'app-checklist',
   templateUrl: './checklist.component.html',
   styleUrls: ['./checklist.component.scss']
 })
-export class ChecklistComponent implements OnInit {
+export class ChecklistComponent implements OnInit, OnDestroy {
 
   checklist: Checklist;
 
@@ -24,7 +24,7 @@ export class ChecklistComponent implements OnInit {
     this._currentChecklistSubscription = this._checklistService.currentChecklistObservable().subscribe(
       checklist => {
         this.checklist = checklist as Checklist;
-        // console.log(checklist);
+        console.log(checklist);
 
         if (this.checklist.items && this.checklist.items.Pursuits && this.checklist.characters) {
 
@@ -65,8 +65,10 @@ export class ChecklistComponent implements OnInit {
 
               const newMilestone: Milestone = {
                 itemTypeDisplayName: 'Milestone',
+                description: milestone.description,
                 name: milestone.milestoneName,
                 icon: milestone.icon,
+                expirationDate: undefined,
                 rewards: [],
                 objectives: []
               };
@@ -85,7 +87,18 @@ export class ChecklistComponent implements OnInit {
                 };
                 newMilestone.rewards.push(newReward);
               });
-
+              milestone.objectives.forEach(objective => {
+                // console.log(objective);
+                const newObjective: Objective = {
+                  completionValue: objective.completionValue,
+                  complete: objective.complete,
+                  progress: objective.progress,
+                  item: {
+                    progressDescription: objective.itemName
+                  }
+                };
+                newMilestone.objectives.push(newObjective);
+              });
 
               char.pursuits.push(newMilestone);
             });
@@ -107,8 +120,15 @@ export class ChecklistComponent implements OnInit {
 
       }
     );
-
+    this._checklistService.startLoadingChecklist();
   }
+
+  ngOnDestroy (): void {
+    if (this._currentChecklistSubscription) {
+      this._currentChecklistSubscription.unsubscribe();
+    }
+  }
+
 
   static getMaxReward (rewards: Reward[]): Reward {
     rewards.sort(ChecklistComponent.compareRewards);

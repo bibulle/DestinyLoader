@@ -18,6 +18,7 @@ export class StatsService {
   // private static statsList: [ {key: string, values: Stats[]} ];
   private static REFRESH_EVERY = 60 * 1000;
 
+  private static _refreshIsRunning = false;
   private readonly currentStatsSubject: BehaviorSubject<Character[]>;
 
   private booksUrl = environment.serverUrl + 'api1';
@@ -27,31 +28,51 @@ export class StatsService {
                private _headerService: HeaderService) {
     this.currentStatsSubject = new BehaviorSubject<Character[]>([]);
 
-
-    StatsService._refreshStats(this);
-
   }
 
   /**
    * Refresh characters every...
    * @private
    */
-  static _refreshStats (_service) {
-    _service._loadStats()
-            .then(stats => {
-              // console.log('currentStatsSubject.next ' + stats.length);
-              _service.currentStatsSubject.next(stats);
-              setTimeout(() => {
-                  this._refreshStats(_service);
-                }, StatsService.REFRESH_EVERY
-              );
-            });
+  static _refreshStats (_service: StatsService) {
+    if (_service.currentStatsSubject.observers.length > 0) {
+      StatsService._refreshIsRunning = true;
+      _service._loadStats()
+              .then(stats => {
+                // console.log('currentStatsSubject.next ' + stats.length);
+                _service.currentStatsSubject.next(stats);
+
+                setTimeout(() => {
+                    this._refreshStats(_service);
+                  }, StatsService.REFRESH_EVERY
+                )
+                ;
+              })
+              .catch((reason) => {
+                console.log(reason);
+                setTimeout(() => {
+                    this._refreshStats(_service);
+                  }, StatsService.REFRESH_EVERY
+                );
+              });
+    } else {
+      StatsService._refreshIsRunning = false;
+    }
+  }
+
+  /**
+   * Initialize the loading of stats
+   */
+  startLoadingStats () {
+    if (!StatsService._refreshIsRunning) {
+      StatsService._refreshStats(this);
+    }
   }
 
   /**
    * load the characters list
    */
-  _loadStats (): Promise<Character[]> {
+  private _loadStats (): Promise<Character[]> {
     // console.log('_loadStats ');
 
     this._headerService.startReloading();

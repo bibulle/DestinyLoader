@@ -22,6 +22,7 @@ import { ChecklistComponent } from './components/checklist/checklist.component';
 import { AuthGuard } from './components/authent/auth.guard';
 import { UserService } from './services/user.service';
 import { JwtModule } from '@auth0/angular-jwt';
+import { TimeExpirationPipe } from './time-expiration.pipe';
 
 export class MyMissingTranslationHandler implements MissingTranslationHandler {
   handle (params: MissingTranslationHandlerParams) {
@@ -42,7 +43,8 @@ registerLocaleData(localeEn, 'en');
     NavbarComponent,
     RatioComponent,
     TriumphComponent,
-    ChecklistComponent
+    ChecklistComponent,
+    TimeExpirationPipe
   ],
   imports: [
     BrowserModule,

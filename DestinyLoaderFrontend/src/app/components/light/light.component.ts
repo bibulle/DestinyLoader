@@ -1,4 +1,4 @@
-import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { Component, OnDestroy, OnInit} from '@angular/core';
 import { Subscription } from 'rxjs/Subscription';
 import { StatsService } from '../../services/stats.service';
 import { Character } from '../../models/character';
@@ -9,7 +9,7 @@ import { GraphTypeKey } from '../../models/graph';
   templateUrl: './light.component.html',
   styleUrls: ['./light.component.scss']
 })
-export class LightComponent implements OnInit {
+export class LightComponent implements OnInit, OnDestroy {
 
   characters: Character[] = [];
   graphType = GraphTypeKey.LIGHT;
@@ -20,14 +20,18 @@ export class LightComponent implements OnInit {
   }
 
   ngOnInit () {
-
-
     this._currentStatsSubscription = this._statsService.currentStatsObservable().subscribe(
       characters => {
         this.characters = characters;
       }
     );
+    this._statsService.startLoadingStats();
+  }
 
+  ngOnDestroy (): void {
+    if (this._currentStatsSubscription) {
+      this._currentStatsSubscription.unsubscribe();
+    }
   }
 
 }
