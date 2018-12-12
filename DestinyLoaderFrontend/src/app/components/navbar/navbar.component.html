@@ -25,7 +25,7 @@
       <mat-spinner class="docs-navbar-show-small reloading" diameter="20" *ngIf="reloading"></mat-spinner>
       <div class="docs-navbar-show-small connected-user" *ngIf="user['bungieNetUser']">
         <img
-            src="{{'http://www.bungie.net'+user['bungieNetUser'].profilePicturePath}}" alt="{{user['bungieNetUser'].displayName}}"> {{user['bungieNetUser'].displayName}}
+            src="{{'https://www.bungie.net'+user['bungieNetUser'].profilePicturePath}}" alt="{{user['bungieNetUser'].displayName}}"> {{user['bungieNetUser'].displayName}}
       </div>
     </nav>
   </div>
@@ -34,7 +34,7 @@
     <mat-spinner class="docs-navbar-hide-small reloading" diameter="20" *ngIf="reloading"></mat-spinner>
     <div class="docs-navbar-hide-small connected-user" *ngIf="user['bungieNetUser']">
       <img
-          src="{{'http://www.bungie.net'+user['bungieNetUser'].profilePicturePath}}" alt="{{user['bungieNetUser'].displayName}}"> {{user['bungieNetUser'].displayName}}
+          src="{{'https://www.bungie.net'+user['bungieNetUser'].profilePicturePath}}" alt="{{user['bungieNetUser'].displayName}}"> {{user['bungieNetUser'].displayName}}
     </div>
   </div>
 </div>

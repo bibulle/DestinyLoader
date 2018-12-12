@@ -10,7 +10,7 @@
   height: 100%;
   width: 100%;
 
-  mask:         url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 50' preserveAspectRatio='none' width='100%' height='100%'><text fill='black' x='50%' y='50%' text-anchor='middle' alignment-baseline='middle' textLength='80%' font-size='45px' style='font-weight: 900;font-family: Roboto, sans-serif, Verdana, Geneva, sans-serif, sans-serif'>404</text></svg>") top left / cover;
+  mask:         url("data:image/svg+xml;utf8,<svg xmlns='https://www.w3.org/2000/svg' viewBox='0 0 100 50' preserveAspectRatio='none' width='100%' height='100%'><text fill='black' x='50%' y='50%' text-anchor='middle' alignment-baseline='middle' textLength='80%' font-size='45px' style='font-weight: 900;font-family: Roboto, sans-serif, Verdana, Geneva, sans-serif, sans-serif'>404</text></svg>") top left / cover;
 
   animation : background 10s ease 0s infinite alternate;
 

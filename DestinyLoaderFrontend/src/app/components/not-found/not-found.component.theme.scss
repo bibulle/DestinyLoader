@@ -14,7 +14,7 @@
   // all of these variables contain many additional variables
 
   .not-found  {
-    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='70px' height='18px'><text fill='#{mat-color($primary)}' x='50%' y='50%' font-size='14px' textLength='85%' text-anchor='middle'>Not found</text></svg>");
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='https://www.w3.org/2000/svg' width='70px' height='18px'><text fill='#{mat-color($primary)}' x='50%' y='50%' font-size='14px' textLength='85%' text-anchor='middle'>Not found</text></svg>");
   }
 
 

@@ -70,7 +70,7 @@ module.exports = function (passport) {
   passport.use(new BungieOAuth2Strategy({
       clientID: "21550",
       //callbackURL: "https://lights.bibulle.fr/monitorStuff/login/callback",
-      callbackURL: "http://localhost:4200/assets/logged.html",
+      //callbackURL: "http://localhost:4200/assets/logged.html",
       response_type: "code"
     },
     function (accessToken, refreshToken, profile, done) {
