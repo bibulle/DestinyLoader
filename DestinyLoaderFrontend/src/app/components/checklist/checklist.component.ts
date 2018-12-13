@@ -30,8 +30,10 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
         this.checklist = checklist as Checklist;
         console.log(checklist);
 
+        // If we have things to show
         if (this.checklist.items && this.checklist.items.Pursuits && this.checklist.characters) {
 
+          // Sort character by last played first
           this.checklist.characters.sort((c1: Character, c2: Character) => {
             if (c1.dateLastPlayed > c2.dateLastPlayed) {
               return -1;
@@ -48,7 +50,7 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
 
             // foreach pursuit type
             Object.keys(this.checklist.items.Pursuits).forEach(key => {
-              // foreach pursuit
+              // foreach pursuit, add to the character pursuits
               this.checklist.items.Pursuits[key].forEach(pursuit => {
                 if (pursuit.characterId === char.characterId) {
                   char.pursuits.push(pursuit);
@@ -67,6 +69,7 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
                 return;
               }
 
+              // else create the object
               const newMilestone: Milestone = {
                 itemTypeDisplayName: 'Milestone',
                 description: milestone.description,
@@ -77,9 +80,8 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
                 objectives: []
               };
 
-              // console.log(milestone);
+              // add well formed rewards
               milestone.rewards.forEach(reward => {
-                // console.log(reward);
                 const newReward: Reward = {
                   name: reward.definition.items[0].itemName,
                   icon: reward.definition.items[0].icon,
@@ -91,20 +93,37 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
                 };
                 newMilestone.rewards.push(newReward);
               });
+
+              // add well formed objectives
               milestone.objectives.forEach(objective => {
-                // console.log(objective);
                 const newObjective: Objective = {
-                  completionValue: objective.completionValue,
-                  complete: objective.complete,
-                  progress: objective.progress,
-                  item: {
-                    progressDescription: objective.itemName
+                    objectiveHash: objective.objectiveHash,
+                    completionValue: objective.completionValue,
+                    complete: objective.complete,
+                    progress: objective.progress,
+                    item: {
+                      progressDescription: objective.itemName
+                    },
+                    timeTillFinished: Number.POSITIVE_INFINITY
                   }
-                };
+                ;
                 newMilestone.objectives.push(newObjective);
               });
 
               char.pursuits.push(newMilestone);
+            });
+
+            // add objectives time
+            char.pursuits.forEach(pursuit => {
+              pursuit.objectives.forEach(objective => {
+                objective.timeTillFinished = Number.POSITIVE_INFINITY;
+
+                if (objective.complete) {
+                  objective.timeTillFinished = 0;
+                } else if (this.TIMES_BY_OBJECTIVE[objective.objectiveHash]) {
+                  objective.timeTillFinished = this.TIMES_BY_OBJECTIVE[objective.objectiveHash] * (objective.completionValue - objective.progress);
+                }
+              });
             });
 
             // sort pursuit
@@ -113,7 +132,17 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
                 const r1 = ChecklistComponent.getMaxReward(p1.rewards);
                 const r2 = ChecklistComponent.getMaxReward(p2.rewards);
 
-                return ChecklistComponent.compareRewards(r1, r2);
+                const t1 = ChecklistComponent.getMaxTimeTillFinished(p1.objectives);
+                const t2 = ChecklistComponent.getMaxTimeTillFinished(p2.objectives);
+
+                const rewardsCompared = ChecklistComponent.compareRewards(r1, r2);
+
+                if (rewardsCompared !== 0) {
+                  return rewardsCompared;
+                } else {
+                  // let's compare on objective times
+                  return t1 - t2;
+                }
               }
             });
 
@@ -134,8 +163,8 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
   }
 
   ngAfterViewChecked () {
-    this.initPositions();
-    this.calcPositions();
+    this.initPositionsStickyHeaders();
+    this.calcPositionsStickyHeaders();
   }
 
 
@@ -143,17 +172,17 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
 
   @HostListener('window:resize', ['$event'])
   onResize () {
-    this.initPositions();
+    this.initPositionsStickyHeaders();
 
   }
 
   @HostListener('window:scroll', ['$event'])
   onScroll () {
-    this.calcPositions();
+    this.calcPositionsStickyHeaders();
 
   }
 
-  private initPositions () {
+  private initPositionsStickyHeaders () {
     // calculate positioning and get reference
     this.topPage = this.elRef.nativeElement.parentElement.offsetTop;
 
@@ -178,7 +207,7 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
     }
   }
 
-  private calcPositions () {
+  private calcPositionsStickyHeaders () {
 
 
     // get character card position
@@ -186,7 +215,7 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
     const positions = [];
     for (const card of cards) {
       const topPosition = card.getBoundingClientRect().top;
-      positions.push((topPosition < this.topPage ));
+      positions.push((topPosition < this.topPage));
     }
 
     // set sticky character card visible or not
@@ -213,7 +242,8 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
   }
 
   static compareRewards (r1: Reward, r2: Reward): number {
-    let ret = ChecklistComponent.getValue(r2) - ChecklistComponent.getValue(r1);
+    let ret = ChecklistComponent.getRewardValue(r2) - ChecklistComponent.getRewardValue(r1);
+
     if ((ret === 0) && (r1 != null)) {
       if (r1.name > r2.name) {
         ret = 1;
@@ -226,8 +256,11 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
   }
 
 
-  private static getValue (r: Reward): number {
+  private static getRewardValue (r: Reward): number {
     if (r == null) {
+      return -2;
+    }
+    if (r.redeemed) {
       return -1;
     }
 
@@ -261,4 +294,23 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
         return 5;
     }
   }
+
+  static getMaxTimeTillFinished (objectives: Objective[]): number {
+
+    let result = 0;
+    objectives.forEach(o => {
+      if (result < o.timeTillFinished) {
+        result = o.timeTillFinished;
+      }
+    });
+    return result;
+  }
+
+  private TIMES_BY_OBJECTIVE = {
+    // Gambit match
+    '2083819821': 10 * 60 * 1000,
+    '776296945': 10 * 60 * 1000,
+    // WANTED: The Eye in the Dark
+    '277282920' : 25 * 60 * 1000
+  };
 }

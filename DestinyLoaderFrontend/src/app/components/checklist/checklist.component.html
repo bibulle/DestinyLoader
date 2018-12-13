@@ -46,15 +46,17 @@
         </div>
       </mat-card-subtitle>
       <div *ngIf="pursuit.objectives">
-        <mat-card-subtitle class="objective" *ngFor="let objective of pursuit.objectives">
+        <mat-card-subtitle class="objective" *ngFor="let objective of pursuit.objectives" title="{{objective.objectiveHash}}">
           <mat-checkbox class="objective-checkbox"
                         [ngClass]="{'objective-checkbox-border': (objective.completionValue >= 1)}" readonly
                         [ngModel]="objective.complete">
             <div class="objective-progressbar" [style.width]="(100*objective.progress/objective.completionValue)+'%'">
               &nbsp;
             </div>
-            <span class="objective-description">{{objective.item.progressDescription}}</span><span
-              class="objective-progress">{{objective.progress}}/{{objective.completionValue}}</span>
+            <span class="objective-description">{{objective.item.progressDescription}}
+              <span *ngIf="objective.timeTillFinished > 0">({{objective.timeTillFinished | timeExpiration}})</span>
+            </span>
+            <span class="objective-progress">{{objective.progress}}/{{objective.completionValue}}</span>
           </mat-checkbox>
         </mat-card-subtitle>
       </div>

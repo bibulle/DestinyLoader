@@ -40,6 +40,7 @@ export class Character {
       earned: boolean;
     }[];
     objectives: {
+      objectiveHash: string;
       completionValue: number;
       complete: boolean;
       progress: number;
@@ -52,14 +53,12 @@ export class Character {
 
 
 export class Pursuit {
-  //noinspection JSUnusedGlobalSymbols
   itemTypeDisplayName: string;
   name: string;
-  //noinspection JSUnusedGlobalSymbols
+  description: string;
   icon: string;
   rewards: Reward[];
-  //noinspection JSUnusedGlobalSymbols
-  description: string;
+  objectives: Objective[];
 }
 export class Milestone {
   itemTypeDisplayName: string;
@@ -81,11 +80,13 @@ export class Reward {
   earned: boolean;
 }
 export class Objective {
+  objectiveHash: string;
   completionValue: number;
   complete: boolean;
   progress: number;
   item: {
     progressDescription: string;
   };
+  timeTillFinished: number;
 }
 

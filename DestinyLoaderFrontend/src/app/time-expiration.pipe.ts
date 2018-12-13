@@ -16,26 +16,29 @@ import 'rxjs-compat/add/observable/of';
 })
 export class TimeExpirationPipe implements PipeTransform {
 
-  public transform (sinceDate: string): string {
+  public transform (input: string): string {
 
-    // We check the input value of the pipe, which must be a character string representing a date
-    if (new Date(sinceDate).toString() === 'Invalid Date' || isNaN(Date.parse(sinceDate))) {
-      throw new Error('This pipe only works with strings representing dates ' + sinceDate);
+    // console.log(input + ' : ' + Number(input));
+
+    // We check the input value of the pipe,
+    //     which must be a character string representing a date or a number (representing the delta
+    if (!isNaN(Number(input))) {
+      // a number (representing the delta in millisecond)
+      return TimeExpirationPipe.elapsed(Number(input));
+    } else if (new Date(input).toString() !== 'Invalid Date' && !isNaN(Date.parse(input))) {
+      // a Date
+      return TimeExpirationPipe.elapsed(new Date(input).getTime() - new Date().getTime());
     }
 
-    return TimeExpirationPipe.elapsed(new Date(sinceDate));
+    throw new Error('This pipe only works with strings representing dates or numbers' + input);
   }
 
   // The string of characters to be transmitted is determined according to the time elapsed since the date passed in parameter of the pipe
-  private static elapsed (value: Date): string {
-    // We retrieve the current date to calculate the elapsed time
-    const now = new Date().getTime();
-
-    // The delta is calculated in seconds between the current date and the date passed in parameter of the pipe
-    const delta = (value.getTime() - now) / 1000;
+  private static elapsed (value: number): string {
+    const delta = value / 1000;
 
     // We format the character string to return
-    if (delta < 0) {
+    if (delta <= 0) {
       return ``;
     } else if (delta < 2) {
       return `${Math.floor(delta)} second`;
@@ -51,8 +54,10 @@ export class TimeExpirationPipe implements PipeTransform {
       return `${Math.floor(delta / 3600)} hours`;
     } else if (delta < 86400 * 2) {
       return `${Math.floor(delta / 3600)} day`;
-    } else {
+    } else if (delta < Number.MAX_VALUE) {
       return `${Math.floor(delta / 86400)} days`;
+    } else {
+      return 'Infinity';
     }
   }
 }

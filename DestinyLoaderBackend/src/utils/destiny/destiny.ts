@@ -237,9 +237,9 @@ export class Destiny {
         let triumphScore = 0;
         if (data.profileRecords.data) {
           triumphScore = data.profileRecords.data.score;
-          // } else {
-          //  debug(userId);
-          //  debug(JSON.stringify(data.profileRecords, null, 2));
+          //} else {
+          //debug(userId);
+          //debug(JSON.stringify(data.profileRecords, null, 2));
         }
         if (err) {
           return callback(err);
@@ -535,8 +535,8 @@ export class Destiny {
         //debug(JSON.stringify(url, null, 2));
 
         Destiny._getFromBungie(url, function (err, data) {
-          // debug(JSON.stringify(err, null, 2));
-          // debug(JSON.stringify(data, null, 2));
+          //debug(JSON.stringify(err, null, 2));
+          //debug(JSON.stringify(data, null, 2));
           if (err) {
             if (err.error) {
               return callback(err);
@@ -1027,9 +1027,9 @@ export class Destiny {
                         }
                       ],
                       (err) => {
-                        if (milestone.instanceId === '157823523') {
-                          debug(milestone);
-                        }
+                        //if (milestone.instanceId === '157823523') {
+                        //debug(milestone);
+                        //}
 
                         callback(err);
                       });
@@ -1119,11 +1119,11 @@ export class Destiny {
                     },
                     // Remove item of the wrong class
                     function (item, callback) {
-                      //  debug(JSON.stringify(item.item.itemTypeDisplayName, null, 2));
+                      //debug(JSON.stringify(item.item.itemTypeDisplayName, null, 2));
                       //debug(JSON.stringify(result.characters[0].classType, null, 2));
-//                      if (item.bucketHash == Destiny.pursuitsBucket.hash) {
-//                        debug(JSON.stringify(item, null, 2));
-//                      }
+                      //if (item.bucketHash == Destiny.pursuitsBucket.hash) {
+                      //debug(JSON.stringify(item, null, 2));
+                      //}
                       // class corresponding to unknown (all)
                       if (item.item.classType == 3) {
                         callback(null, item);
@@ -1314,7 +1314,7 @@ export class Destiny {
                         return callback(null, null);
                       }
                       //if (item.bucketHash == pursuitsBucket.hash) {
-                      //  debug(JSON.stringify(item, null, 2));
+                      //debug(JSON.stringify(item, null, 2));
                       //}
                       //debug(item.bucketName+" : "+item.itemName);
                       //debug(JSON.stringify(item.instance, null, 2));
@@ -1335,7 +1335,7 @@ export class Destiny {
                       //}
                       //if ((item.item.displayProperties.name == "AUriel's Gift") || (item.item.displayProperties.name == "Rat King's Crew")) {
                       //if (item.bucketHash == Destiny.pursuitsBucket.hash) {
-                      //  debug(JSON.stringify(item, null, 2));
+                      //debug(JSON.stringify(item, null, 2));
                       //}
                       try {
                         const newItem = {
@@ -1369,7 +1369,7 @@ export class Destiny {
 
 
                         //if (item.item.displayProperties.name == "Weekly Crucible Challenge") {
-                        //  debug(JSON.stringify(item, null, 2));
+                        //debug(JSON.stringify(item, null, 2));
                         //  //newItem['temp'] = item;
                         //}
 
@@ -1398,7 +1398,7 @@ export class Destiny {
 
 
                         //if (!newItem.itemTypeDisplayName) {
-                        //  debug(JSON.stringify(item, null, 2));
+                        //debug(JSON.stringify(item, null, 2));
                         //}
 
                         callback(null, newItem);
@@ -1445,7 +1445,7 @@ export class Destiny {
   };
 
   public static getVendors (user, characterId, callback) {
-//  debug("getVendors ");
+    //debug("getVendors ");
 
     // Get the Destiny player
     let url = Destiny._URL_GET_VENDORS;
@@ -1522,14 +1522,14 @@ export class Destiny {
                     sale.quantity = saleItem.quantity;
                     sale.saleStatus = saleItem.saleStatus;
 
-//                  if (sale.hash == '1781061075') {
-//                    debug(JSON.stringify(saleItem, null, 2));
-//                  }
+                    //if (sale.hash == '1781061075') {
+                    //debug(JSON.stringify(saleItem, null, 2));
+                    //}
 
                     Destiny.queryItemById(sale.hash, function (err, soldItem) {
-//                    if (sale.hash == '1781061075') {
-//                      debug(JSON.stringify(soldItem, null, 2));
-//                    }
+                      //if (sale.hash == '1781061075') {
+                      //debug(JSON.stringify(soldItem, null, 2));
+                      //}
 
                       sale.name = soldItem.displayProperties.name;
                       sale.itemTypeDisplayName = soldItem.itemTypeDisplayName;
