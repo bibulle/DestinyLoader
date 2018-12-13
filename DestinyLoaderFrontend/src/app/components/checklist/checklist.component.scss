@@ -11,7 +11,12 @@
     .character {
       flex: 1 1 auto;
 
-      .character-card {
+      .character-card-sticky, .character-card {
+        background-color: #303030;
+
+        > div {
+          padding-top: 16px;
+        }
 
         .mat-card-title {
           background-position: center;
@@ -128,6 +133,30 @@
         }
       }
     }
+
+    .character-card-sticky {
+      position: fixed;
+      display: none;
+    }
+    .character0, .character-card0 {
+      z-index: 20;
+    }
+    .character-card-sticky0 {
+      z-index: 21;
+    }
+    .character1, .character-card1 {
+      z-index: 22;
+    }
+    .character-card-sticky1 {
+      z-index: 23;
+    }
+    .character2, .character-card2 {
+      z-index: 24;
+    }
+    .character-card-sticky2 {
+      z-index: 25;
+    }
+
   }
 }
 

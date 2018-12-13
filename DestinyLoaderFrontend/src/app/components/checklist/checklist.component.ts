@@ -1,5 +1,5 @@
 /* tslint:disable:member-ordering */
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { AfterViewChecked, Component, ElementRef, HostListener, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { Subscription } from 'rxjs/Subscription';
 import { ChecklistService } from '../../services/checklist.service';
 import { Character, Checklist, Milestone, Objective, Reward } from '../../models/checklist';
@@ -9,13 +9,17 @@ import { Character, Checklist, Milestone, Objective, Reward } from '../../models
   templateUrl: './checklist.component.html',
   styleUrls: ['./checklist.component.scss']
 })
-export class ChecklistComponent implements OnInit, OnDestroy {
+export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
+
+  @ViewChild('page')
+  tableElement: ElementRef;
 
   checklist: Checklist;
 
   private _currentChecklistSubscription: Subscription;
 
-  constructor (private _checklistService: ChecklistService) {
+  constructor (private _checklistService: ChecklistService,
+               private elRef: ElementRef) {
   }
 
   ngOnInit () {
@@ -126,6 +130,75 @@ export class ChecklistComponent implements OnInit, OnDestroy {
   ngOnDestroy (): void {
     if (this._currentChecklistSubscription) {
       this._currentChecklistSubscription.unsubscribe();
+    }
+  }
+
+  ngAfterViewChecked () {
+    this.initPositions();
+    this.calcPositions();
+  }
+
+
+  private topPage = 0;
+
+  @HostListener('window:resize', ['$event'])
+  onResize () {
+    this.initPositions();
+
+  }
+
+  @HostListener('window:scroll', ['$event'])
+  onScroll () {
+    this.calcPositions();
+
+  }
+
+  private initPositions () {
+    // calculate positioning and get reference
+    this.topPage = this.elRef.nativeElement.parentElement.offsetTop;
+
+    // get character card position
+    const cards = this.elRef.nativeElement.getElementsByClassName('character-card');
+    const positions = [];
+    for (const card of cards) {
+      positions.push({
+        right: card.parentElement.getBoundingClientRect().right - card.getBoundingClientRect().right,
+        left: card.getBoundingClientRect().left
+      });
+    }
+
+    // set sticky character card position
+    const stickyCards = this.elRef.nativeElement.getElementsByClassName('character-card-sticky');
+    let index = 0;
+    for (const card of stickyCards) {
+      card.style.top = this.topPage + 'px';
+      card.style.left = positions[index].left + 'px';
+      card.style.width = card.parentElement.getBoundingClientRect().width + 'px';
+      index++;
+    }
+  }
+
+  private calcPositions () {
+
+
+    // get character card position
+    const cards = this.elRef.nativeElement.getElementsByClassName('character-card');
+    const positions = [];
+    for (const card of cards) {
+      const topPosition = card.getBoundingClientRect().top;
+      positions.push((topPosition < this.topPage ));
+    }
+
+    // set sticky character card visible or not
+    const stickyCards = this.elRef.nativeElement.getElementsByClassName('character-card-sticky');
+    let index = 0;
+    for (const card of stickyCards) {
+      if (positions[index]) {
+        card.style.display = 'block';
+      } else {
+        card.style.display = 'none';
+      }
+      index++;
     }
   }
 

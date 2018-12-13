@@ -1,30 +1,46 @@
 <div class="page" *ngIf="checklist">
-  <div class="character" *ngFor="let character of checklist.characters" [style.flex]="'1 1 '+(100/checklist.characters.length)+'%'">
-    <mat-card class="character-card">
-      <mat-card-title
-          [style.background-image]="'url(https://www.bungie.net'+character.emblemBackgroundPath+')'">
-        <div class="type">{{'class' + character.classType|translate}}<span class="light">{{character.light}}</span>
-        </div>
+  <div class="character character{{i}}" *ngFor="let character of checklist.characters; let i = index"
+       [style.flex]="'1 1 '+(100/checklist.characters.length)+'%'">
+    <mat-card class="character-card-sticky character-card-sticky{{i}}">
+      <div>
+        <mat-card-title
+            [style.background-image]="'url(https://www.bungie.net'+character.emblemBackgroundPath+')'">
+          <div class="type">{{'class' + character.classType|translate}}<span class="light">{{character.light}}</span>
+          </div>
 
-      </mat-card-title>
+        </mat-card-title>
+      </div>
+    </mat-card>
+    <mat-card class="character-card character-card{{i}}">
+      <div>
+        <mat-card-title
+            [style.background-image]="'url(https://www.bungie.net'+character.emblemBackgroundPath+')'">
+          <div class="type">{{'class' + character.classType|translate}}<span class="light">{{character.light}}</span>
+          </div>
+
+        </mat-card-title>
+      </div>
     </mat-card>
     <mat-card class="pursuit-item" *ngFor="let pursuit of character.pursuits" title="{{pursuit.description}}">
       <mat-card-title class="pursuit-title">
-          <img class="pursuit-item-icon" *ngIf="pursuit.icon" src="https://www.bungie.net{{pursuit.icon}}"
-               alt="{{pursuit.itemTypeDisplayName}}" title="{{pursuit.itemTypeDisplayName}}">
+        <img class="pursuit-item-icon" *ngIf="pursuit.icon" src="https://www.bungie.net{{pursuit.icon}}"
+             alt="{{pursuit.itemTypeDisplayName}}" title="{{pursuit.itemTypeDisplayName}}">
         <div class="pursuit-text">
           <span class="pursuit-itemType" *ngIf="!pursuit.icon">{{pursuit.itemTypeDisplayName}} : </span>
           {{pursuit.name}}
           <div class="pursuit-description">{{pursuit.description}}</div>
-          <div class="pursuit-expiration" *ngIf="pursuit.expirationDate">{{pursuit.expirationDate | timeExpiration }}</div>
+          <div class="pursuit-expiration"
+               *ngIf="pursuit.expirationDate">{{pursuit.expirationDate | timeExpiration }}</div>
         </div>
       </mat-card-title>
       <mat-card-subtitle class="reward" *ngFor="let reward of pursuit.rewards">
         <div *ngIf="!reward.redeemed">
-          <img class="reward-icon" *ngIf="reward.icon" src="https://www.bungie.net{{reward.icon}}" alt="{{reward.name}}">
+          <img class="reward-icon" *ngIf="reward.icon" src="https://www.bungie.net{{reward.icon}}"
+               alt="{{reward.name}}">
           <span *ngIf="reward.identifier && (reward.identifier != pursuit.name)">
             <img class="reward-identifier-icon" *ngIf="reward.identifierIcon"
-                 src="https://www.bungie.net{{reward.identifierIcon}}" title="{{reward.identifier}}" alt="{{reward.identifier}}">
+                 src="https://www.bungie.net{{reward.identifierIcon}}" title="{{reward.identifier}}"
+                 alt="{{reward.identifier}}">
           </span>
           <span>{{reward.name}} {{reward.quantity < 2 ? '' : '+' + reward.quantity}}</span>
         </div>
