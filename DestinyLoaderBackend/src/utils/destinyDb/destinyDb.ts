@@ -177,6 +177,11 @@ export class DestinyDb {
                         .then(function (data) {
                           //debugLogger("readConf ------ 4");
                           //debugLogger(JSON.stringify(data, null, 2))
+
+                          if (!data) {
+                            data = {};
+                          }
+
                           return callback(null, data);
                           //})
                           //.catch(function (err) {
