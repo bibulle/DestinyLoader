@@ -308,8 +308,15 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
 
   private TIMES_BY_OBJECTIVE = {
     // Gambit match
-    '2083819821': 10 * 60 * 1000,
-    '776296945': 10 * 60 * 1000,
+    '2083819821': 15 * 60 * 1000,
+    '776296945': 15 * 60 * 1000,
+    // Crucible
+    '2709623572': 12 * 60 * 1000,
+    '562619790': 12 * 60 * 1000,
+    // Strike
+    '2244227422': 13.5 * 60 * 1000,
+    '3201963368': 13.5 * 60 * 1000,
+    '2225383629': 13.5 * 60 * 1000,
     // WANTED: The Eye in the Dark
     '277282920' : 25 * 60 * 1000
   };
