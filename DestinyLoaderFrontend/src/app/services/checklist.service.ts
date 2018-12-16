@@ -5,19 +5,20 @@ import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { Observable } from 'rxjs/Observable';
 import { UserService } from './user.service';
 import { HeaderService } from './header.service';
+import { Checklist } from '../models/checklist';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ChecklistService {
 
-  private static checklists: Object;
+  private static checklists: Checklist;
 
   private static KEY_CHECKLIST_LOCAL_STORAGE = 'checklist';
   private static REFRESH_EVERY = 60 * 1000;
 
   private static _refreshIsRunning = false;
-  private readonly currentChecklistSubject: BehaviorSubject<Object>;
+  private readonly currentChecklistSubject: BehaviorSubject<Checklist>;
 
   private checklistUrl = environment.serverUrl + 'monitorstuff/api';
 
@@ -26,9 +27,9 @@ export class ChecklistService {
                private _headerService: HeaderService) {
 
     if (ChecklistService._loadChecklistFromLocalStorage()) {
-      this.currentChecklistSubject = new BehaviorSubject<Object>(ChecklistService._loadChecklistFromLocalStorage());
+      this.currentChecklistSubject = new BehaviorSubject<Checklist>(ChecklistService._loadChecklistFromLocalStorage());
     } else {
-      this.currentChecklistSubject = new BehaviorSubject<Object>({});
+      this.currentChecklistSubject = new BehaviorSubject<Checklist>(new Checklist());
     }
 
   }
@@ -87,11 +88,11 @@ export class ChecklistService {
   /**
    * load the characters list
    */
-  _loadChecklistFromBungie (): Promise<Object> {
+  _loadChecklistFromBungie (): Promise<Checklist> {
     // console.log('_loadChecklistFromBungie ');
 
     this._headerService.startReloading();
-    return new Promise<Object>((resolve, reject) => {
+    return new Promise<Checklist>((resolve, reject) => {
       this.httpClient.get(this.checklistUrl)
       // .map((res: Response) => res.json().data as Book[])
           .subscribe(
@@ -119,7 +120,7 @@ export class ChecklistService {
   /**
    * Subscribe to know if current course changes
    */
-  currentChecklistObservable (): Observable<Object> {
+  currentChecklistObservable (): Observable<Checklist> {
     return this.currentChecklistSubject;
   }
 

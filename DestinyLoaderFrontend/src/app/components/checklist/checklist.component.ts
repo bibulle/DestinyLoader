@@ -14,7 +14,7 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
   @ViewChild('page')
   tableElement: ElementRef;
 
-  checklist: Checklist;
+  checklist: Checklist = new Checklist();
 
   private _currentChecklistSubscription: Subscription;
 
@@ -26,15 +26,14 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
 
 
     this._currentChecklistSubscription = this._checklistService.currentChecklistObservable().subscribe(
-      checklist => {
-        this.checklist = checklist as Checklist;
-        console.log(checklist);
+      (checklist: Checklist) => {
 
+        checklist = checklist as Checklist;
         // If we have things to show
-        if (this.checklist.items && this.checklist.items.Pursuits && this.checklist.characters) {
+        if (checklist.items && checklist.items.Pursuits && checklist.characters) {
 
           // Sort character by last played first
-          this.checklist.characters.sort((c1: Character, c2: Character) => {
+          checklist.characters.sort((c1: Character, c2: Character) => {
             if (c1.dateLastPlayed > c2.dateLastPlayed) {
               return -1;
             } else if (c1.dateLastPlayed < c2.dateLastPlayed) {
@@ -45,13 +44,13 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
           });
 
           // forEach character
-          this.checklist.characters.forEach(char => {
+          checklist.characters.forEach(char => {
             char.pursuits = [];
 
             // foreach pursuit type
-            Object.keys(this.checklist.items.Pursuits).forEach(key => {
+            Object.keys(checklist.items.Pursuits).forEach(key => {
               // foreach pursuit, add to the character pursuits
-              this.checklist.items.Pursuits[key].forEach(pursuit => {
+              checklist.items.Pursuits[key].forEach(pursuit => {
                 if (pursuit.characterId === char.characterId) {
                   char.pursuits.push(pursuit);
                 }
@@ -149,6 +148,10 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
           });
 
         }
+
+        console.log(checklist);
+        ChecklistComponent.updateObject(checklist, this.checklist);
+        console.log(this.checklist);
 
 
       }
@@ -318,6 +321,28 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
     '3201963368': 13.5 * 60 * 1000,
     '2225383629': 13.5 * 60 * 1000,
     // WANTED: The Eye in the Dark
-    '277282920' : 25 * 60 * 1000
+    '277282920': 25 * 60 * 1000
   };
+
+
+  private static updateObject (src: Object, dst: Object) {
+
+    for (const key of Object.keys(dst)) {
+      if (!src.hasOwnProperty(key)) {
+        delete dst[key];
+      }
+    }
+    for (const key of Object.keys(src)) {
+      if (src[key] instanceof Object) {
+        if (!dst.hasOwnProperty(key)) {
+          dst[key] = src[key];
+        } else {
+          ChecklistComponent.updateObject(src[key], dst[key]);
+        }
+      } else {
+        dst[key] = src[key];
+        // console.log(key);
+      }
+    }
+  }
 }
