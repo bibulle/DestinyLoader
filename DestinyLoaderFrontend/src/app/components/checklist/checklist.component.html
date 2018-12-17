@@ -10,6 +10,8 @@
 
         </mat-card-title>
       </div>
+      <div class="tooltip" *ngIf="(i === checklist.characters.length - 1) && !config.showOnlyPowerfullGear" (click)="toggleShowOnlyPowerfullGear()">Not only power gears</div>
+      <div class="tooltip" *ngIf="(i === checklist.characters.length - 1) &&  config.showOnlyPowerfullGear" (click)="toggleShowOnlyPowerfullGear()">Only power gears</div>
     </mat-card>
     <mat-card class="character-card character-card{{i}}">
       <div>
