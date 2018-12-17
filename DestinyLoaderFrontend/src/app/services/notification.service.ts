@@ -11,16 +11,19 @@ export class NotificationService {
               private _userService: UserService) {
   }
 
+  //noinspection JSUnusedGlobalSymbols
   message(message: string) {
     // console.log(message);
     this._display(message, 5000, ['message']);
   }
 
+  //noinspection JSUnusedGlobalSymbols
   info(message: string) {
     console.log(message);
     this._display(message, 5000, null);
   }
 
+  //noinspection JSUnusedGlobalSymbols
   warn(message: string) {
     console.warn(message);
     this._display(message, 5000, ['warn']);
@@ -38,7 +41,7 @@ export class NotificationService {
 
     const config = new MatSnackBarConfig();
     config.duration = duration;
-    // config.extraClasses = extraClasses;
+    config.panelClass = extraClasses;
 
     this._snackBar.open(message, null, config);
   }

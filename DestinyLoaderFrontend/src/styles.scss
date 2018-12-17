@@ -31,3 +31,16 @@ body {
 .docs-button[md-button], .docs-button[md-raised-button] {
   text-transform: uppercase;
 }
+
+// Snack-bar colors
+snack-bar-container.message {
+  background-color: mat-color(map-get($theme, background), status-bar);
+}
+snack-bar-container.warn {
+  background-color: mat-color(map-get($theme, warn), 300);
+}
+
+snack-bar-container.error {
+  background-color: mat-color(map-get($theme, warn));
+  font-weight: bolder;
+}
