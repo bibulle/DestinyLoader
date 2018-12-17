@@ -795,8 +795,9 @@ function monitorRouter (passport): Router {
               ],
 
               function (err, data) {
-                if (err && err.error) {
-                  response.send(err);
+                //error(err);
+                if (err) {
+                  response.status(500).send(err);
                   //data.messages.push("ERROR : "+err);
                   //return response.send(JSON.stringify({messages: err}, null, 2));
                 } else {

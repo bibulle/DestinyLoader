@@ -97,6 +97,15 @@ export class UserService {
   }
 
   /**
+   * Logout (just remove the JWT token)
+   */
+  logout() {
+    UserService.tokenRemove();
+    this.loggedIn = false;
+    this.checkAuthent();
+  }
+
+  /**
    * Start logging process with google
    */
   startLoginBungie (): Promise<void> {

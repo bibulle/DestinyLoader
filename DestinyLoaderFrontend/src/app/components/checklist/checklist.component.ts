@@ -30,7 +30,7 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
 
         checklist = checklist as Checklist;
         // If we have things to show
-        if (checklist.items && checklist.items.Pursuits && checklist.characters) {
+        if (checklist && checklist.items && checklist.items.Pursuits && checklist.characters) {
 
           // Sort character by last played first
           checklist.characters.sort((c1: Character, c2: Character) => {

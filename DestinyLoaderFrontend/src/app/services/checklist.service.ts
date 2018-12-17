@@ -6,6 +6,7 @@ import { Observable } from 'rxjs/Observable';
 import { UserService } from './user.service';
 import { HeaderService } from './header.service';
 import { Checklist } from '../models/checklist';
+import { NotificationService } from './notification.service';
 
 @Injectable({
   providedIn: 'root'
@@ -24,7 +25,8 @@ export class ChecklistService {
 
   constructor (private httpClient: HttpClient,
                private _userService: UserService,
-               private _headerService: HeaderService) {
+               private _headerService: HeaderService,
+               private _notificationService: NotificationService) {
 
     if (ChecklistService._loadChecklistFromLocalStorage()) {
       this.currentChecklistSubject = new BehaviorSubject<Checklist>(ChecklistService._loadChecklistFromLocalStorage());
@@ -38,36 +40,39 @@ export class ChecklistService {
    * Refresh characters every...
    * @private
    */
-  static _refreshChecklist (_service: ChecklistService) {
+  _refreshChecklist (_service: ChecklistService) {
     if (_service.currentChecklistSubject.observers.length > 0) {
       ChecklistService._refreshIsRunning = true;
-    _service._loadChecklistFromBungie()
-            .then(checklist => {
-              // console.log('currentChecklistSubject.next ' + checklist.length);
-              ChecklistService._saveChecklistFromLocalStorage(checklist);
-              _service.currentChecklistSubject.next(checklist);
-              setTimeout(() => {
-                  this._refreshChecklist(_service);
-                }
-                , ChecklistService.REFRESH_EVERY);
-            })
-            .catch((reason) => {
-              console.log(reason);
-              setTimeout(() => {
-                  this._refreshChecklist(_service);
-                }, ChecklistService.REFRESH_EVERY
-              );
-            });
+      _service._loadChecklistFromBungie()
+              .then(checklist => {
+                // console.log('currentChecklistSubject.next ' + checklist.length);
+                ChecklistService._saveChecklistFromLocalStorage(checklist);
+                _service.currentChecklistSubject.next(checklist);
+                setTimeout(() => {
+                    this._refreshChecklist(_service);
+                  }
+                  , ChecklistService.REFRESH_EVERY);
+              })
+              .catch((reason) => {
+                console.log(reason);
+                this._notificationService.error(reason);
+                setTimeout(() => {
+                    this._refreshChecklist(_service);
+                  }, ChecklistService.REFRESH_EVERY
+                );
+              });
     } else {
       ChecklistService._refreshIsRunning = false;
     }
   }
 
 
+// tslint:disable-next-line:member-ordering
   private static _saveChecklistFromLocalStorage (checklist) {
     localStorage.setItem(ChecklistService.KEY_CHECKLIST_LOCAL_STORAGE, JSON.stringify(checklist));
   }
 
+// tslint:disable-next-line:member-ordering
   private static _loadChecklistFromLocalStorage (): any {
     try {
       return JSON.parse(localStorage.getItem(ChecklistService.KEY_CHECKLIST_LOCAL_STORAGE));
@@ -81,7 +86,7 @@ export class ChecklistService {
    */
   startLoadingChecklist () {
     if (!ChecklistService._refreshIsRunning) {
-      ChecklistService._refreshChecklist(this);
+      this._refreshChecklist(this);
     }
   }
 
