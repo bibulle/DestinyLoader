@@ -53,7 +53,7 @@ const routes: Routes = [
     data: {
       label: 'label.checklist',
       menu: true,
-      icon: 'fa-check-square',
+      icon: 'fa-clipboard-list',
       iconType: 'fas',
       right: false
     }
