@@ -21,9 +21,28 @@
   padding: 8px 16px;
 
   > .mat-button {
+    min-width: 80px;
+
     &:last-child {
       margin-left: auto;
     }
+
+    .nav-img {
+      width: 2em;
+      //padding-bottom: 0.3em;
+    }
+    i.fas {
+      font-size: 1.5em;
+      //padding-bottom: 0.1em;
+    }
+    mat-icon {
+      //padding-bottom: 0.3em;
+    }
+
+    .link-text {
+      padding-left: 0.5em;
+    }
+
   }
 
   .title {
@@ -57,9 +76,10 @@
 }
 .connected-user {
   font-size: 1.2em;
+  padding-right: 0.5em;
   img {
     width: 1.2em;
-    vertical-align: middle;
+    vertical-align: bottom;
   }
 }
 
@@ -68,22 +88,22 @@
   * Moves content two rows instead of one.
   */
 @media (max-width: 720px) {
-  .docs-navbar-header .title {
+  .docs-navbar-header .title, .link-text, .flex-spacer {
     display: none;
   }
-  .docs-navbar-hide-small {
-    display: none;
-  }
-
-  .docs-navbar-show-small {
-    display: block;
-  }
-
-  .docs-navbar {
-    display: flex;
-  }
-
-  .docs-navbar--github-logo {
-    margin: 0;
-  }
+  //.docs-navbar-hide-small {
+  //  display: none;
+  //}
+  //
+  //.docs-navbar-show-small {
+  //  display: block;
+  //}
+  //
+  //.docs-navbar {
+  //  display: flex;
+  //}
+  //
+  //.docs-navbar--github-logo {
+  //  margin: 0;
+  //}
 }

@@ -2,7 +2,9 @@
 import { AfterViewChecked, Component, ElementRef, HostListener, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { Subscription } from 'rxjs/Subscription';
 import { ChecklistService } from '../../services/checklist.service';
-import { Character, Checklist, Milestone, Objective, Reward } from '../../models/checklist';
+import { Character, Checklist, Milestone, Objective, Pursuit, Reward } from '../../models/checklist';
+import { Config } from '../../models/config';
+import { HeaderService } from '../../services/header.service';
 
 @Component({
   selector: 'app-checklist',
@@ -15,10 +17,14 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
   tableElement: ElementRef;
 
   checklist: Checklist = new Checklist();
-
   private _currentChecklistSubscription: Subscription;
 
+  config: Config = new Config();
+  private _currentConfigSubscription: Subscription;
+
+
   constructor (private _checklistService: ChecklistService,
+               private _headerService: HeaderService,
                private elRef: ElementRef) {
   }
 
@@ -76,6 +82,7 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
                 icon: milestone.icon,
                 expirationDate: undefined,
                 rewards: [],
+                maxRewardLevel: -2,
                 objectives: []
               };
 
@@ -128,13 +135,15 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
             // sort pursuit
             char.pursuits.sort((p1, p2) => {
               {
-                const r1 = ChecklistComponent.getMaxReward(p1.rewards);
-                const r2 = ChecklistComponent.getMaxReward(p2.rewards);
+                const r1 = Reward.getMaxReward(p1.rewards);
+                p1.maxRewardLevel = Reward.getRewardValue(r1);
+                const r2 = Reward.getMaxReward(p2.rewards);
+                p2.maxRewardLevel = Reward.getRewardValue(r2);
 
-                const t1 = ChecklistComponent.getMaxTimeTillFinished(p1.objectives);
-                const t2 = ChecklistComponent.getMaxTimeTillFinished(p2.objectives);
+                const t1 = Objective.getMaxTimeTillFinished(p1.objectives);
+                const t2 = Objective.getMaxTimeTillFinished(p2.objectives);
 
-                const rewardsCompared = ChecklistComponent.compareRewards(r1, r2);
+                const rewardsCompared = Reward.compareRewards(r1, r2);
 
                 if (rewardsCompared !== 0) {
                   return rewardsCompared;
@@ -157,11 +166,20 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
       }
     );
     this._checklistService.startLoadingChecklist();
+
+    this._currentConfigSubscription = this._headerService.configObservable().subscribe(
+      rel => {
+        this.config = rel;
+      });
+
   }
 
   ngOnDestroy (): void {
     if (this._currentChecklistSubscription) {
       this._currentChecklistSubscription.unsubscribe();
+    }
+    if (this._currentConfigSubscription) {
+      this._currentConfigSubscription.unsubscribe();
     }
   }
 
@@ -235,79 +253,6 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
   }
 
 
-  static getMaxReward (rewards: Reward[]): Reward {
-    rewards.sort(ChecklistComponent.compareRewards);
-    if (rewards.length > 0) {
-      return rewards[0];
-    } else {
-      return null;
-    }
-  }
-
-  static compareRewards (r1: Reward, r2: Reward): number {
-    let ret = ChecklistComponent.getRewardValue(r2) - ChecklistComponent.getRewardValue(r1);
-
-    if ((ret === 0) && (r1 != null)) {
-      if (r1.name > r2.name) {
-        ret = 1;
-      } else if (r1.name < r2.name) {
-        ret = -1;
-      }
-    }
-
-    return ret;
-  }
-
-
-  private static getRewardValue (r: Reward): number {
-    if (r == null) {
-      return -2;
-    }
-    if (r.redeemed) {
-      return -1;
-    }
-
-    switch (r.name) {
-      case 'Powerful Gear':
-        return 100;
-      case 'Legendary Gear':
-        return 50;
-      case 'Enhancement Core':
-      case 'Dark Fragment':
-      case 'Transcendent Blessing':
-        return 10;
-      case 'Crucible Token':
-      case 'Clan XP':
-      case 'Infamy Rank Points':
-      case 'Vanguard Tactician Token':
-      case 'Nessus Rewards':
-        return 3;
-      case 'Legendary Shards':
-        return 1;
-      case 'Baryon Bough':
-      case 'Alkane Dust':
-      case 'Dusklight Shard':
-      case 'Bright Dust':
-      case 'Phaseglass Needle':
-      case 'Microphasic Datalattice':
-      case 'Glimmer':
-        return 0;
-      default:
-        // console.log(r.name);
-        return 5;
-    }
-  }
-
-  static getMaxTimeTillFinished (objectives: Objective[]): number {
-
-    let result = 0;
-    objectives.forEach(o => {
-      if (result < o.timeTillFinished) {
-        result = o.timeTillFinished;
-      }
-    });
-    return result;
-  }
 
   private TIMES_BY_OBJECTIVE = {
     // Gambit match
@@ -344,5 +289,12 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
         // console.log(key);
       }
     }
+  }
+
+  pursuitShouldBeDisplayed(pursuit: Pursuit) {
+    if (!pursuit) {
+      return false;
+    }
+    return !this.config.showOnlyPowerfullGear || (pursuit.maxRewardLevel >= Reward.VALUE_POWER_GEAR);
   }
 }

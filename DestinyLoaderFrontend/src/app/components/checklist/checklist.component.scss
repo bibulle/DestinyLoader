@@ -46,6 +46,29 @@
 
       }
 
+      .character-card-sticky {
+        position: fixed;
+        display: none;
+      }
+      .character0, .character-card0 {
+        z-index: 20;
+      }
+      .character-card-sticky0 {
+        z-index: 21;
+      }
+      .character1, .character-card1 {
+        z-index: 22;
+      }
+      .character-card-sticky1 {
+        z-index: 23;
+      }
+      .character2, .character-card2 {
+        z-index: 24;
+      }
+      .character-card-sticky2 {
+        z-index: 25;
+      }
+
       .pursuit-item {
 
         .pursuit-title {
@@ -132,30 +155,14 @@
 
         }
       }
+
     }
 
-    .character-card-sticky {
-      position: fixed;
-      display: none;
+    .config-choices {
+      position: absolute;
+      right: 0;
     }
-    .character0, .character-card0 {
-      z-index: 20;
-    }
-    .character-card-sticky0 {
-      z-index: 21;
-    }
-    .character1, .character-card1 {
-      z-index: 22;
-    }
-    .character-card-sticky1 {
-      z-index: 23;
-    }
-    .character2, .character-card2 {
-      z-index: 24;
-    }
-    .character-card-sticky2 {
-      z-index: 25;
-    }
+
 
   }
 }

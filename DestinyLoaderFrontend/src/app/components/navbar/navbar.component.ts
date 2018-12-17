@@ -1,48 +1,38 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { NavigationEnd, Router } from '@angular/router';
 import { UserService } from '../../services/user.service';
 import { HeaderService } from '../../services/header.service';
+import { Config } from '../../models/config';
+import { Subscription } from 'rxjs/Subscription';
+import { User } from '../../models/user';
 
 @Component({
   selector: 'app-navbar',
   templateUrl: './navbar.component.html',
   styleUrls: ['./navbar.component.scss']
 })
-export class NavbarComponent implements OnInit {
+export class NavbarComponent implements OnInit, OnDestroy {
 
-  linksLeft: { path: string, label: string, selected: boolean }[] = [];
-  linksRight: { path: string, label: string, selected: boolean }[] = [];
+  linksLeft: { path: string, label: string, icon: string, iconType: string, selected: boolean }[] = [];
+  linksRight: { path: string, label: string, icon: string, iconType: string, selected: boolean }[] = [];
 
-  user: {};
+  user: User;
+  private _currentUserSubscription: Subscription;
+
 
   reloading = false;
+  private _currentReloadingSubscription: Subscription;
 
-  // selectedPath: string;
+
+  config: Config = new Config();
+  private _currentConfigSubscription: Subscription;
+
 
   constructor (private _router: Router,
                private _userService: UserService,
                private _headerService: HeaderService) {
 
     this._router.events.subscribe((data) => {
-      // console.log(data);
-//      if (data instanceof RoutesRecognized) {
-//        // Title has bee recognized, add it to history
-//        let backUrl: string = null;
-//        if (this.titles.length > 0) {
-//          backUrl = this.titles[0].url;
-//        }
-//        this.titles.unshift(new Title(data.state.root.firstChild.data['label'], backUrl, data.id, data.url));
-//        this.titles = this.titles.slice(0, 100);
-//
-//      } else if (data instanceof NavigationCancel) {
-//        // Title has been canceled : remove from history
-//        this.titles = this.titles.slice(1);
-//
-//      } else if (data instanceof NavigationEnd) {
-//        // Title has been done change title, ...
-//        this.update(this.titles[0]);
-//
-//      }
       if (data instanceof NavigationEnd) {
         this.linksLeft.forEach(link => {
           link.selected = ('/' + link.path === data.urlAfterRedirects);
@@ -58,32 +48,71 @@ export class NavbarComponent implements OnInit {
 
   ngOnInit () {
 
-    const newLinksLeft: { path: string, label: string, selected: boolean }[] = [];
-    const newLinksRight: { path: string, label: string, selected: boolean }[] = [];
+    const newLinksLeft: { path: string, label: string, icon: string, iconType: string, selected: boolean }[] = [];
+    const newLinksRight: { path: string, label: string, icon: string, iconType: string, selected: boolean }[] = [];
 
     this._router.config.forEach(obj => {
       // console.log(obj);
       if (!obj.redirectTo && obj.data && obj.data['menu']) {
         if (obj.data['right']) {
-          newLinksRight.push({path: obj.path, label: obj.data['label'], selected: false});
+          newLinksRight.push({
+            path: obj.path,
+            label: obj.data['label'],
+            icon: obj.data['icon'],
+            iconType: obj.data['iconType'],
+            selected: false
+          });
         } else {
-          newLinksLeft.push({path: obj.path, label: obj.data['label'], selected: false});
+          newLinksLeft.push({
+            path: obj.path,
+            label: obj.data['label'],
+            icon: obj.data['icon'],
+            iconType: obj.data['iconType'],
+            selected: false
+          });
         }
       }
     });
     this.linksLeft = newLinksLeft;
     this.linksRight = newLinksRight;
 
-    this._userService.userObservable().subscribe(
+    this._currentUserSubscription = this._userService.userObservable().subscribe(
       user => {
         this.user = user;
-        // console.log(user);
       });
 
-    this._headerService.reloadingObservable().subscribe(
+    this._currentReloadingSubscription = this._headerService.reloadingObservable().subscribe(
       rel => {
         this.reloading = rel;
       });
+
+    this._currentConfigSubscription = this._headerService.configObservable().subscribe(
+      rel => {
+        this.config = rel;
+      });
+  }
+
+  ngOnDestroy (): void {
+    if (this._currentUserSubscription) {
+      this._currentUserSubscription.unsubscribe();
+    }
+    if (this._currentReloadingSubscription) {
+      this._currentReloadingSubscription.unsubscribe();
+    }
+    if (this._currentConfigSubscription) {
+      this._currentConfigSubscription.unsubscribe();
+    }
+  }
+
+
+  toggleShowOnlyPowerfulGear () {
+    this._headerService.toggleShowOnlyPowerfulGear();
+  }
+
+  logout () {
+    this._userService.logout();
+
+    this._router.navigate(['']).catch();
   }
 
 }

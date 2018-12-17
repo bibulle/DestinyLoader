@@ -1,5 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
+import { MatIconRegistry } from '@angular/material';
+import { DomSanitizer } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-root',
@@ -8,10 +10,16 @@ import { TranslateService } from '@ngx-translate/core';
 })
 export class AppComponent implements OnInit {
 
-  constructor(private _translate: TranslateService) {
+  constructor(private _translate: TranslateService,
+              private _matIconRegistry: MatIconRegistry,
+              private _domSanitizer: DomSanitizer) {
     this._translate.setDefaultLang('en');
 
     this._translate.use(this._translate.getBrowserLang());
+
+    this._matIconRegistry
+        .addSvgIcon('light', this._domSanitizer.bypassSecurityTrustResourceUrl('/assets/light.svg'));
+
 
   }
 
