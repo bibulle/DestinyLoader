@@ -291,6 +291,11 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
     }
   }
 
+
+  toggleShowOnlyPowerfullGear() {
+    this._headerService.toggleShowOnlyPowerfulGear();
+  }
+
   pursuitShouldBeDisplayed(pursuit: Pursuit) {
     if (!pursuit) {
       return false;

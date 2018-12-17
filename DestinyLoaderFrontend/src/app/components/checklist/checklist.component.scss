@@ -18,6 +18,17 @@
           padding-top: 16px;
         }
 
+        div.tooltip {
+          color: grey;
+          padding-top: 0;
+          padding-right: 0.3em;
+          position: absolute;
+          top: 0;
+          right: 0;
+          cursor: pointer;
+        }
+
+
         .mat-card-title {
           background-position: center;
           background-repeat: no-repeat;
@@ -68,6 +79,7 @@
       .character-card-sticky2 {
         z-index: 25;
       }
+
 
       .pursuit-item {
 

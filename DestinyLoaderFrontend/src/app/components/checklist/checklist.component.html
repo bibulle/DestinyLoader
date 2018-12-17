@@ -20,6 +20,8 @@
 
         </mat-card-title>
       </div>
+      <div class="tooltip" *ngIf="(i === checklist.characters.length - 1) && !config.showOnlyPowerfullGear" (click)="toggleShowOnlyPowerfullGear()">Not only power gears</div>
+      <div class="tooltip" *ngIf="(i === checklist.characters.length - 1) &&  config.showOnlyPowerfullGear" (click)="toggleShowOnlyPowerfullGear()">Only power gears</div>
     </mat-card>
     <div *ngFor="let pursuit of character.pursuits">
       <mat-card class="pursuit-item" *ngIf="pursuitShouldBeDisplayed(pursuit)" title="{{pursuit.description}}">
