@@ -18,7 +18,8 @@ export class AppComponent implements OnInit {
     this._translate.use(this._translate.getBrowserLang());
 
     this._matIconRegistry
-        .addSvgIcon('light', this._domSanitizer.bypassSecurityTrustResourceUrl('/assets/light.svg'));
+        .addSvgIcon('light', this._domSanitizer.bypassSecurityTrustResourceUrl('/assets/light.svg'))
+        .addSvgIcon('pvp', this._domSanitizer.bypassSecurityTrustResourceUrl('/assets/pvp.svg'));
 
 
   }

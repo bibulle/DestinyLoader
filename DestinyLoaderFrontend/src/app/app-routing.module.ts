@@ -21,8 +21,7 @@ const routes: Routes = [
     data: {
       label: 'label.light',
       menu: true,
-      icon:
-        'light',
+      icon: 'light',
       iconType: 'svgIcon'
     }
   },
@@ -32,8 +31,8 @@ const routes: Routes = [
     data: {
       label: 'label.ratio',
       menu: true,
-      icon: 'https://www.bungie.net/img/destiny_content/milestones/reward_icons/pvp.png',
-      iconType: 'img'
+      icon: 'pvp',
+      iconType: 'svgIcon'
     }
   },
   {
