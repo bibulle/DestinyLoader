@@ -90,7 +90,7 @@ function testLight() {
 
         // logger.info(data.name + " " + data.light);
         //
-        // destinyDb.insert(data, function (err, newDoc) {
+        // destinyDb.insertStats(data, function (err, newDoc) {
         //     //logger.info(JSON.stringify(newDoc, null, 2));
         //     callback(err);
         // });

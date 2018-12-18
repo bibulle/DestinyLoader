@@ -11,14 +11,14 @@ function apiRouter (passport): Router {
 
   router.route('/')
         // ====================================
-        // route for getting users list
+        // route for getting users listStats
         // ====================================
         .get((request: Request, response: Response) => {
           debug("GET /");
 
           response.setHeader('Last-Modified', (new Date()).toUTCString());
 
-          DestinyDb.list(function (err, docs) {
+          DestinyDb.listStats(function (err, docs) {
             if (err) {
               response.send(err);
             } else {

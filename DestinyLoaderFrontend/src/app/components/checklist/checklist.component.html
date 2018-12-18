@@ -10,8 +10,12 @@
 
         </mat-card-title>
       </div>
-      <div class="tooltip" *ngIf="(i === checklist.characters.length - 1) && !config.showOnlyPowerfullGear" (click)="toggleShowOnlyPowerfullGear()">Not only power gears</div>
-      <div class="tooltip" *ngIf="(i === checklist.characters.length - 1) &&  config.showOnlyPowerfullGear" (click)="toggleShowOnlyPowerfullGear()">Only power gears</div>
+      <div class="tooltip" *ngIf="(i === checklist.characters.length - 1) && !config.showOnlyPowerfullGear"
+           (click)="toggleShowOnlyPowerfullGear()">Not only power gears
+      </div>
+      <div class="tooltip" *ngIf="(i === checklist.characters.length - 1) &&  config.showOnlyPowerfullGear"
+           (click)="toggleShowOnlyPowerfullGear()">Only power gears
+      </div>
     </mat-card>
     <mat-card class="character-card character-card{{i}}">
       <div>
@@ -22,8 +26,12 @@
 
         </mat-card-title>
       </div>
-      <div class="tooltip" *ngIf="(i === checklist.characters.length - 1) && !config.showOnlyPowerfullGear" (click)="toggleShowOnlyPowerfullGear()">Not only power gears</div>
-      <div class="tooltip" *ngIf="(i === checklist.characters.length - 1) &&  config.showOnlyPowerfullGear" (click)="toggleShowOnlyPowerfullGear()">Only power gears</div>
+      <div class="tooltip" *ngIf="(i === checklist.characters.length - 1) && !config.showOnlyPowerfullGear"
+           (click)="toggleShowOnlyPowerfullGear()">Not only power gears
+      </div>
+      <div class="tooltip" *ngIf="(i === checklist.characters.length - 1) &&  config.showOnlyPowerfullGear"
+           (click)="toggleShowOnlyPowerfullGear()">Only power gears
+      </div>
     </mat-card>
     <div *ngFor="let pursuit of character.pursuits">
       <mat-card class="pursuit-item" *ngIf="pursuitShouldBeDisplayed(pursuit)" title="{{pursuit.description}}">
@@ -64,6 +72,17 @@
             </span>
               <span class="objective-progress">{{objective.progress}}/{{objective.completionValue}}</span>
             </mat-checkbox>
+            <div class="objective-running"
+                 *ngIf="objective.runningTimeObjective && !objective.runningTimeObjective.finished"
+                 (click)="stopObjectiveTime(objective, character.characterId)">
+                <mat-icon>stop</mat-icon>
+                <span>{{objective.runningTimeObjective.timeRunning | timeExpiration}}</span>
+            </div>
+            <div class="objective-running"
+                 *ngIf="!objective.runningTimeObjective || objective.runningTimeObjective.finished"
+                 (click)="launchObjectiveTime(objective, character.characterId)">
+                <mat-icon>play_arrow</mat-icon>
+            </div>
           </mat-card-subtitle>
         </div>
       </mat-card>

@@ -20,7 +20,7 @@ function api1Router (passport): Router {
 
   router.route('/')
         // ====================================
-        // route for getting users list
+        // route for getting users listStats
         // ====================================
         .get((request: Request, response: Response) => {
           debug("GET /");
@@ -63,7 +63,7 @@ function api1Router (passport): Router {
 export { api1Router }
 
 /**
- * Calc list of users (with data)
+ * Calc listStats of users (with data)
  * only once every 3 minutes to avoid memory overload)
  */
 const calcList = _.throttle((callback) => {
@@ -95,7 +95,7 @@ const calcList = _.throttle((callback) => {
 
 
     // debugLogger("calcList");
-    DestinyDb.list(function (err, docs) {
+    DestinyDb.listStats(function (err, docs) {
       if (err) {
         if (callback) {
           callback(err);
@@ -198,7 +198,7 @@ const calcList = _.throttle((callback) => {
           }, {});
 
         list = Object.keys(list).map(function (key) {
-          //console.log(list[key]);
+          //console.log(listStats[key]);
           return list[key];
         });
 

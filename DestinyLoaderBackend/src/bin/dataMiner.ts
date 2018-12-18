@@ -78,7 +78,7 @@ let mineDestiny = function () {
                                   debug(sprintf('%-20s %s -> light:%3d, level:%2d, minutes:%5d, triumph:%6d', character.userId, character.class, character.light, character.baseCharacterLevel, character.minutesPlayedTotal, character.triumphScore));
                                   //logger.info(JSON.stringify(character, null, 2));
 
-                                  DestinyDb.insert(character, function (err) {
+                                  DestinyDb.insertStats(character, function (err) {
                                         //logger.info(JSON.stringify(newDoc, null, 2));
                                         return callback(err);
                                     });

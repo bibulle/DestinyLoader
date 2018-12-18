@@ -1,5 +1,5 @@
 import { Router, Response, Request, NextFunction } from "express";
-import { User } from "../utils/user";
+import { User } from "../models/user";
 import { Destiny } from "../utils/destiny/destiny";
 import { Config } from "../utils/config/config";
 

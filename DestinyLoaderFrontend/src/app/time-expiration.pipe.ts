@@ -37,26 +37,29 @@ export class TimeExpirationPipe implements PipeTransform {
   private static elapsed (value: number): string {
     const delta = value / 1000;
 
+    console.log(delta+' '+(Number.MAX_SAFE_INTEGER/1000)+' '+(delta < Number.MAX_SAFE_INTEGER/1000));
     // We format the character string to return
     if (delta <= 0) {
       return ``;
     } else if (delta < 2) {
-      return `${Math.floor(delta)} second`;
+      return `${Math.floor(delta)} sec.`;
     } else if (delta < 60) {
-      return `${Math.floor(delta)} seconds`;
+      return `${Math.floor(delta)} sec.`;
     } else if (delta < 60 * 2) {
-      return `${Math.floor(delta / 60)} minute`;
+      return `${Math.floor(delta / 60)} min.`;
     } else if (delta < 3600) {
-      return `${Math.floor(delta / 60)} minutes`;
+      return `${Math.floor(delta / 60)} min.`;
     } else if (delta < 3600 * 2) {
       return `${Math.floor(delta / 3600)} hour`;
     } else if (delta < 86400) {
       return `${Math.floor(delta / 3600)} hours`;
     } else if (delta < 86400 * 2) {
       return `${Math.floor(delta / 3600)} day`;
-    } else if (delta < Number.MAX_VALUE) {
+    } else if (delta < Number.MAX_SAFE_INTEGER/1000) {
+      console.log(1);
       return `${Math.floor(delta / 86400)} days`;
     } else {
+      console.log(2);
       return 'Infinity';
     }
   }

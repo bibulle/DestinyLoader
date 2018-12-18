@@ -141,7 +141,7 @@ var createChart = function () {
 var updateChart = function () {
   //console.log(data);
 
-  // get the global list
+  // get the global listStats
   var allData = d3.merge(data.map(function (d) {
     //console.log(d);
     return d.values;

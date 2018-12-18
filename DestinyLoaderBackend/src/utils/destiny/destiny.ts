@@ -1046,7 +1046,7 @@ export class Destiny {
             );
           },
 
-          // build item list from the  profile inventories
+          // build item listStats from the  profile inventories
           function (callback) {
             itemsToLoad = data.profileInventory.data.items;
 
@@ -1071,7 +1071,7 @@ export class Destiny {
               }
             )
           },
-          // build item list from the  profile inventories
+          // build item listStats from the  profile inventories
           function (callback) {
             async.eachSeries(
               Object.keys(data.characterEquipment.data),
@@ -2091,7 +2091,7 @@ export class Destiny {
     //debug(JSON.stringify(conf, null, 2));
 
     async.eachSeries(
-      conf.list,
+      conf.listStats,
       function (name, callback) {
         Destiny.queryItemByName(name, function (err, item) {
           if (!item) {

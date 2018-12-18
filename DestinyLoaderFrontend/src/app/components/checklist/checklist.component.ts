@@ -2,7 +2,7 @@
 import { AfterViewChecked, Component, ElementRef, HostListener, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { Subscription } from 'rxjs/Subscription';
 import { ChecklistService } from '../../services/checklist.service';
-import { Character, Checklist, Milestone, Objective, Pursuit, Reward } from '../../models/checklist';
+import { Character, Checklist, Milestone, Objective, ObjectiveTime, Pursuit, Reward } from '../../models/checklist';
 import { Config } from '../../models/config';
 import { HeaderService } from '../../services/header.service';
 
@@ -22,7 +22,6 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
   config: Config = new Config();
   private _currentConfigSubscription: Subscription;
 
-
   constructor (private _checklistService: ChecklistService,
                private _headerService: HeaderService,
                private elRef: ElementRef) {
@@ -36,7 +35,18 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
 
         checklist = checklist as Checklist;
         // If we have things to show
-        if (checklist && checklist.items && checklist.items.Pursuits && checklist.characters) {
+        if (checklist && checklist.items && checklist.items.Pursuits && checklist.characters && checklist.times && checklist.currentTimes) {
+
+          // create by user and by objective objective time array
+          const currentTimeObjective: { [characterId: string]: { [objectiId: string]: ObjectiveTime } } = {};
+
+          checklist.currentTimes.forEach(ot => {
+            if (!currentTimeObjective[ot.characterId]) {
+              currentTimeObjective[ot.characterId] = {};
+            }
+            currentTimeObjective[ot.characterId][ot.objectiveId] = ot;
+          });
+
 
           // Sort character by last played first
           checklist.characters.sort((c1: Character, c2: Character) => {
@@ -110,7 +120,7 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
                     item: {
                       progressDescription: objective.itemName
                     },
-                    timeTillFinished: Number.POSITIVE_INFINITY
+                    timeTillFinished: Number.MAX_SAFE_INTEGER
                   }
                 ;
                 newMilestone.objectives.push(newObjective);
@@ -119,15 +129,22 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
               char.pursuits.push(newMilestone);
             });
 
-            // add objectives time
+            // add objectives time (and running one)
             char.pursuits.forEach(pursuit => {
               pursuit.objectives.forEach(objective => {
-                objective.timeTillFinished = Number.POSITIVE_INFINITY;
+                objective.timeTillFinished = Number.MAX_SAFE_INTEGER;
 
                 if (objective.complete) {
                   objective.timeTillFinished = 0;
-                } else if (this.TIMES_BY_OBJECTIVE[objective.objectiveHash]) {
-                  objective.timeTillFinished = this.TIMES_BY_OBJECTIVE[objective.objectiveHash] * (objective.completionValue - objective.progress);
+                } else if (checklist.times[objective.objectiveHash]) {
+                  objective.timeTillFinished = checklist.times[objective.objectiveHash].time * (objective.completionValue - objective.progress);
+                }
+
+                if (currentTimeObjective[char.characterId] && currentTimeObjective[char.characterId][objective.objectiveHash]) {
+                  objective.runningTimeObjective = currentTimeObjective[char.characterId][objective.objectiveHash];
+                  objective.runningTimeObjective.timeStart = new Date(objective.runningTimeObjective.timeStart);
+                  objective.runningTimeObjective.timeRunning = (new Date().getTime() - objective.runningTimeObjective.timeStart.getTime());
+
                 }
               });
             });
@@ -172,6 +189,22 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
         this.config = rel;
       });
 
+    // refresh the running times
+    this.refreshRunningTimes();
+
+  }
+
+  refreshRunningTimes () {
+    // console.log('refreshRunningTimes')
+    // console.log(this.checklist.currentTimes)
+    if (this.checklist && this.checklist.currentTimes) {
+      this.checklist.currentTimes.forEach(rt => {
+        rt.timeRunning = (new Date().getTime() - rt.timeStart.getTime());
+      });
+    }
+    setTimeout(() => {
+      this.refreshRunningTimes();
+    }, 5000);
   }
 
   ngOnDestroy (): void {
@@ -252,22 +285,33 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
     }
   }
 
+  stopObjectiveTime (objective: Objective, characterId: string) {
+    console.log('stopObjectiveTime');
+    this._checklistService.stopObjective(objective, characterId)
+        .then(obj => {
 
+          if (obj.runningTimeObjective) {
+            obj.runningTimeObjective.timeStart = new Date(obj.runningTimeObjective.timeStart);
+          }
+          ChecklistComponent.updateObject(obj, objective);
+        });
+  }
 
-  private TIMES_BY_OBJECTIVE = {
-    // Gambit match
-    '2083819821': 15 * 60 * 1000,
-    '776296945': 15 * 60 * 1000,
-    // Crucible
-    '2709623572': 12 * 60 * 1000,
-    '562619790': 12 * 60 * 1000,
-    // Strike
-    '2244227422': 13.5 * 60 * 1000,
-    '3201963368': 13.5 * 60 * 1000,
-    '2225383629': 13.5 * 60 * 1000,
-    // WANTED: The Eye in the Dark
-    '277282920': 25 * 60 * 1000
-  };
+  launchObjectiveTime (objective: Objective, characterId: string) {
+    console.log('launchObjectiveTime');
+    this._checklistService.startObjective(objective, characterId)
+        .then(obj => {
+
+          if (obj.runningTimeObjective) {
+            obj.runningTimeObjective.timeStart = new Date(obj.runningTimeObjective.timeStart);
+            obj.runningTimeObjective.timeRunning = (new Date().getTime() - obj.runningTimeObjective.timeStart.getTime());
+          }
+
+          ChecklistComponent.updateObject(obj, objective);
+          this.checklist.currentTimes.push(objective.runningTimeObjective);
+        });
+
+  }
 
 
   private static updateObject (src: Object, dst: Object) {
@@ -279,7 +323,7 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
     }
     for (const key of Object.keys(src)) {
       if (src[key] instanceof Object) {
-        if (!dst.hasOwnProperty(key)) {
+        if ((!dst.hasOwnProperty(key)) || (src[key] instanceof Date)) {
           dst[key] = src[key];
         } else {
           ChecklistComponent.updateObject(src[key], dst[key]);
@@ -292,11 +336,11 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
   }
 
 
-  toggleShowOnlyPowerfullGear() {
+  toggleShowOnlyPowerfullGear () {
     this._headerService.toggleShowOnlyPowerfulGear();
   }
 
-  pursuitShouldBeDisplayed(pursuit: Pursuit) {
+  pursuitShouldBeDisplayed (pursuit: Pursuit) {
     if (!pursuit) {
       return false;
     }

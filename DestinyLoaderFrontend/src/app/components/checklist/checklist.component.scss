@@ -61,21 +61,27 @@
         position: fixed;
         display: none;
       }
+
       .character0, .character-card0 {
         z-index: 20;
       }
+
       .character-card-sticky0 {
         z-index: 21;
       }
+
       .character1, .character-card1 {
         z-index: 22;
       }
+
       .character-card-sticky1 {
         z-index: 23;
       }
+
       .character2, .character-card2 {
         z-index: 24;
       }
+
       .character-card-sticky2 {
         z-index: 25;
       }
@@ -87,20 +93,25 @@
           display: flex;
           align-items: center;
         }
+
         .pursuit-text {
           margin-left: 0.5em;
           width: 100%;
         }
+
         .pursuit-itemType {
-          color: rgba(0,0,0,0.6);
+          color: rgba(0, 0, 0, 0.6);
         }
+
         .pursuit-item-icon {
           width: 2em;
           vertical-align: middle;
         }
+
         .pursuit-description {
           font-size: 0.5em;
         }
+
         .pursuit-expiration {
           font-size: 0.5em;
           font-style: italic;
@@ -113,6 +124,7 @@
           span {
             vertical-align: middle;
           }
+
           .reward-icon, .reward-identifier-icon {
             width: 1.5em;
             vertical-align: middle;
@@ -122,8 +134,10 @@
 
         .objective {
           padding-left: 4em;
+          display: flex;
 
           .objective-checkbox {
+            flex: 1 1 100%;
 
             ::ng-deep label {
               width: 100%;
@@ -131,12 +145,14 @@
               .mat-checkbox-inner-container {
                 margin-left: 0;
               }
+
               .mat-checkbox-label {
                 width: 100%;
                 position: relative;
               }
             }
           }
+
           .objective-checkbox-border {
             ::ng-deep .mat-checkbox-label {
               border-style: solid;
@@ -144,17 +160,20 @@
               border-color: #1b5e20;
             }
           }
+
           .objective-description {
             z-index: 10;
             opacity: 1;
-            position:relative;
+            position: relative;
           }
+
           .objective-progress {
             z-index: 10;
             opacity: 1;
             position: relative;
             float: right;
           }
+
           .objective-progressbar {
             background-color: #2e7d32;
             position: absolute;
@@ -165,6 +184,13 @@
             z-index: 1;
           }
 
+          .objective-running {
+            width: 7em;
+            padding-left: 0.5em;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+          }
         }
       }
 

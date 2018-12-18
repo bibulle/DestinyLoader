@@ -5,6 +5,8 @@ export class Checklist {
     Pursuits: {};
   };
   characters: Character[];
+  times: { [id: string]: ObjectiveTimeSummed };
+  currentTimes: ObjectiveTime[];
 
 
 }
@@ -166,6 +168,7 @@ export class Objective {
     progressDescription: string;
   };
   timeTillFinished: number;
+  runningTimeObjective?: ObjectiveTime;
 
   static getMaxTimeTillFinished (objectives: Objective[]): number {
 
@@ -177,6 +180,22 @@ export class Objective {
     });
     return result;
   }
+
+}
+export class ObjectiveTime {
+  characterId: string;
+  finished: boolean;
+  objectiveId: string;
+  timeStart: Date;
+  timeRunning: number;
+}
+
+export class ObjectiveTimeSummed {
+  objectiveId: string;
+
+  time: number; // millisecond for one progress
+
+  nbProgress: number; // sum of all progress used to calculate this
 
 }
 

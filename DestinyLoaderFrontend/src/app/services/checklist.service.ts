@@ -5,7 +5,7 @@ import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { Observable } from 'rxjs/Observable';
 import { UserService } from './user.service';
 import { HeaderService } from './header.service';
-import { Checklist } from '../models/checklist';
+import { Checklist, Objective } from '../models/checklist';
 import { NotificationService } from './notification.service';
 
 @Injectable({
@@ -22,6 +22,7 @@ export class ChecklistService {
   private readonly currentChecklistSubject: BehaviorSubject<Checklist>;
 
   private checklistUrl = environment.serverUrl + 'monitorstuff/api';
+  private runningtUrl = environment.serverUrl + 'monitorstuff/running';
 
   constructor (private httpClient: HttpClient,
                private _userService: UserService,
@@ -129,6 +130,46 @@ export class ChecklistService {
     return this.currentChecklistSubject;
   }
 
+
+  startObjective (objective: Objective, characterId: string): Promise<Objective> {
+    return new Promise<Objective>(((resolve, reject) => {
+      this.httpClient.post(this.runningtUrl, {
+        action: 'start',
+        characterId: characterId,
+        objective: objective
+      })
+          .subscribe(
+            (data: Object) => {
+
+              resolve(data as Objective);
+            },
+            err => {
+              this._headerService.stopReloading();
+              reject(err);
+            }
+          );
+    }));
+  }
+  stopObjective (objective: Objective, characterId: string): Promise<Objective> {
+    return new Promise<Objective>(((resolve, reject) => {
+      this.httpClient.post(this.runningtUrl, {
+        action: 'stop',
+        characterId: characterId,
+        objective: objective
+      })
+          .subscribe(
+            (data: Object) => {
+              // console.log(data);
+
+              resolve(data as Objective);
+            },
+            err => {
+              this._headerService.stopReloading();
+              reject(err);
+            }
+          );
+    }));
+  }
 
 
 }

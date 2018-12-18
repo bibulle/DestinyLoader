@@ -1,5 +1,5 @@
 import { Destiny } from "./utils/destiny/destiny";
-import { User } from "./utils/user";
+import { User } from "./models/user";
 
 //const OAuth2Strategy = require('passport-oauth2').Strategy;
 const BearerStrategy = require('passport-http-bearer').Strategy;

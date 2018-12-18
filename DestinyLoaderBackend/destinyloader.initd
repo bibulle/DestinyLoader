@@ -131,7 +131,7 @@ status() {
     # process is currently running via Forever, but in recent Forever versions
     # when the service is started during Chef provisioning a dead pipe is left
     # behind somewhere and that causes an EPIPE exception to be thrown.
-    # forever list | grep -q "$APPLICATION_PATH"
+    # forever listStats | grep -q "$APPLICATION_PATH"
     #
     # So instead we add an extra layer of indirection with this to bypass that
     # issue.

@@ -1,7 +1,7 @@
 import * as _ from "lodash";
 import { sign, verify } from "jsonwebtoken";
 import { refreshBungieToken } from "../routes/authent";
-import { Destiny } from "./destiny/destiny";
+import { Destiny } from "../utils/destiny/destiny";
 
 const debug = require('debug')('server:debugLogger:user');
 
