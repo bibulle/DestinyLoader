@@ -274,8 +274,6 @@ export class DestinyDb {
   };
 
 
-
-
   /**
    * Is this collection existing in the colls info ?
    * @param name
@@ -414,7 +412,10 @@ export class DestinyDb {
         const obvetiveTime = new ObjectiveTime({
           objectiveId: objectiveKey,
           finished: true,
-          timeDelta: TIMES_BY_OBJECTIVE[objectiveKey]
+          timeDelta: TIMES_BY_OBJECTIVE[objectiveKey],
+          countStart: 0,
+          countEnd: 1
+
         });
 
         DestinyDb._db.collection(DestinyDb.DB_COLL_NAME_TIMES).insert(obvetiveTime, function (err) {

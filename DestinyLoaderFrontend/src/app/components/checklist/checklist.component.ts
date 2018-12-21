@@ -105,9 +105,11 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
                   identifier: reward.definition.displayProperties.name,
                   identifierIcon: reward.definition.displayProperties.icon,
                   redeemed: reward.redeemed,
-                  earned: reward.earned
+                  earned: reward.earned,
+                  objectivesSize: milestone.objectives.length
                 };
                 newMilestone.rewards.push(newReward);
+
               });
 
               // add well formed objectives
@@ -316,11 +318,18 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
 
   private static updateObject (src: Object, dst: Object) {
 
-    for (const key of Object.keys(dst)) {
-      if (!src.hasOwnProperty(key)) {
-        delete dst[key];
+    if ((src instanceof Array) && (dst instanceof Array)) {
+      while (src.length < dst.length) {
+        dst.splice(-1, 1);
+      }
+    } else {
+      for (const key of Object.keys(dst)) {
+        if (!src.hasOwnProperty(key)) {
+          delete dst[key];
+        }
       }
     }
+
     for (const key of Object.keys(src)) {
       if (src[key] instanceof Object) {
         if ((!dst.hasOwnProperty(key)) || (src[key] instanceof Date)) {

@@ -89,6 +89,7 @@ export class Reward {
   identifierIcon: string;
   redeemed: boolean;
   earned: boolean;
+  objectivesSize: number
 
   static getMaxReward (rewards: Reward[]): Reward {
     rewards.sort(Reward.compareRewards);
@@ -116,6 +117,9 @@ export class Reward {
   static getRewardValue (r: Reward): number {
     if (r == null) {
       return -2;
+    }
+    if ((r.earned === false) && (r.objectivesSize === 0)) {
+      return -1;
     }
     if (r.redeemed) {
       return -1;

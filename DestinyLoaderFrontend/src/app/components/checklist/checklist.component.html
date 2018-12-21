@@ -47,7 +47,7 @@
           </div>
         </mat-card-title>
         <mat-card-subtitle class="reward" *ngFor="let reward of pursuit.rewards">
-          <div *ngIf="reward && !reward.redeemed">
+          <div *ngIf="reward && !reward.redeemed && ((reward.earned !== false) || (pursuit.objectives.length != 0))">
             <img class="reward-icon" *ngIf="reward.icon" src="https://www.bungie.net{{reward.icon}}"
                  alt="{{reward.name}}">
             <span *ngIf="reward.identifier && (reward.identifier != pursuit.name)">
@@ -75,13 +75,13 @@
             <div class="objective-running"
                  *ngIf="objective.runningTimeObjective && !objective.runningTimeObjective.finished"
                  (click)="stopObjectiveTime(objective, character.characterId)">
-                <mat-icon>stop</mat-icon>
-                <span>{{objective.runningTimeObjective.timeRunning | timeExpiration}}</span>
+              <mat-icon>stop</mat-icon>
+              <span>{{objective.runningTimeObjective.timeRunning | timeExpiration}}</span>
             </div>
             <div class="objective-running"
                  *ngIf="!objective.runningTimeObjective || objective.runningTimeObjective.finished"
                  (click)="launchObjectiveTime(objective, character.characterId)">
-                <mat-icon>play_arrow</mat-icon>
+              <mat-icon>play_arrow</mat-icon>
             </div>
           </mat-card-subtitle>
         </div>
