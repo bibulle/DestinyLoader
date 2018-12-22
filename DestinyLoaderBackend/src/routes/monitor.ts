@@ -120,26 +120,12 @@ function monitorRouter (passport): Router {
                 function (data, times, callback) {
                   data.currentTimes = [];
                   times.forEach((objectiveTime: ObjectiveTime) => {
-                    if (objectiveTime.finished && (objectiveTime.bungieNetUser === user.bungieNetUser.membershipId)) {
+                    //debug(objectiveTime);
+                    if (!objectiveTime.finished && (objectiveTime.bungieNetUser === user.bungieNetUser.membershipId)) {
                       data.currentTimes.push(objectiveTime);
                     }
                   });
-                  // TODO : remove the hard coded one
-                  data.currentTimes.push(new ObjectiveTime({
-                    bungieNetUser: '10292784',
-                    characterId: '2305843009262856643',
-                    objectiveId: '45948444',
-                    finished: false,
-
-                    //timeStart: new Date('2018-12-18T15:00:00'),
-                    timeStart: new Date(),
-
-                    countStart: 0,
-                    countEnd: 0
-
-                  }));
-                  // TODO END
-                  debug(data.currentTimes);
+                  //debug(data.currentTimes);
                   callback(null, data);
                 }
               ],
@@ -240,7 +226,7 @@ function monitorRouter (passport): Router {
 
               const objective = request.body.objective;
 
-              debug(request.body.objective.timeTillFinished)
+              //debug(request.body.objective.timeTillFinished);
               const objTime: ObjectiveTime = new ObjectiveTime({
                 bungieNetUser: user.bungieNetUser.membershipId,
                 characterId: request.body.characterId,
@@ -252,12 +238,13 @@ function monitorRouter (passport): Router {
               });
               //debug(objTime);
 
-              DestinyDb.insertTime(user.bungieNetUser.membershipId, objTime, (err, objTime) => {
+              //noinspection JSUnusedLocalSymbols
+              DestinyDb.insertTime(user.bungieNetUser.membershipId, objTime, (err, result) => {
                 if (err) {
                   error(JSON.stringify(err, null, 2));
                   response.status(500).send({error: err});
                 } else {
-                  debug(request.body.objective.timeTillFinished)
+                  //debug(request.body.objective.timeTillFinished);
                   objective.runningTimeObjective = objTime;
                   response.send(JSON.stringify(objective, null, 2));
                 }
@@ -273,6 +260,7 @@ function monitorRouter (passport): Router {
 
              //debug(objTime);
 
+              //noinspection JSUnusedLocalSymbols
               DestinyDb.insertTime(user.bungieNetUser.membershipId, objTime, (err, objTime) => {
                 if (err) {
                   error(JSON.stringify(err, null, 2));

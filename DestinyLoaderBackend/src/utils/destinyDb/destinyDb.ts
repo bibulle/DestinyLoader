@@ -105,7 +105,7 @@ export class DestinyDb {
 //------------------------------------
 
   /**
-   * insrt or update an objective time
+   * insert or update an objective time
    * @param bungieNetUser
    * @param data
    * @param callback
@@ -150,12 +150,35 @@ export class DestinyDb {
   };
 
   /**
+   * delete an objective time
+   * @param id
+   * @param callback
+   */
+  public static deleteTime (id, callback) {
+    debug('deleteTime : '+id);
+    this._initDb(function (err) {
+      if (err) {
+        return callback(err);
+      }
+      //debug(doc);
+      DestinyDb._colTimes.deleteOne({_id: id})
+               .then(function (data) {
+                 //debug(data);
+                 callback(null, data);
+               })
+               .catch(function (err) {
+                 console.log(err);
+                 callback(err);
+               });
+    });
+  };
+
+  /**
    * Get all objective times
-   * @param user
    * @param callback
    */
   public static listTimes (callback) {
-    //debugLogger("listTimes");
+    //debug("listTimes");
 
     this._initDb(function (err) {
       if (err) {
@@ -166,8 +189,64 @@ export class DestinyDb {
                  if (err) {
                    return callback(err);
                  }
-                 // debug(docs.length + " times");
-                 callback(err, docs);
+                 // try to do some cleanup
+
+                 const toBeRemoved = [];
+                 const tableObjectiveByKey: { [id: string]: ObjectiveTime } = {};
+
+                 async.eachSeries(docs,
+                   (doc: ObjectiveTime, callback) => {
+                     if (!doc.finished) {
+                       // not finished in more than 24 hours or twice the same
+                       if ((new Date().getTime() - doc.timeStart.getTime()) > 24 * 3600 * 1000) {
+                         toBeRemoved.push(doc._id);
+                       } else {
+                         const key = doc.bungieNetUser + doc.objectiveId;
+                         if (tableObjectiveByKey[key]) {
+                           // too many... what is the oldest
+                           if (tableObjectiveByKey[key].timeStart.getTime() > doc.timeStart.getTime()) {
+                             toBeRemoved.push(doc._id);
+                           } else {
+                             toBeRemoved.push(tableObjectiveByKey[key]._id);
+                             tableObjectiveByKey[key] = doc;
+                           }
+                         } else {
+                           tableObjectiveByKey[key] = doc;
+                         }
+                       }
+                     } else {
+                       // finished with no progress
+                       if (doc.countEnd === doc.countStart) {
+                         toBeRemoved.push(doc._id);
+                       }
+                     }
+                     //debug(doc);
+                     callback();
+                   }
+                   , (err) => {
+                     if (err) {
+                       return callback(err);
+                     }
+
+                     // if something must be removed
+                     if (toBeRemoved.length != 0) {
+                       async.eachSeries(toBeRemoved,
+                         (id, callback) => {
+                           DestinyDb.deleteTime(id, callback);
+                         },
+                         (err) => {
+                           if (err) {
+                             return callback(err);
+                           }
+                           DestinyDb.listTimes(callback)
+                         });
+                     } else {
+                       debug(docs.length + " times");
+                       callback(err, docs);
+                     }
+                   });
+                 // twice the same started
+
                });
     });
   };
@@ -275,7 +354,7 @@ export class DestinyDb {
 
 
   /**
-   * Is this collection existing in the colls info ?
+   * Is this collection existing in the collections info ?
    * @param name
    * @param columnInfo
    * @private
@@ -305,6 +384,7 @@ export class DestinyDb {
       [
         // Really create the collection
         (callback) => {
+          //noinspection JSUnusedLocalSymbols
           DestinyDb._db.createCollection(collName, (err, collection) => {
             callback(err);
           })
@@ -409,7 +489,7 @@ export class DestinyDb {
       Object.keys(TIMES_BY_OBJECTIVE),
       (objectiveKey, callback) => {
 
-        const obvetiveTime = new ObjectiveTime({
+        const objectiveTime = new ObjectiveTime({
           objectiveId: objectiveKey,
           finished: true,
           timeDelta: TIMES_BY_OBJECTIVE[objectiveKey],
@@ -418,7 +498,7 @@ export class DestinyDb {
 
         });
 
-        DestinyDb._db.collection(DestinyDb.DB_COLL_NAME_TIMES).insert(obvetiveTime, function (err) {
+        DestinyDb._db.collection(DestinyDb.DB_COLL_NAME_TIMES).insert(objectiveTime, function (err) {
           return callback(err);
         });
       },

@@ -305,8 +305,10 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
         .then(obj => {
 
           if (obj.runningTimeObjective) {
+            console.log(obj);
             obj.runningTimeObjective.timeStart = new Date(obj.runningTimeObjective.timeStart);
             obj.runningTimeObjective.timeRunning = (new Date().getTime() - obj.runningTimeObjective.timeStart.getTime());
+            console.log(obj);
           }
 
           ChecklistComponent.updateObject(obj, objective);

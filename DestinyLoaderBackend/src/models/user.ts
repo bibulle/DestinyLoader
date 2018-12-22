@@ -372,7 +372,7 @@ export class User {
    * @param done callback (err, user)
    */
   static checkToken (token, done: (err: Error, user: User) => any): void {
-    debug('checkToken');
+    //debug('checkToken');
     return verify(token, "myReallySecret", (err, decoded) => {
       if (err) {
         return done(err, null);

@@ -67,7 +67,7 @@ export { api1Router }
  * only once every 3 minutes to avoid memory overload)
  */
 const calcList = _.throttle((callback) => {
-    debug('calcList');
+    //debug('calcList');
 
     let userList = [];
     let userCharMap = {};
