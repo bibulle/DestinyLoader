@@ -286,7 +286,7 @@ function getTitle(d) {
       title += "\nnightfall : " + d.values[d.values.length - 1].nightfallCleared + " / " + d.values[d.values.length - 1].nightfallEntered;
       title += "\nheroic Nightfall : " + d.values[d.values.length - 1].heroicNightfallCleared + " / " + d.values[d.values.length - 1].heroicNightfallEntered;
       title += "\nstrike : " + d.values[d.values.length - 1].strikeCleared + " / " + d.values[d.values.length - 1].strikeEntered;
-      title += "\nTrial of the nine : " + d.values[d.values.length - 1].trialsofthenineWon + " / " + d.values[d.values.length - 1].trialsofthenineEntered;
+      title += "\nTrial of the nine : " + d.values[d.values.length - 1].trialsOfTheNineWon + " / " + d.values[d.values.length - 1].trialsOfTheNineEntered;
       title += "\nPvP : " + d.values[d.values.length - 1].allPvPWon + " / " + d.values[d.values.length - 1].allPvPEntered;
       title += "\nPvP ratio : " + d.values[d.values.length - 1].allPvPKillsDeathsAssistsRatio.toFixed(2);
       break;

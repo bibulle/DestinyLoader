@@ -26,7 +26,7 @@ export class Destiny {
 //private static _URL_GET_CLAN = '/Platform/GroupV2/{groupId}/?definitions=true';
 //private static _URL_GET_CLAN1 = '/Platform/GroupV2/{groupId}/Members/';
   private static _URL_GET_CLAN = '/Platform/GroupV2/{groupId}/Members/?lc=en&fmt=true&currentPage={currentPage}&platformType=2';
-//private static _URL_GET_LEADERBOARD = '/Platform/Destiny2/Stats/Leaderboards/Clans/{groupId}/?maxtop=200&modes=3,4,16,17';
+//private static _URL_GET_LEADERBOARDS = '/Platform/Destiny2/Stats/Leaderboards/Clans/{groupId}/?maxtop=200&modes=3,4,16,17';
 //private static _URL_GET_AGGREGATE_CLAN_BOARD = '/Platform/Destiny2/Stats/AggregateClanStats/{groupId}/?maxtop=200&modes=3,4,16,17';
 //private static _URL_GET_ACCOUNT_STAT = '/Platform/Destiny2/{membershipType}/Account/{destinyMembershipId}/Stats/?groups=102';
 //private static _URL_GET_ACCOUNT_STAT = '/Platform/Destiny2/{membershipType}/Account/{destinyMembershipId}/Character/{characterId}/Stats/AggregateActivityStats/';
@@ -282,8 +282,8 @@ export class Destiny {
               strikeCleared: 0,
               allPvPEntered: 0,
               allPvPWon: 0,
-              trialsofthenineEntered: 0,
-              trialsofthenineWon: 0,
+              trialsOfTheNineEntered: 0,
+              trialsOfTheNineWon: 0,
               allPvPAssists: 0,
               allPvPKills: 0,
               allPvPDeaths: 1
@@ -378,14 +378,14 @@ export class Destiny {
                 resultChar.allPvPWon = data.allPvP.allTime.activitiesWon.basic.value;
               } catch (e) {
               }
-              resultChar.trialsofthenineEntered = 0;
+              resultChar.trialsOfTheNineEntered = 0;
               try {
-                resultChar.trialsofthenineEntered = data.trialsofthenine.allTime.activitiesEntered.basic.value;
+                resultChar.trialsOfTheNineEntered = data.trialsofthenine.allTime.activitiesEntered.basic.value;
               } catch (e) {
               }
-              resultChar.trialsofthenineWon = 0;
+              resultChar.trialsOfTheNineWon = 0;
               try {
-                resultChar.trialsofthenineWon = data.trialsofthenine.allTime.activitiesWon.basic.value;
+                resultChar.trialsOfTheNineWon = data.trialsofthenine.allTime.activitiesWon.basic.value;
               } catch (e) {
               }
               resultChar.allPvPAssists = 0;
@@ -1795,7 +1795,7 @@ export class Destiny {
     try {
       db.serialize(function () {
 
-        const query = "SELECT name FROM sqlite_master WHERE type='table'";
+        const query = 'SELECT name FROM sqlite_master WHERE type=\'table\'';
         db.each(query, function (err, row) {
           if (err) throw err;
 

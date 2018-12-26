@@ -505,7 +505,7 @@ export class ChartComponent implements OnInit, OnChanges {
         title += `<div class="value">${d.values[d.values.length - 1].nightfallCleared + ' / ' + d.values[d.values.length - 1].nightfallEntered}</div>`;
         title += `<div class="value">${d.values[d.values.length - 1].heroicNightfallCleared + ' / ' + d.values[d.values.length - 1].heroicNightfallEntered}</div>`;
         title += `<div class="value">${d.values[d.values.length - 1].strikeCleared + ' / ' + d.values[d.values.length - 1].strikeEntered}</div>`;
-        title += `<div class="value">${d.values[d.values.length - 1].trialsofthenineWon + ' / ' + d.values[d.values.length - 1].trialsofthenineEntered}</div>`;
+        title += `<div class="value">${d.values[d.values.length - 1].trialsOfTheNineWon + ' / ' + d.values[d.values.length - 1].trialsOfTheNineEntered}</div>`;
         title += `<div class="value">${d.values[d.values.length - 1].allPvPWon + ' / ' + d.values[d.values.length - 1].allPvPEntered}</div>`;
         title += `<div class="value">${d.values[d.values.length - 1].allPvPKillsDeathsAssistsRatio.toFixed(2)}</div>`;
         title += `</div>`;

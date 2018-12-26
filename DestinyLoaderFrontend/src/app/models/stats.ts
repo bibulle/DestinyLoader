@@ -21,7 +21,7 @@ export class Stats {
   raidEntered: number;
   strikeCleared: number;
   strikeEntered: number;
-  trialsofthenineEntered: number;
-  trialsofthenineWon: number;
+  trialsOfTheNineEntered: number;
+  trialsOfTheNineWon: number;
   userId: string;
 }

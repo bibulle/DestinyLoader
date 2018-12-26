@@ -181,8 +181,8 @@ const calcList = _.throttle((callback) => {
               result[key].strikeCleared = d.strikeCleared;
               result[key].allPvPEntered = d.allPvPEntered;
               result[key].allPvPWon = d.allPvPWon;
-              result[key].trialsofthenineEntered = d.trialsofthenineEntered;
-              result[key].trialsofthenineWon = d.trialsofthenineWon;
+              result[key].trialsOfTheNineEntered = d.trialsOfTheNineEntered;
+              result[key].trialsOfTheNineWon = d.trialsOfTheNineWon;
               result[key].allPvPKillsDeathsAssistsRatio = (d.allPvPKills + d.allPvPAssists / 2) / Math.max(1, d.allPvPDeaths);
 
               if ((result[key].allPvPKillsDeathsAssistsRatio === 0) && (previousRatio[d.id])) {
