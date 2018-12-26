@@ -2242,9 +2242,9 @@ export class Destiny {
           //debug('end : '+content);
           val = JSON.parse(content);
         } catch (e) {
-          error("statusCode: ", res.statusCode, " : ", res.statusMessage);
-          //debug(content);
-          //debug.error("Error in getting Bungie data : " + e + ' from ' + path);
+          //error("statusCode: ", res.statusCode, " : ", res.statusMessage);
+          debug(content);
+          debug.error("Error in getting Bungie data : " + e + ' from ' + path);
           return callback("Error in getting Bungie data : " + e + ' from ' + path, null);
         }
 
