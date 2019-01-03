@@ -131,7 +131,8 @@ export class StatsService {
                 if (!minutePlayedTotalTotal[d.userId]) {
                   minutePlayedTotalTotal[d.userId] = 0;
                 }
-                minutePlayedTotalTotal[d.userId] += d.values[d.values.length - 1].minutesPlayedTotal;
+                //noinspection PointlessArithmeticExpressionJS
+                minutePlayedTotalTotal[d.userId] += 1.0 * d.values[d.values.length - 1].minutesPlayedTotal;
                 // console.log(d.userId + ' ' + minutePlayedTotalTotal[d.userId]);
 
                 // Calc the char num
@@ -199,7 +200,7 @@ export class StatsService {
               });
 
 //              // Calculate de date_min
-//              var savedgraphType = graphType;
+//              var savedGraphType = graphType;
 //              for (var i = 0; i < GRAPHTYPE_length; i++) {
 //                graphType = i;
 //                var dateMin = new Date();
@@ -212,7 +213,7 @@ export class StatsService {
 //                });
 //                DATE_MIN[i] = dateMin;
 //              }
-//              graphType = savedgraphType;
+//              graphType = savedGraphType;
 
 
               this._headerService.stopReloading();
