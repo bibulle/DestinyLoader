@@ -648,7 +648,8 @@ export class Destiny {
         items: {},
         characters: [],
         checklists: [],
-        vendors: {}
+        vendors: {},
+        objectives: {}
       };
       let itemsToLoad;
       const itemInstancesTable = {};
@@ -821,6 +822,7 @@ export class Destiny {
                     const milestone = {
                       data: data.characterProgressions.data[character.characterId].milestones[milestoneId],
                       instanceId: milestoneId,
+                      characterId: character.characterId,
                       objectives: [],
                       rewards: []
                     };
@@ -1005,6 +1007,10 @@ export class Destiny {
                             async.eachSeries(
                               milestone.objectives,
                               function (objective, callback) {
+                                const key = milestone.characterId+milestone.instanceId+objective.objectiveHash;
+                                // debug(key+' => '+objective.progress);
+                                result.objectives[key] = objective.progress;
+
                                 Destiny.queryObjectiveById(objective.objectiveHash, function (err, definition) {
                                   if (err) return callback(err);
                                   objective.definition = definition;
@@ -1292,9 +1298,17 @@ export class Destiny {
                       }
                       //debug(JSON.stringify(item, null, 2));
                       if (item.objective && item.objective.objectives) {
-                        async.eachSeries(
+                          async.eachSeries(
                           item.objective.objectives,
                           function (objective, callback) {
+                            const key = (item.characterId || user.bungieNetUser.membershipId)+item.itemInstanceId+objective.objectiveHash;
+                            // debug(key+' -> '+objective.progress);
+                            result.objectives[key] = objective.progress;
+
+                            // if (objective.objectiveHash == 3521931022) {
+                            //   debug(item);
+                            // }
+
                             Destiny.queryObjectiveById(objective.objectiveHash, function (err, itemValue) {
                               objective.item = itemValue;
                               callback();

@@ -86,6 +86,7 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
 
               // else create the object
               const newMilestone: Milestone = {
+                itemInstanceId: milestone.instanceId,
                 itemTypeDisplayName: 'Milestone',
                 description: milestone.description,
                 name: milestone.milestoneName,
@@ -142,7 +143,9 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
                   objective.timeTillFinished = checklist.times[objective.objectiveHash].time * (objective.completionValue - objective.progress);
                 }
 
-                if (currentTimeObjective[char.characterId] && currentTimeObjective[char.characterId][objective.objectiveHash]) {
+                if (currentTimeObjective[char.characterId] &&
+                    currentTimeObjective[char.characterId][objective.objectiveHash] &&
+                    currentTimeObjective[char.characterId][objective.objectiveHash].pursuitId === pursuit.itemInstanceId) {
                   objective.runningTimeObjective = currentTimeObjective[char.characterId][objective.objectiveHash];
                   objective.runningTimeObjective.timeStart = new Date(objective.runningTimeObjective.timeStart);
                   objective.runningTimeObjective.timeRunning = (new Date().getTime() - objective.runningTimeObjective.timeStart.getTime());
@@ -201,6 +204,7 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
     // console.log(this.checklist.currentTimes)
     if (this.checklist && this.checklist.currentTimes) {
       this.checklist.currentTimes.forEach(rt => {
+        rt.timeStart = new Date(rt.timeStart);
         rt.timeRunning = (new Date().getTime() - rt.timeStart.getTime());
       });
     }
@@ -287,9 +291,9 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
     }
   }
 
-  stopObjectiveTime (objective: Objective, characterId: string) {
+  stopObjectiveTime (objective: Objective, characterId: string, pursuitId: string) {
     console.log('stopObjectiveTime');
-    this._checklistService.stopObjective(objective, characterId)
+    this._checklistService.stopObjective(objective, characterId, pursuitId)
         .then(obj => {
 
           if (obj.runningTimeObjective) {
@@ -299,16 +303,16 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
         });
   }
 
-  launchObjectiveTime (objective: Objective, characterId: string) {
+  launchObjectiveTime (objective: Objective, characterId: string, pursuitId: string) {
     console.log('launchObjectiveTime');
-    this._checklistService.startObjective(objective, characterId)
+    this._checklistService.startObjective(objective, characterId, pursuitId)
         .then(obj => {
 
           if (obj.runningTimeObjective) {
-            console.log(obj);
+            // console.log(obj);
             obj.runningTimeObjective.timeStart = new Date(obj.runningTimeObjective.timeStart);
             obj.runningTimeObjective.timeRunning = (new Date().getTime() - obj.runningTimeObjective.timeStart.getTime());
-            console.log(obj);
+            // console.log(obj);
           }
 
           ChecklistComponent.updateObject(obj, objective);
@@ -347,7 +351,7 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
   }
 
 
-  toggleShowOnlyPowerfullGear () {
+  toggleShowOnlyPowerfulGear () {
     this._headerService.toggleShowOnlyPowerfulGear();
   }
 
@@ -355,6 +359,6 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
     if (!pursuit) {
       return false;
     }
-    return !this.config.showOnlyPowerfullGear || (pursuit.maxRewardLevel >= Reward.VALUE_POWER_GEAR);
+    return !this.config.showOnlyPowerfulGear || (pursuit.maxRewardLevel >= Reward.VALUE_POWER_GEAR);
   }
 }

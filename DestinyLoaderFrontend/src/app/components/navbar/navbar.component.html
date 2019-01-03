@@ -37,8 +37,8 @@
     <mat-menu #menu="matMenu">
       <button mat-menu-item (click)="toggleShowOnlyPowerfulGear()">
         <mat-icon>trending_up</mat-icon>
-        <span *ngIf="config.showOnlyPowerfullGear">Only power gears</span>
-        <span *ngIf="!config.showOnlyPowerfullGear">Not only power gears</span>
+        <span *ngIf="config.showOnlyPowerfulGear">Only power gears</span>
+        <span *ngIf="!config.showOnlyPowerfulGear">Not only power gears</span>
       </button>
       <button mat-menu-item *ngIf="user.bungieNetUser"  (click)="logout()">
         <mat-icon>lock_open</mat-icon>

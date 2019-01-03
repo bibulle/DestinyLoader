@@ -114,12 +114,14 @@ export class DestinyDb {
     const doc = new ObjectiveTime({
       bungieNetUser: bungieNetUser,
       characterId: data.characterId,
+      pursuitId: data.pursuitId,
       objectiveId: data.objectiveId,
       finished: data.finished,
       timeStart: data.timeStart,
       timeEnd: data.timeEnd,
       countStart: data.countStart,
       countEnd: data.countEnd,
+      countFinished: data.countFinished
     });
     this._initDb(function (err) {
       if (err) {
@@ -191,7 +193,7 @@ export class DestinyDb {
                  }
                  // try to do some cleanup
 
-                 const toBeRemoved = [];
+                 const toBeRemoved: ObjectiveTime[] = [];
                  const tableObjectiveByKey: { [id: string]: ObjectiveTime } = {};
 
                  async.eachSeries(docs,
@@ -199,15 +201,16 @@ export class DestinyDb {
                      if (!doc.finished) {
                        // not finished in more than 24 hours or twice the same
                        if ((new Date().getTime() - doc.timeStart.getTime()) > 24 * 3600 * 1000) {
-                         toBeRemoved.push(doc._id);
+                         // if something has changed, finish it else remove it
+                         toBeRemoved.push(doc);
                        } else {
-                         const key = doc.bungieNetUser + doc.objectiveId;
+                         const key = doc.characterId + doc.pursuitId + doc.objectiveId;
                          if (tableObjectiveByKey[key]) {
                            // too many... what is the oldest
                            if (tableObjectiveByKey[key].timeStart.getTime() > doc.timeStart.getTime()) {
-                             toBeRemoved.push(doc._id);
+                             toBeRemoved.push(doc);
                            } else {
-                             toBeRemoved.push(tableObjectiveByKey[key]._id);
+                             toBeRemoved.push(tableObjectiveByKey[key]);
                              tableObjectiveByKey[key] = doc;
                            }
                          } else {
@@ -217,7 +220,7 @@ export class DestinyDb {
                      } else {
                        // finished with no progress
                        if (doc.countEnd === doc.countStart) {
-                         toBeRemoved.push(doc._id);
+                         toBeRemoved.push(doc);
                        }
                      }
                      //debug(doc);
@@ -231,8 +234,14 @@ export class DestinyDb {
                      // if something must be removed
                      if (toBeRemoved.length != 0) {
                        async.eachSeries(toBeRemoved,
-                         (id, callback) => {
-                           DestinyDb.deleteTime(id, callback);
+                         (doc: ObjectiveTime, callback) => {
+                           // if something has be counted just finish it
+                           if (doc.countEnd != doc.countStart) {
+                             doc.finished = true;
+                             DestinyDb.insertTime(doc.bungieNetUser, doc, callback);
+                           } else {
+                             DestinyDb.deleteTime(doc._id, callback);
+                           }
                          },
                          (err) => {
                            if (err) {
@@ -242,10 +251,18 @@ export class DestinyDb {
                          });
                      } else {
                        debug(docs.length + " times");
-                       callback(err, docs);
+                       // update last verified date
+                       async.eachSeries(docs,
+                         (doc: ObjectiveTime, callback) => {
+                           doc.lastVerified  = new Date();
+                           DestinyDb.insertTime(doc.bungieNetUser, doc, callback);
+                         },
+                         (err) => {
+                           callback(err, docs);
+                         });
+
                      }
                    });
-                 // twice the same started
 
                });
     });

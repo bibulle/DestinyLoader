@@ -1,3 +1,3 @@
 export class Config {
-  showOnlyPowerfullGear: boolean;
+  showOnlyPowerfulGear: boolean;
 }

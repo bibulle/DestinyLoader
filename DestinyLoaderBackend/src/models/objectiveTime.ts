@@ -4,14 +4,18 @@ export class ObjectiveTime {
 
   bungieNetUser: string;
   characterId: string;
+  pursuitId: string;
   objectiveId: string;
   finished: boolean;
 
   timeStart: Date;
   timeEnd: Date;
 
+  lastVerified: Date;
+
   countStart: number;
   countEnd: number;
+  countFinished: number;
 
   /**
    * Constructor
@@ -22,6 +26,7 @@ export class ObjectiveTime {
 
     this.bungieNetUser = option['bungieNetUser'] || 'HardCoded';
     this.characterId = option['characterId'] || 'HardCoded';
+    this.pursuitId = option['pursuitId'] || 'HardCoded';
     this.objectiveId = option['objectiveId'] || 'Unknown';
     this.finished = option['finished'] || false;
 
@@ -31,9 +36,11 @@ export class ObjectiveTime {
       this.timeStart = new Date();
     }
 
+    this.lastVerified = option['lastVerified'];
 
     this.countStart = option['countStart'] || 0;
     this.countEnd = option['countEnd'] || 0;
+    this.countFinished = option['countFinished'] || 0;
 
 
     if (option['timeEnd']) {

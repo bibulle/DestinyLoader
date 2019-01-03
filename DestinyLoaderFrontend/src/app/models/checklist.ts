@@ -23,6 +23,7 @@ export class Character {
   emblemBackgroundPath: string;
   dateLastPlayed: string;
   milestones: {
+    instanceId: string;
     milestoneName: string;
     description: string;
     icon: string;
@@ -55,6 +56,7 @@ export class Character {
 
 
 export class Pursuit {
+  itemInstanceId: string;
   //noinspection JSUnusedGlobalSymbols
   itemTypeDisplayName: string;
   name: string;
@@ -71,6 +73,7 @@ export class Pursuit {
 }
 
 export class Milestone {
+  itemInstanceId: string;
   itemTypeDisplayName: string;
   name: string;
   description: string;
@@ -89,7 +92,7 @@ export class Reward {
   identifierIcon: string;
   redeemed: boolean;
   earned: boolean;
-  objectivesSize: number
+  objectivesSize: number;
 
   static getMaxReward (rewards: Reward[]): Reward {
     rewards.sort(Reward.compareRewards);
@@ -188,6 +191,7 @@ export class Objective {
 }
 export class ObjectiveTime {
   characterId: string;
+  pursuitId: string;
   finished: boolean;
   objectiveId: string;
   timeStart: Date;
@@ -195,10 +199,12 @@ export class ObjectiveTime {
 }
 
 export class ObjectiveTimeSummed {
+  //noinspection JSUnusedGlobalSymbols
   objectiveId: string;
 
   time: number; // millisecond for one progress
 
+  //noinspection JSUnusedGlobalSymbols
   nbProgress: number; // sum of all progress used to calculate this
 
 }

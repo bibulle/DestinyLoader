@@ -62,7 +62,7 @@
         display: none;
       }
 
-      .character0, .character-card0 {
+      .character-card0 {
         z-index: 20;
       }
 
@@ -70,7 +70,7 @@
         z-index: 21;
       }
 
-      .character1, .character-card1 {
+      .character-card1 {
         z-index: 22;
       }
 
@@ -78,7 +78,7 @@
         z-index: 23;
       }
 
-      .character2, .character-card2 {
+      .character-card2 {
         z-index: 24;
       }
 
@@ -141,6 +141,7 @@
 
             ::ng-deep label {
               width: 100%;
+              white-space: normal;
 
               .mat-checkbox-inner-container {
                 margin-left: 0;
@@ -194,6 +195,16 @@
         }
       }
 
+    }
+
+    .character0 {
+      z-index: 15;
+    }
+    .character1 {
+      z-index: 16;
+    }
+    .character2 {
+      z-index: 17;
     }
 
     .config-choices {

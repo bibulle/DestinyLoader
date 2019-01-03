@@ -109,11 +109,60 @@ function monitorRouter (passport): Router {
                       return callback(err);
                     }
                     data.times = {};
-                    times.forEach((objectiveTime: ObjectiveTime) => {
-                      data.times[objectiveTime.objectiveId] = ObjectiveTime.getSum(objectiveTime, data.times[objectiveTime.objectiveId]);
-                    });
-                    //debug(data.times);
-                    callback(null, data, times);
+
+                    // debug(data.objectives);
+
+                    async.eachSeries(
+                      times,
+                      (objectiveTime: ObjectiveTime, callback) => {
+                        let modified = false;
+                        const key = objectiveTime.characterId + objectiveTime.pursuitId + objectiveTime.objectiveId;
+                        // debug(key+ " -> " + data.objectives[key]);
+
+                        // if this objective is for this user
+                        if (objectiveTime.bungieNetUser === user.bungieNetUser.membershipId) {
+                          if (!objectiveTime.finished && data.objectives[key] && (objectiveTime.countEnd < data.objectives[key])) {
+                            // if not finished and objective count change
+                            objectiveTime.countEnd = data.objectives[key];
+                            objectiveTime.timeEnd = new Date();
+                            modified = true;
+                            debug("Objective change "+objectiveTime.objectiveId);
+                            debug(objectiveTime);
+                          } else if (!objectiveTime.finished && (data.objectives[key] == null)) {
+                            // if not finished and not any more objective
+                            //   if not so old, end count
+                            if ((new Date().getTime() - objectiveTime.lastVerified.getTime()) < 3 * 60 * 1000) {
+                              objectiveTime.countEnd = objectiveTime.countFinished;
+                              objectiveTime.timeEnd = new Date();
+                              objectiveTime.finished = true;
+                              modified = true;
+                              debug("Force countEnd "+objectiveTime.objectiveId);
+                              debug(objectiveTime);
+                            }
+                          }
+                        }
+
+                        // if modified, save it
+                        if (modified) {
+                          DestinyDb.insertTime(
+                            objectiveTime.bungieNetUser,
+                            objectiveTime,
+                            (err) => {
+                              data.times[objectiveTime.objectiveId] = ObjectiveTime.getSum(objectiveTime, data.times[objectiveTime.objectiveId]);
+                              callback(err);
+                            });
+                        } else {
+                          data.times[objectiveTime.objectiveId] = ObjectiveTime.getSum(objectiveTime, data.times[objectiveTime.objectiveId]);
+                          callback(null);
+                        }
+
+                      },
+                      (err) => {
+                        // debug(data.times);
+                        callback(err, data, times);
+                      }
+                    )
+
                   });
                 },
                 // Add current times for the user
@@ -230,11 +279,13 @@ function monitorRouter (passport): Router {
               const objTime: ObjectiveTime = new ObjectiveTime({
                 bungieNetUser: user.bungieNetUser.membershipId,
                 characterId: request.body.characterId,
+                pursuitId: request.body.pursuitId,
                 objectiveId: objective.objectiveHash,
                 finished: false,
                 timeStart: new Date(),
                 countStart: objective.progress,
-                countEnd: objective.progress
+                countEnd: objective.progress,
+                countFinished: objective.completionValue
               });
               //debug(objTime);
 

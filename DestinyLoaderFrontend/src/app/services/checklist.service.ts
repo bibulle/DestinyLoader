@@ -22,7 +22,7 @@ export class ChecklistService {
   private readonly currentChecklistSubject: BehaviorSubject<Checklist>;
 
   private checklistUrl = environment.serverUrl + 'monitorstuff/api';
-  private runningtUrl = environment.serverUrl + 'monitorstuff/running';
+  private runningUrl = environment.serverUrl + 'monitorstuff/running';
 
   constructor (private httpClient: HttpClient,
                private _userService: UserService,
@@ -131,11 +131,12 @@ export class ChecklistService {
   }
 
 
-  startObjective (objective: Objective, characterId: string): Promise<Objective> {
+  startObjective (objective: Objective, characterId: string, pursuitId: string): Promise<Objective> {
     return new Promise<Objective>(((resolve, reject) => {
-      this.httpClient.post(this.runningtUrl, {
+      this.httpClient.post(this.runningUrl, {
         action: 'start',
         characterId: characterId,
+        pursuitId: pursuitId,
         objective: objective
       })
           .subscribe(
@@ -150,11 +151,12 @@ export class ChecklistService {
           );
     }));
   }
-  stopObjective (objective: Objective, characterId: string): Promise<Objective> {
+  stopObjective (objective: Objective, characterId: string, pursuitId: string): Promise<Objective> {
     return new Promise<Objective>(((resolve, reject) => {
-      this.httpClient.post(this.runningtUrl, {
+      this.httpClient.post(this.runningUrl, {
         action: 'stop',
         characterId: characterId,
+        pursuitId: pursuitId,
         objective: objective
       })
           .subscribe(

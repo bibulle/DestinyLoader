@@ -65,7 +65,7 @@ export class HeaderService {
   }
 
   toggleShowOnlyPowerfulGear() {
-    this.config.showOnlyPowerfullGear = !this.config.showOnlyPowerfullGear;
+    this.config.showOnlyPowerfulGear = !this.config.showOnlyPowerfulGear;
     this.configSubject.next(this.config);
     HeaderService.saveConfigFromLocalStorage(this.config);
   }
