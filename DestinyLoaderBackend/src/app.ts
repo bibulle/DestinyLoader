@@ -82,9 +82,11 @@ app.use(cors(corsOptions));
 require('./config_passport')(passport); // pass passport for configuration
 
 app.use(session({
-  secret: 'ilovescotchscotchyscotchscotch',
-  resave: true,
-  saveUninitialized: true
+  secret: 'myownsecret',
+  cookie: { maxAge: 6000000 },
+  store: store,
+  resave: false,
+  saveUninitialized: false
 }));
 app.use(passport.initialize());
 //noinspection TypeScriptValidateJSTypes
