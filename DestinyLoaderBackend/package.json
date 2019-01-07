@@ -1,5 +1,5 @@
 {
-  "name": "DestinyLoader",
+  "name": "destiny-loader",
   "version": "0.0.0",
   "private": true,
   "scripts": {
@@ -8,6 +8,7 @@
     "devel-dataminer": "tsc -p ./src && concurrently \"tsc -w -p ./src\" \"DEBUG=server:* nodemon --ignore ./data/ ./src/bin/dataminer.js\" "
   },
   "dependencies": {
+    "@types/mongodb": "^3.1.18",
     "async": "latest",
     "body-parser": "^1.18.3",
     "compression": "^1.7.3",

@@ -461,7 +461,7 @@ export class DestinyDb {
 
           delete doc._id;
 
-          DestinyDb._db.collection(DestinyDb.DB_COLL_NAME_STATS).insert(doc, function (err) {
+          DestinyDb._db.collection(DestinyDb.DB_COLL_NAME_STATS).insertOne(doc, function (err) {
             return cb(err);
           });
         }, function (err) {
@@ -515,7 +515,7 @@ export class DestinyDb {
 
         });
 
-        DestinyDb._db.collection(DestinyDb.DB_COLL_NAME_TIMES).insert(objectiveTime, function (err) {
+        DestinyDb._db.collection(DestinyDb.DB_COLL_NAME_TIMES).insertOne(objectiveTime, function (err) {
           return callback(err);
         });
       },
