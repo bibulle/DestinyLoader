@@ -39,7 +39,7 @@ function api1Router (passport): Router {
                   //noinspection JSIgnoredPromiseFromCall
                   let result = {
                     data: list,
-                    refreshedToken: user.refreshedToken
+                    refreshedToken: (user ? user.refreshedToken : null)
                   };
                   response.send(JSON.stringify(result, null, 2));
                   debug("GET / done");
