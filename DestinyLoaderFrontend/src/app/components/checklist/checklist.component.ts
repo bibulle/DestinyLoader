@@ -99,17 +99,31 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
 
               // add well formed rewards
               milestone.rewards.forEach(reward => {
-                const newReward: Reward = {
-                  name: reward.definition.items[0].itemName,
-                  icon: reward.definition.items[0].icon,
-                  quantity: reward.definition.items[0].quantity,
-                  identifier: reward.definition.displayProperties.name,
-                  identifierIcon: reward.definition.displayProperties.icon,
-                  redeemed: reward.redeemed,
-                  earned: reward.earned,
-                  objectivesSize: milestone.objectives.length
-                };
-                newMilestone.rewards.push(newReward);
+                if (reward.definition) {
+                  const newReward: Reward = {
+                    name: reward.definition.items[0].itemName,
+                    icon: reward.definition.items[0].icon,
+                    quantity: reward.definition.items[0].quantity,
+                    identifier: reward.definition.displayProperties.name,
+                    identifierIcon: reward.definition.displayProperties.icon,
+                    redeemed: reward.redeemed,
+                    earned: reward.earned,
+                    objectivesSize: milestone.objectives.length
+                  };
+                  newMilestone.rewards.push(newReward);
+                } else {
+                  const newReward: Reward = {
+                    name: reward.displayProperties.name,
+                    icon: reward.displayProperties.icon,
+                    quantity: reward.quantity,
+                    identifier: reward.displayProperties.name,
+                    identifierIcon: null,
+                    redeemed: false,
+                    earned: false,
+                    objectivesSize: milestone.objectives.length
+                  };
+                  newMilestone.rewards.push(newReward);
+                }
 
               });
 

@@ -859,6 +859,33 @@ export class Destiny {
                             });
                         },
                         function (callback) {
+                          // Read the objectives (from quests)
+                          async.eachSeries(
+                            milestone.data.availableQuests,
+                            function (quest, callback) {
+                              async.eachSeries(
+                                quest.status.stepObjectives,
+                                function (challenge, callback) {
+                                  let found = false;
+                                  milestone.objectives.forEach(obj => {
+                                    if (obj.objectiveHash === challenge.objectiveHash) {
+                                      found = true;
+                                    }
+                                  });
+                                  if (!found) {
+                                    milestone.objectives.push(challenge);
+                                  }
+                                  callback();
+                                },
+                                function (err) {
+                                  callback(err);
+                                });
+                            },
+                            function (err) {
+                              callback(err);
+                            });
+                        },
+                        function (callback) {
                           // Read the rewards
                           milestone.rewards = [];
                           async.eachSeries(
@@ -879,10 +906,42 @@ export class Destiny {
                             function (err) {
                               callback(err);
                             });
+                        },
+                        function (callback) {
+                          // Read the rewards from quests
+                          if (milestone.data.milestoneHash) {
+
+                            Destiny.queryMilestoneById(milestone.data.milestoneHash, (err, milestoneDef) => {
+                              if (milestoneDef.quests) {
+                                async.eachSeries(
+                                  Object.keys(milestoneDef.quests),
+                                  function (questItemHash, callback) {
+                                    if (!milestoneDef.quests[questItemHash].questRewards) {
+                                      return callback()
+                                    }
+                                    //debug(milestoneDef.displayProperties.description);
+                                    milestone.rewards.push(milestoneDef.quests[questItemHash].questRewards.items[0]);
+                                    Destiny.queryItemById(milestoneDef.quests[questItemHash].questRewards.items[0].itemHash, (err, data) => {
+                                      milestoneDef.quests[questItemHash].questRewards.items[0].displayProperties = data.displayProperties;
+                                      callback();
+                                    })
+
+                                  },
+                                  function (err) {
+                                    callback(err);
+                                  }
+                                )
+                              } else {
+                                callback(err);
+                              }
+                            })
+                          } else {
+                            callback(err);
+                          }
                         }
                       ],
                       function (err) {
-                        //if (milestoneId === '157823523') {
+                        //if (milestoneId === '3603098564') {
                         //  debug(milestone);
                         //}
                         character.milestones.push(milestone);
@@ -1007,7 +1066,7 @@ export class Destiny {
                             async.eachSeries(
                               milestone.objectives,
                               function (objective, callback) {
-                                const key = milestone.characterId+milestone.instanceId+objective.objectiveHash;
+                                const key = milestone.characterId + milestone.instanceId + objective.objectiveHash;
                                 // debug(key+' => '+objective.progress);
                                 result.objectives[key] = objective.progress;
 
@@ -1298,10 +1357,10 @@ export class Destiny {
                       }
                       //debug(JSON.stringify(item, null, 2));
                       if (item.objective && item.objective.objectives) {
-                          async.eachSeries(
+                        async.eachSeries(
                           item.objective.objectives,
                           function (objective, callback) {
-                            const key = (item.characterId || user.bungieNetUser.membershipId)+item.itemInstanceId+objective.objectiveHash;
+                            const key = (item.characterId || user.bungieNetUser.membershipId) + item.itemInstanceId + objective.objectiveHash;
                             // debug(key+' -> '+objective.progress);
                             result.objectives[key] = objective.progress;
 

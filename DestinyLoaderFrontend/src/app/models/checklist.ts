@@ -1,4 +1,3 @@
-
 export class Checklist {
 
   items: {
@@ -39,8 +38,13 @@ export class Character {
           icon: string;
         }
       };
+      displayProperties: {
+        name: string;
+        icon: string;
+      };
       redeemed: boolean;
       earned: boolean;
+      quantity: number;
     }[];
     objectives: {
       objectiveHash: string;
@@ -128,20 +132,28 @@ export class Reward {
       return -1;
     }
 
+    //noinspection SpellCheckingInspection
     switch (r.name) {
       case 'Powerful Gear':
         return Reward.VALUE_POWER_GEAR;
+      case 'Luminous Engram':
       case 'Legendary Gear':
+      case 'Black Armory Badge' :
         return Reward.VALUE_LEGENDARY_GEAR;
       case 'Enhancement Core':
       case 'Dark Fragment':
       case 'Transcendent Blessing':
         return Reward.VALUE_IMPORTANT_CONSUMABLE;
+      case 'Loaded Question':
+      case 'Nightshade':
+        return 5;
       case 'Crucible Token':
       case 'Clan XP':
       case 'Infamy Rank Points':
       case 'Vanguard Tactician Token':
       case 'Nessus Rewards':
+      case 'Titan Rewards':
+      case 'Ballistics Log':
         return 3;
       case 'Legendary Shards':
         return 1;
@@ -154,7 +166,7 @@ export class Reward {
       case 'Glimmer':
         return 0;
       default:
-        // console.log(r.name);
+        console.log('reward "' + r.name + '" not found');
         return 5;
     }
   }
@@ -166,6 +178,7 @@ export class Reward {
 // tslint:disable-next-line:member-ordering
   static VALUE_IMPORTANT_CONSUMABLE = 10;
 }
+
 export class Objective {
   objectiveHash: string;
   completionValue: number;
@@ -189,6 +202,7 @@ export class Objective {
   }
 
 }
+
 export class ObjectiveTime {
   characterId: string;
   pursuitId: string;
