@@ -3,7 +3,6 @@
 /**
  * Module dependencies.
  */
-const debug = require('debug')('SeedMeHome2:server');
 const async = require('async');
 const fs = require('fs');
 const logger = require('../lib/logger/logger');

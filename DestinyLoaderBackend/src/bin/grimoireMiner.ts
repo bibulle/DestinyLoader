@@ -2,7 +2,7 @@ import {Destiny} from "../utils/destiny/destiny";
 import { Config } from "../utils/config/config";
 import { GrimoireGoogle } from "../utils/grimoireGoogle/grimoireGoogle";
 
-const debug = require('debug')('server:debugLogger:grimoireMiner');
+const debug = require('debug')('server:debug:grimoireMiner');
 const error = require('debug')('server:error:grimoireMiner');
 
 const async = require('async');
@@ -24,7 +24,7 @@ let mineGrimoire = function () {
           return error("Err : " + err);
         }
 
-        //debugLogger(userId + "  " + JSON.stringify(data));
+        //debug(userId + "  " + JSON.stringify(data));
 
         GrimoireGoogle.insert(user.docKey, data, function (err) {
           if (err) {

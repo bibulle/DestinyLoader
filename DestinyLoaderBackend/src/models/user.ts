@@ -3,7 +3,7 @@ import { sign, verify } from "jsonwebtoken";
 import { refreshBungieToken } from "../routes/authent";
 import { Destiny } from "../utils/destiny/destiny";
 
-const debug = require('debug')('server:debugLogger:user');
+const debug = require('debug')('server:debug:user');
 
 
 export class User {
@@ -13,7 +13,7 @@ export class User {
 
 //  constructor(options: {}) {
 //
-//    // debugLogger(options);
+//    // debug(options);
 //    // TODO : Remove this part when data will be migrated
 //    let changed = false;
 //    if (options['history'] && options['history']['bookDownloaded']) {
@@ -46,12 +46,12 @@ export class User {
 //    if (changed) {
 //      DbMyCalibre.saveUser(this, false)
 //        .catch(err => {
-//          debugLogger(err)
+//          debug(err)
 //        });
 //    }
 //    // TODO END : Remove this part when data will be migrated
 //
-//    // debugLogger(options);
+//    // debug(options);
 //    if (!this.local.salt) {
 //      this.local.salt = User.generateSalt();
 //    }
@@ -75,7 +75,7 @@ export class User {
 //        callback(null, user);
 //      })
 //      .catch(err => {
-//        debugLogger(err);
+//        debug(err);
 //        callback(err, null);
 //      })
 //  }
@@ -87,7 +87,7 @@ export class User {
 //        callback(null, user);
 //      })
 //      .catch(err => {
-//        debugLogger(err);
+//        debug(err);
 //        callback(err, null);
 //      })
 //  }
@@ -99,7 +99,7 @@ export class User {
 //        callback(null, user);
 //      })
 //      .catch(err => {
-//        //debugLogger(err);
+//        //debug(err);
 //        callback(err, null);
 //      })
 //  }
@@ -111,7 +111,7 @@ export class User {
 //        callback(null, user);
 //      })
 //      .catch(err => {
-//        //debugLogger(err);
+//        //debug(err);
 //        callback(err, null);
 //      })
 //  }
@@ -123,7 +123,7 @@ export class User {
 //        callback(null);
 //      })
 //      .catch(err => {
-//        debugLogger(err);
+//        debug(err);
 //        callback(err);
 //      })
 //
@@ -136,7 +136,7 @@ export class User {
 //        callback(null);
 //      })
 //      .catch(err => {
-//        debugLogger(err);
+//        debug(err);
 //        callback(err);
 //      })
 //
@@ -154,8 +154,8 @@ export class User {
 //      trg.created = src.created;
 //    }
 //
-//    //debugLogger(src.local);
-//    //debugLogger(trg.local);
+//    //debug(src.local);
+//    //debug(trg.local);
 //    _.mergeWith(trg.local, src.local, (objValue, srcValue) => {
 //      if (objValue) {
 //        return objValue
@@ -247,7 +247,7 @@ export class User {
 //    this.history.lastConnection = new Date();
 //    this.save(err => {
 //      if (err) {
-//        debugLogger(err);
+//        debug(err);
 //      }
 //    }, false)
 //  }
@@ -333,7 +333,7 @@ export class User {
 //      });
 //      this.save(err => {
 //        if (err) {
-//          debugLogger(err);
+//          debug(err);
 //        }
 //      }, true)
 //    }
@@ -349,7 +349,7 @@ export class User {
    * @returns {string|void}
    */
   static createToken (user): string {
-    //debugLogger(user);
+    //debug(user);
     let sendUser = _.pick(user, ['destinyMemberships', 'bungieNetUser', 'auth']);
     sendUser.tokenDate = new Date();
 
@@ -413,20 +413,20 @@ export class User {
 //
 //
 //  static init() {
-//    debugLogger("init...");
+//    debug("init...");
 //    DbMyCalibre
 //      .getConf()
 //      .then(conf => {
 //        User.conf = conf;
-//        debugLogger("init...done");
+//        debug("init...done");
 //
 //        //User.findByEmail("", (err, user) => {
-//        //  debugLogger(err);
-//        //  debugLogger(user);
+//        //  debug(err);
+//        //  debug(user);
 //        //});
 //        //User.findByEmail("eric@eric.fr", (err, user) => {
-//        //  debugLogger(err);
-//        //  debugLogger(user);
+//        //  debug(err);
+//        //  debug(user);
 //        //});
 //        //var user = new User({
 //        //  local : {
@@ -436,12 +436,12 @@ export class User {
 //        //});
 //
 //        //user.save((err) => {
-//        //  debugLogger(err);
+//        //  debug(err);
 //        //})
 //
 //      })
 //      .catch(err => {
-//        debugLogger(err);
+//        debug(err);
 //      })
 //  }
 //

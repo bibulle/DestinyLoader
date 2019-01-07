@@ -3,7 +3,7 @@ import { Router, Response, Request, NextFunction } from "express";
 const async = require('async');
 const https = require('https');
 
-const debug = require('debug')('server:debugLogger:routes:monitor');
+const debug = require('debug')('server:debug:routes:monitor');
 const error = require('debug')('server:error:routes:monitor');
 
 import { DestinyDb } from "../utils/destinyDb/destinyDb";
@@ -60,7 +60,7 @@ function monitorRouter (passport): Router {
               return response.status(401).send({status: 401, message: msg});
             }
 
-            // debugLogger(user);
+            // debug(user);
             async.waterfall([
                 // Read the configuration (choice of the user)
                 function (callback) {
@@ -391,7 +391,7 @@ function monitorRouter (passport): Router {
           debug("GET /login/callback");
 
 
-          //debugLogger(request.query.code);
+          //debug(request.query.code);
 
           if (!request.query || !request.query.code) {
             return response.redirect('/login');
@@ -414,29 +414,29 @@ function monitorRouter (passport): Router {
               method: 'POST'
             };
 
-            //debugLogger(JSON.stringify(options, null, 2));
-            //debugLogger(JSON.stringify(postData, null, 2));
+            //debug(JSON.stringify(options, null, 2));
+            //debug(JSON.stringify(postData, null, 2));
 
             const req = https.request(options, function (res) {
-              //debugLogger("statusCode: ", res.statusCode);
-              //debugLogger("headers: ", res.headers);
-              //debugLogger(res);
+              //debug("statusCode: ", res.statusCode);
+              //debug("headers: ", res.headers);
+              //debug(res);
 
               let content = '';
 
               res.on('data', function (d) {
-                //debugLogger("data");
-                //debugLogger(d.toString());
+                //debug("data");
+                //debug(d.toString());
                 content += d.toString();
               });
               res.on('end', function () {
-                //debugLogger('end');
-                //debugLogger(d);
+                //debug('end');
+                //debug(d);
 
                 let val;
 
                 try {
-                  //debugLogger('end : '+content);
+                  //debug('end : '+content);
                   val = JSON.parse(content);
                 } catch (e) {
                   error("Error in getting Bungie data : " + e + 'from ' + url);

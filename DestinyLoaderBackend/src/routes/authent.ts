@@ -5,7 +5,7 @@ import { Config } from "../utils/config/config";
 
 const https = require('https');
 
-let debug = require('debug')('server:routes:debugLogger:authent');
+let debug = require('debug')('server:routes:debug:authent');
 let error = require('debug')('server:routes:error:authent');
 
 function authentRouter (passport) {
@@ -48,7 +48,7 @@ function authentRouter (passport) {
                 }
 
                 // Create the user
-                //debugLogger(JSON.stringify(val, null, 2));
+                //debug(JSON.stringify(val, null, 2));
                 let user = {auth: auth_val};
 
                 // fill it
@@ -59,7 +59,7 @@ function authentRouter (passport) {
                   user['bungieNetUser'] = data.bungieNetUser;
 
                   request.session.user = user;
-                  // debugLogger(user);
+                  // debug(user);
 
                   debug("201 : token created(" + user['bungieNetUser']['displayName'] + ")");
                   return response.status(201).send({
@@ -82,21 +82,21 @@ export { authentRouter, refreshBungieToken };
 
 
 function getBungieToken (url, code, callback) {
-  // debugLogger("getBungieToken");
+  // debug("getBungieToken");
 
   let postData = "grant_type=authorization_code&code=" + code + "";
   return (_getBungieToken(url, postData, callback))
 }
 
 function refreshBungieToken (url, refresh_token, callback) {
-  // debugLogger("refreshBungieToken");
+  // debug("refreshBungieToken");
 
   let postData = "grant_type=refresh_token&refresh_token=" + refresh_token + "";
   return (_getBungieToken(url, postData, callback))
 }
 
 function _getBungieToken (url, postData, callback) {
-  // debugLogger("_getBungieToken");
+  // debug("_getBungieToken");
 
   // build the request
   let options = {
@@ -111,31 +111,31 @@ function _getBungieToken (url, postData, callback) {
     method: 'POST'
   };
 
-  //debugLogger(JSON.stringify(options, null, 2));
-  //debugLogger(JSON.stringify(postData, null, 2));
+  //debug(JSON.stringify(options, null, 2));
+  //debug(JSON.stringify(postData, null, 2));
 
   // Launch the request
   const req = https.request(options, function (res) {
-    //debugLogger("statusCode: ", res.statusCode);
-    //debugLogger("headers: ", res.headers);
-    //debugLogger(res);
+    //debug("statusCode: ", res.statusCode);
+    //debug("headers: ", res.headers);
+    //debug(res);
 
     let content = '';
 
     // get the result
     res.on('data', function (d) {
-      //debugLogger("data");
-      //debugLogger(d.toString());
+      //debug("data");
+      //debug(d.toString());
       content += d.toString();
     });
     res.on('end', function () {
-      //debugLogger('end');
-      //debugLogger(d);
+      //debug('end');
+      //debug(d);
 
       let val;
 
       try {
-        //debugLogger('end : '+content);
+        //debug('end : '+content);
         val = JSON.parse(content);
       } catch (e) {
         //error(content);

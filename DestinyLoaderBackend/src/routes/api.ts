@@ -1,7 +1,7 @@
 import { Router, Response, Request, NextFunction } from "express";
 
-const debug = require('debug')('server:debugLogger:routes:api');
-// const error = require('debugLogger')('server:error:routes:api');
+const debug = require('debug')('server:debug:routes:api');
+// const error = require('debug')('server:error:routes:api');
 
 import { DestinyDb } from "../utils/destinyDb/destinyDb";
 

@@ -1,7 +1,7 @@
 import { Config } from "../config/config";
 import { ObjectiveTime } from "../../models/objectiveTime";
 
-const debug = require('debug')('server:debugLogger:destinyDb');
+const debug = require('debug')('server:debug:destinyDb');
 const error = require('debug')('server:error:destinyDb');
 const DataStore = require('nedb');
 const async = require('async');
@@ -28,7 +28,7 @@ export class DestinyDb {
           DestinyDb._initDb(callback)
         },
         function (callback) {
-          // debugLogger("before the listStats");
+          // debug("before the listStats");
           DestinyDb.listStats(callback);
 
         }
@@ -44,14 +44,14 @@ export class DestinyDb {
   }
 
   private static _initDb (callback) {
-    // debugLogger("_initDb");
-    //debugLogger(this._db && this._colStats && this._colConfigurations);
+    // debug("_initDb");
+    //debug(this._db && this._colStats && this._colConfigurations);
 
     if (this._db && this._colStats && this._colConfigurations && this._colTimes) {
-      // debugLogger("_initDb nothing to do");
+      // debug("_initDb nothing to do");
       callback()
     } else {
-      //debugLogger("_initDb try to connect");
+      //debug("_initDb try to connect");
       this.MongoClient.connect(Config.mongoUrl + "/" + DestinyDb.DB_NAME, function (err, db) {
         DestinyDb._db = db;
         if (err) {
@@ -64,7 +64,7 @@ export class DestinyDb {
           db.listCollections().toArray(
             //db.listCollections()
             function (err, columnInfo) {
-              // debugLogger(err);
+              // debug(err);
               // debug(JSON.stringify(columnInfo, null, 2));
 
               const jobsToDo = [];
@@ -302,22 +302,22 @@ export class DestinyDb {
   };
 
   public static readConf (user, callback) {
-    //debugLogger("readConf ------ 1");
+    //debug("readConf ------ 1");
 
     const doc = {
       _id: user.bungieNetUser.displayName,
     };
     this._initDb(function (err) {
-      //debugLogger("readConf ------ 2");
+      //debug("readConf ------ 2");
       if (err) {
-        //debugLogger("readConf ------ 2.1");
+        //debug("readConf ------ 2.1");
         return callback(err);
       }
-      //debugLogger("readConf ------ 3");
+      //debug("readConf ------ 3");
       DestinyDb._colConfigurations.findOne(doc)
                .then(function (data) {
-                 //debugLogger("readConf ------ 4");
-                 //debugLogger(JSON.stringify(data, null, 2))
+                 //debug("readConf ------ 4");
+                 //debug(JSON.stringify(data, null, 2))
 
                  if (!data) {
                    data = {};
@@ -326,15 +326,15 @@ export class DestinyDb {
                  return callback(null, data);
                  //})
                  //.catch(function (err) {
-                 //  debugLogger("readConf ------ 5");
-                 //  debugLogger(JSON.stringify(err, null, 2))
+                 //  debug("readConf ------ 5");
+                 //  debug(JSON.stringify(err, null, 2))
                  //  return callback(err);
                });
     });
   };
 
   public static insertStats (data, callback) {
-    //debugLogger("insertStats");
+    //debug("insertStats");
     this._initDb(function (err) {
       if (err) {
         return callback(err);
@@ -351,7 +351,7 @@ export class DestinyDb {
   };
 
   public static listStats (callback) {
-    // debugLogger("listStats");
+    // debug("listStats");
     this._initDb(function (err) {
       if (err) {
         return callback(err);

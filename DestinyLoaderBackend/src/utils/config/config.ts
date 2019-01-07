@@ -1,6 +1,6 @@
 import * as path from "path";
 
-// const debugLogger = require('debugLogger')('server:debugLogger:config');
+// const debug = require('debug')('server:debug:config');
 const error = require('debug')('server:error:config');
 const fs = require('fs');
 
@@ -26,7 +26,7 @@ export class Config {
   private static node_env = process.env.NODE_ENV || 'development';
 
   static initialize () {
-    // debugLogger(Config.CLAN_MEMBER_LIST);
+    // debug(Config.CLAN_MEMBER_LIST);
 
     // Check the user env
     if (!fs.existsSync(__dirname + "/env-myown.json")) {

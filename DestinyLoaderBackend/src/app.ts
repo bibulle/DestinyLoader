@@ -11,7 +11,7 @@ const session = require('express-session');
 const MongoDBStore = require('connect-mongodb-session')(session);
 const flash = require('connect-flash');
 
-// const debug = require('debug')('server:debugLogger:app');
+// const debug = require('debug')('server:debug:app');
 const error = require('debug')('server:error:app');
 
 import { defaultRouter } from "./routes";

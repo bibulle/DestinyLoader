@@ -5,7 +5,7 @@ import { User } from "./models/user";
 const BearerStrategy = require('passport-http-bearer').Strategy;
 const BungieOAuth2Strategy = require('passport-bungie-oauth2').Strategy;
 
-const debug = require('debug')('server:debugLogger:config_passport');
+const debug = require('debug')('server:debug:config_passport');
 
 module.exports = function (passport) {
   debug('init');
@@ -18,10 +18,10 @@ module.exports = function (passport) {
 //      callbackURL: "https://lights.bibulle.fr/monitorStuff/login/callback"
 //    },
 //    function(accessToken, refreshToken, profile, cb) {
-//      debugLogger(accessToken);
-//      debugLogger(refreshToken);
-//      debugLogger(profile);
-//      debugLogger(cb);
+//      debug(accessToken);
+//      debug(refreshToken);
+//      debug(profile);
+//      debug(cb);
 //
 //      return cb(null, profile);
 //    }
@@ -32,7 +32,7 @@ module.exports = function (passport) {
 //  // =========================================================================
 //
 //  oAuth2Strategy.userProfile = function (accesstoken, done) {
-//    debugLogger('userProfile');
+//    debug('userProfile');
 //    // choose your own adventure, or use the Strategy's oauth client
 //    Destiny.getCurrentUser(accesstoken, done);
 //  };
@@ -48,12 +48,12 @@ module.exports = function (passport) {
       passReqToCallback: true
     },
     (request, payload, done) => {
-      // debugLogger("jwt-check ");
+      // debug("jwt-check ");
 
 
       User.checkToken(payload, function (err, decoded) {
         if (err) {
-          //debugLogger(err);
+          //debug(err);
           return done(err);
         }
         request.user = decoded;
