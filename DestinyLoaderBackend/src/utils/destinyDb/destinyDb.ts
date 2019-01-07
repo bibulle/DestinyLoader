@@ -9,7 +9,7 @@ const path = require('path');
 
 export class DestinyDb {
 
-  private static DB_NAME = 'destiny';
+  static DB_NAME = 'destiny';
   private static DB_COLL_NAME_STATS = 'stats1';
   private static DB_COLL_NAME_CONFIGURATIONS = 'confs';
   private static DB_COLL_NAME_TIMES = 'times';

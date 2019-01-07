@@ -8,17 +8,30 @@ const cors = require('cors');
 import * as path from "path";
 const passport = require('passport');
 const session = require('express-session');
+const MongoDBStore = require('connect-mongodb-session')(session);
 const flash = require('connect-flash');
 
 // const debug = require('debug')('server:debugLogger:app');
-// const error = require('debug')('server:error:app');
-
+const error = require('debug')('server:error:app');
 
 import { defaultRouter } from "./routes";
 import { apiRouter } from "./routes/api";
 import { api1Router } from "./routes/api1";
 import { monitorRouter } from "./routes/monitor";
 import { authentRouter } from "./routes/authent";
+
+import { Config } from "./utils/config/config";
+import { DestinyDb } from "./utils/destinyDb/destinyDb";
+
+// Init session data store
+let store = new MongoDBStore({
+  uri: Config.mongoUrl + "/" + DestinyDb.DB_NAME,
+  collection: 'mySessions'
+});
+// Catch errors
+store.on('error', function(error) {
+  error("Err : " + error);
+});
 
 //--------------
 // init webApp
@@ -34,6 +47,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(session({
   secret: 'myownsecret',
   cookie: { maxAge: 6000000 },
+  store: store,
   resave: false,
   saveUninitialized: false
 }));
