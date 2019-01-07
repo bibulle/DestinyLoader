@@ -32,24 +32,13 @@ function api1Router (passport): Router {
 
             if ((new Date().getTime() - dateCache.getTime()) > 1000 * 60 * 12) {
               error("Cache not loaded !! " + dateCache);
-              calcList(function (err, list) {
-                if (err) {
-                  response.send(err);
-                } else {
-                  //noinspection JSIgnoredPromiseFromCall
-                  let result = {
-                    data: list,
-                    refreshedToken: (user ? user.refreshedToken : null)
-                  };
-                  response.send(JSON.stringify(result, null, 2));
-                  debug("GET / done");
-                }
-              });
+              response.status(500).send("Error : Cache not loaded !! " + dateCache);
+              debug("GET / done");
             } else {
               //noinspection JSIgnoredPromiseFromCall
               let result = {
                 data: resultCache,
-                refreshedToken: user.refreshedToken
+                refreshedToken: (user ? user.refreshedToken : null)
               };
               response.send(JSON.stringify(result, null, 2));
               debug("GET / done");
