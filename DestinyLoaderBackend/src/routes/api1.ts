@@ -2,6 +2,7 @@ import { Router, Response, Request, NextFunction } from "express";
 
 const CronJob = require('cron').CronJob;
 const fs = require('fs');
+const async = require('async');
 
 const debug = require('debug')('server:debug:routes:api1');
 const error = require('debug')('server:error:routes:api1');
@@ -100,9 +101,11 @@ const calcList = _.throttle((callback) => {
         } catch (e) {
         }
         let previousRatio = [];
+        let listByKey = {};
         let list = docs
           .reduce(function (result, d) {
-            // debug(d);
+
+            //debug(d);
             let month = d.date.getMonth() + 1; //months from 1-12
             let day = d.date.getDate();
             let year = d.date.getFullYear();
@@ -120,6 +123,11 @@ const calcList = _.throttle((callback) => {
             }
 
             const key = d.id + "_" + year + "/" + month + "/" + day + '_' + hours + '_' + minutes;
+
+            if (!listByKey[key]) {
+              listByKey[key] = [];
+            }
+            listByKey[key].push(d);
 
             let lightMin = 0;
             if (year + "/" + month + "/" + day + '_' + hours + '_' + minutes != "2017/9/6_0_0") {
@@ -182,9 +190,64 @@ const calcList = _.throttle((callback) => {
               //console.log(previousRatio[d.id]+" "+key);
             }
             //debug(result);
+
             return result;
 
           }, {});
+
+        // Work on the cleanup
+        let toBeUpdate = [];
+        let toBeRemoved = [];
+        Object.keys((listByKey)).forEach(key => {
+          if (listByKey[key].length > 2) {
+            //debug(key+" -> "+listByKey[key][0].date);
+            listByKey[key].sort((d1, d2) => {
+              return d1.date.getTime()-d2.date.getTime();
+            });
+
+            listByKey[key].forEach((d, index) => {
+              if (index == 0) {
+                d.light = list[key].lightMin;
+                d.triumphScore = list[key].triumphScoreMin;
+
+                toBeUpdate.push(d);
+              } else if (index == listByKey[key].length - 1) {
+                d.light = list[key].lightMax;
+                d.triumphScore = list[key].triumphScore;
+
+                toBeUpdate.push(d);
+              } else {
+                toBeRemoved.push(d);
+              }
+            });
+          }
+        });
+        async.eachSeries(
+          toBeUpdate,
+          (d, callback) => {
+            //debug(d);
+            DestinyDb.insertStats(d, callback);
+          },
+          (err) => {
+            if (err) {
+              error(err);
+            }
+          }
+        );
+        async.eachSeries(
+          toBeRemoved,
+          (d, callback) => {
+            //debug(d);
+            DestinyDb.deleteStats(d._id, callback);
+          },
+          (err) => {
+            if (err) {
+              error(err);
+            }
+          }
+        );
+
+
 
         list = Object.keys(list).map(function (key) {
           //console.log(listStats[key]);

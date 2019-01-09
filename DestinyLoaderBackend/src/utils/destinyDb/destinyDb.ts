@@ -340,7 +340,7 @@ export class DestinyDb {
         return callback(err);
       }
       //console.log(data);
-      DestinyDb._colStats.insertOne(data)
+      DestinyDb._colStats.save(data)
                .then(function (data) {
                  callback(null, data);
                })
@@ -365,6 +365,30 @@ export class DestinyDb {
                  }
                  debug(docs.length + " documents");
                  callback(err, docs);
+               });
+    });
+  };
+
+  /**
+   * delete a stat
+   * @param id
+   * @param callback
+   */
+  public static deleteStats (id, callback) {
+    debug('deleteStats : '+id);
+    this._initDb(function (err) {
+      if (err) {
+        return callback(err);
+      }
+      //debug(doc);
+      DestinyDb._colStats.deleteOne({_id: id})
+               .then(function (data) {
+                 //debug(data);
+                 callback(null, data);
+               })
+               .catch(function (err) {
+                 console.log(err);
+                 callback(err);
                });
     });
   };
