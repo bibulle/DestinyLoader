@@ -124,11 +124,6 @@ const calcList = _.throttle((callback) => {
 
             const key = d.id + "_" + year + "/" + month + "/" + day + '_' + hours + '_' + minutes;
 
-            if (!listByKey[key]) {
-              listByKey[key] = [];
-            }
-            listByKey[key].push(d);
-
             let lightMin = 0;
             if (year + "/" + month + "/" + day + '_' + hours + '_' + minutes != "2017/9/6_0_0") {
               lightMin = d.light;
@@ -139,6 +134,12 @@ const calcList = _.throttle((callback) => {
             }
             //debug(d.userId);
             if ((d.date.getTime() > limitDate.getTime()) && (userList.indexOf(d.userId) >= 0) && (userCharMap[d.userId].indexOf(d.id) >= 0)) {
+
+              if (!listByKey[key]) {
+                listByKey[key] = [];
+              }
+              listByKey[key].push(d);
+
               if (!result[key]) {
                 result[key] = {};
                 result[key].lightMax = d.light;
