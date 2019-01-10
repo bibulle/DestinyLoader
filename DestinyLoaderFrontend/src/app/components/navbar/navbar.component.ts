@@ -115,4 +115,8 @@ export class NavbarComponent implements OnInit, OnDestroy {
     this._router.navigate(['']).catch();
   }
 
+  toggleLang (lang: string) {
+    this._headerService.changeLanguage(lang);
+  }
+
 }

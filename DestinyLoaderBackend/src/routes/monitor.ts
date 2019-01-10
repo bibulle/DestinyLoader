@@ -48,7 +48,10 @@ function monitorRouter (passport): Router {
         // route for getting monitorStuff data
         // ====================================
         .get((request: Request, response: Response, next: NextFunction) => {
-          debug("GET /api");
+          debug("GET /api "+request.query.lang);
+
+          //debug(request.query.lang);
+          let lang = request.query.lang;
 
           passport.authenticate('jwt-check', {session: false}, (err, user): any => {
             if (err) {
@@ -83,7 +86,7 @@ function monitorRouter (passport): Router {
                       //logger.info(JSON.stringify(messages, null, 2));
                       callback(null, messages, conf);
                     }
-                  })
+                  }, lang)
                 },
                 // Read the user Destiny stuff
                 function (messages, conf, callback) {
@@ -100,7 +103,7 @@ function monitorRouter (passport): Router {
                       });
                     }
 
-                  });
+                  }, lang);
                 },
                 // Add the times summed
                 function (data, conf, callback) {
@@ -575,12 +578,12 @@ const CONF_MODE = {
 };
 
 //noinspection JSUnusedLocalSymbols
-const BucketsToManaged = [
+/*const BucketsToManaged = [
   "Power Weapons", "Energy Weapons", "Kinetic Weapons",
   "Leg Armor", "Helmet", "Gauntlets", "Chest Armor", "Class Armor",
   "Pursuits"
   //"Ghost", "Vehicle", "Ships"
-];
+];*/
 
 const Tier = {
   Unknown: 0,

@@ -7,7 +7,7 @@ import {
   MatIconModule,
   MatListModule,
   MatSidenavModule,
-  MatSnackBarModule, MatCardModule, MatMenuModule, MatButtonModule, MatProgressSpinnerModule, MatCheckboxModule,
+  MatSnackBarModule, MatCardModule, MatMenuModule, MatButtonModule, MatProgressSpinnerModule, MatCheckboxModule, MatTooltipModule,
   // MatCardModule
 } from '@angular/material';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -36,7 +36,8 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
     MatSnackBarModule,
     MatCardModule,
     MatProgressSpinnerModule,
-    MatCheckboxModule
+    MatCheckboxModule,
+    MatTooltipModule
   ]
 })
 export class MaterialModule {

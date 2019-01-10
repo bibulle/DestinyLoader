@@ -27,6 +27,7 @@ export class Character {
     description: string;
     icon: string;
     rewards: {
+      itemHash: number;
       definition: {
         items: {
           itemName: string;
@@ -97,6 +98,7 @@ export class Reward {
   redeemed: boolean;
   earned: boolean;
   objectivesSize: number;
+  itemHash: number;
 
   static getMaxReward (rewards: Reward[]): Reward {
     rewards.sort(Reward.compareRewards);
@@ -133,40 +135,44 @@ export class Reward {
     }
 
     //noinspection SpellCheckingInspection
-    switch (r.name) {
-      case 'Powerful Gear':
+    switch (r.itemHash) {
+      case 4039143015: // Powerful Gear
+      case 326786556: // Powerful Gear
         return Reward.VALUE_POWER_GEAR;
-      case 'Luminous Engram':
-      case 'Legendary Gear':
-      case 'Black Armory Badge' :
+      case 2646629159: // Luminous Engram
+      case 2127149322: // Legendary Gear
+      case 1: // Black Armory Badge
+      case 4072589658: // Augmented Weapon
         return Reward.VALUE_LEGENDARY_GEAR;
-      case 'Enhancement Core':
-      case 'Dark Fragment':
-      case 'Transcendent Blessing':
+      case 3853748946: // Enhancement Core
+      case 1633854071: // Dark Fragment
+      case 3255036626: // Transcendent Blessing
+      case 214896340: // Black Armory Badge
         return Reward.VALUE_IMPORTANT_CONSUMABLE;
-      case 'Loaded Question':
-      case 'Nightshade':
+      case 580961571: // Loaded Question
+      case 792755504: // Nightshade
         return 5;
-      case 'Crucible Token':
-      case 'Clan XP':
-      case 'Infamy Rank Points':
-      case 'Vanguard Tactician Token':
-      case 'Nessus Rewards':
-      case 'Titan Rewards':
-      case 'Ballistics Log':
+      case 183980811: // Crucible Token
+      case 304443327: // Clan XP
+      case 372496383: // Infamy Rank Points
+      case 3899548068: // Vanguard Tactician Token
+      case 1: // Nessus Rewards
+      case 1: // Titan Rewards
+      case 2169340581: // Ballistics Log
         return 3;
-      case 'Legendary Shards':
+      case 1022552290: // Legendary Shards
         return 1;
-      case 'Baryon Bough':
-      case 'Alkane Dust':
-      case 'Dusklight Shard':
-      case 'Bright Dust':
-      case 'Phaseglass Needle':
-      case 'Microphasic Datalattice':
-      case 'Glimmer':
+      case 592227263: // Baryon Bough
+      case 2014411539: // Alkane Dust
+      case 950899352: // Dusklight Shard
+      case 2817410917: // Bright Dust
+      case 1305274547: // Phaseglass Needle
+      case 3487922223: // Microphasic Datalattice
+      case 3159615086: // Glimmer
         return 0;
       default:
-        console.log('reward "' + r.name + '" not found');
+        console.log('reward "' + r.itemHash + '" not found (' + r.name + ')');
+        // console.log(r);
         return 5;
     }
   }

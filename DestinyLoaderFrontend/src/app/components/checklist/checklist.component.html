@@ -11,10 +11,10 @@
         </mat-card-title>
       </div>
       <div class="tooltip" *ngIf="(i === checklist.characters.length - 1) && !config.showOnlyPowerfulGear"
-           (click)="toggleShowOnlyPowerfulGear()">Not only power gears
+           (click)="toggleShowOnlyPowerfulGear()">{{'power_gear_not_only'|translate}}
       </div>
       <div class="tooltip" *ngIf="(i === checklist.characters.length - 1) &&  config.showOnlyPowerfulGear"
-           (click)="toggleShowOnlyPowerfulGear()">Only power gears
+           (click)="toggleShowOnlyPowerfulGear()">{{'power_gear_only'|translate}}
       </div>
     </mat-card>
     <mat-card class="character-card character-card{{i}}">
@@ -27,10 +27,10 @@
         </mat-card-title>
       </div>
       <div class="tooltip" *ngIf="(i === checklist.characters.length - 1) && !config.showOnlyPowerfulGear"
-           (click)="toggleShowOnlyPowerfulGear()">Not only power gears
+           (click)="toggleShowOnlyPowerfulGear()">{{'power_gear_not_only'|translate}}
       </div>
       <div class="tooltip" *ngIf="(i === checklist.characters.length - 1) &&  config.showOnlyPowerfulGear"
-           (click)="toggleShowOnlyPowerfulGear()">Only power gears
+           (click)="toggleShowOnlyPowerfulGear()">{{'power_gear_only'|translate}}
       </div>
     </mat-card>
     <div *ngFor="let pursuit of character.pursuits">

@@ -7,7 +7,8 @@
       <a mat-button class="docs-navbar-hide-small docs-button" color="{{ link.selected ? 'primary' : 'none'}}"
          *ngFor="let link of linksLeft"
          routerLink="{{link.path}}">
-        <img class="nav-img" *ngIf="link.iconType=='img'" src="{{link.icon}}" alt="{{link.label|translate}}" title="{{link.label|translate}}">
+        <img class="nav-img" *ngIf="link.iconType=='img'" src="{{link.icon}}" alt="{{link.label|translate}}"
+             title="{{link.label|translate}}">
         <i class="fas {{link.icon}}" *ngIf="link.iconType=='fas'" title="{{link.label|translate}}"></i>
         <mat-icon svgIcon="{{link.icon}}" *ngIf="link.iconType=='svgIcon'" title="{{link.label|translate}}">></mat-icon>
         <span class="link-text">{{link.label|translate}}</span>
@@ -16,7 +17,8 @@
       <a mat-button class="docs-navbar-hide-small docs-button" color="{{ link.selected ? 'primary' : 'none'}}"
          *ngFor="let link of linksRight"
          routerLink="{{link.path}}">
-        <img class="nav-img" *ngIf="link.iconType=='img'" src="{{link.icon}}" alt="{{link.label|translate}}" title="{{link.label|translate}}">
+        <img class="nav-img" *ngIf="link.iconType=='img'" src="{{link.icon}}" alt="{{link.label|translate}}"
+             title="{{link.label|translate}}">
         <i class="fas {{link.icon}}" *ngIf="link.iconType=='fas'"></i>
         <mat-icon svgIcon="{{link.icon}}" *ngIf="link.iconType=='svgIcon'"></mat-icon>
         <span class="link-text">{{link.label|translate}}</span>
@@ -28,7 +30,8 @@
     <mat-spinner class="docs-navbar-hide-small reloading" diameter="20" *ngIf="reloading"></mat-spinner>
     <div class="docs-navbar-hide-small connected-user" *ngIf="user['bungieNetUser']">
       <img
-          src="{{'https://www.bungie.net'+user['bungieNetUser'].profilePicturePath}}" alt="{{user['bungieNetUser'].displayName}}"> {{user['bungieNetUser'].displayName}}
+          src="{{'https://www.bungie.net'+user['bungieNetUser'].profilePicturePath}}"
+          alt="{{user['bungieNetUser'].displayName}}"> {{user['bungieNetUser'].displayName}}
     </div>
 
     <button mat-icon-button [matMenuTriggerFor]="menu">
@@ -37,13 +40,22 @@
     <mat-menu #menu="matMenu">
       <button mat-menu-item (click)="toggleShowOnlyPowerfulGear()">
         <mat-icon>trending_up</mat-icon>
-        <span *ngIf="config.showOnlyPowerfulGear">Only power gears</span>
-        <span *ngIf="!config.showOnlyPowerfulGear">Not only power gears</span>
+        <span *ngIf="config.showOnlyPowerfulGear">{{'power_gear_only'|translate}}</span>
+        <span *ngIf="!config.showOnlyPowerfulGear">{{'power_gear_not_only'|translate}}</span>
       </button>
-      <button mat-menu-item *ngIf="user.bungieNetUser"  (click)="logout()">
+      <button mat-menu-item *ngIf="user.bungieNetUser" (click)="logout()">
         <mat-icon>lock_open</mat-icon>
-        <span>Logout</span>
+        <span>{{'logout'|translate}}</span>
       </button>
+      <button mat-menu-item *ngIf="config.language != 'fr'" (click)="toggleLang('fr')">
+        <mat-icon svgIcon="flag_fr"></mat-icon>
+        <span>{{'label.french' | translate}}</span>
+      </button>
+      <button mat-menu-item *ngIf="config.language != 'en'" (click)="toggleLang('en')">
+        <mat-icon svgIcon="flag_us"></mat-icon>
+        <span>{{'label.english' | translate}}</span>
+      </button>
+
     </mat-menu>
   </div>
 </div>

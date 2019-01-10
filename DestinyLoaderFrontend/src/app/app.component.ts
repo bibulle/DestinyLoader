@@ -15,11 +15,12 @@ export class AppComponent implements OnInit {
               private _domSanitizer: DomSanitizer) {
     this._translate.setDefaultLang('en');
 
-    this._translate.use(this._translate.getBrowserLang());
 
     this._matIconRegistry
-        .addSvgIcon('light', this._domSanitizer.bypassSecurityTrustResourceUrl('/assets/light.svg'))
-        .addSvgIcon('pvp', this._domSanitizer.bypassSecurityTrustResourceUrl('/assets/pvp.svg'));
+        .addSvgIcon('light', this._domSanitizer.bypassSecurityTrustResourceUrl('/assets/images/light.svg'))
+        .addSvgIcon('pvp', this._domSanitizer.bypassSecurityTrustResourceUrl('/assets/images/pvp.svg'))
+        .addSvgIcon('flag_fr', this._domSanitizer.bypassSecurityTrustResourceUrl('/assets/images/fr.svg'))
+        .addSvgIcon('flag_us', this._domSanitizer.bypassSecurityTrustResourceUrl('/assets/images/us.svg'));
 
 
   }

@@ -7,15 +7,23 @@ const fs = require('fs');
 export class Config {
   public static mongoUrl = "";
   public static dbPath = "";
+
+  private static defaultLanguage = 'en';
+  public static languages = ['en', 'fr'];
+
   public static crontab = "";
   public static crontabGrimoire = "";
+
   public static startingDate = "2017/10/17 00:00:00";
+
   public static clanId = 0;
   public static accountsClan = [];
   public static accountsGrimoire = [];
+
   public static destinyAPIKey = '';
   public static oAuthClientId = "";
   public static oAuthClientSecret = "";
+
   public static clanMembers = [];
 
   public static CLAN_MEMBER_LIST = path.resolve(__dirname+'/../../../data/clanMember.js');
@@ -51,6 +59,12 @@ export class Config {
 
   }
 
+  static getLang(lang: string):string {
+    if (this.languages.indexOf(lang) > -1) {
+      return lang;
+    }
+    return this.defaultLanguage
+  }
 
 }
 

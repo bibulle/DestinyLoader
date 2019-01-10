@@ -6,5 +6,10 @@
 	"title": "Bibulle's tools",
 	"class0": "Titan",
 	"class1": "Hunter",
-	"class2": "Warlock"
+	"class2": "Warlock",
+	"power_gear_only": "Only power gears",
+	"power_gear_not_only": "Not only power gears",
+	"logout": "Logout",
+	"label.french": "Changer pour le français",
+	"label.english": "Switch to english"
 }

@@ -1,4 +1,5 @@
 import { Config } from "../config/config";
+import { Database } from "sqlite3";
 
 const debug = require('debug')('server:debug:Destiny');
 const error = require('debug')('server:error:Destiny');
@@ -7,7 +8,6 @@ const request = require('request');
 const async = require('async');
 const fs = require('fs');
 const path = require('path');
-//noinspection TypeScriptValidateJSTypes
 const sqlite = require('sqlite3').verbose();
 const streamZip = require('node-stream-zip'); //use this
 
@@ -48,7 +48,7 @@ export class Destiny {
 
   private static pursuitsBucket;
 
-  private static manifestDb;
+  private static manifestDb: { [id: string]: Database } = {};
 
   //noinspection JSUnusedGlobalSymbols
   public static getAuthenticationCodeUrl (callback) {
@@ -142,7 +142,7 @@ export class Destiny {
 
   };
 
-  public static getLight (userId:string, isOnLine, callback) {
+  public static getLight (userId: string, isOnLine, callback) {
     //debug("getLight '" + userId + "'");
 
     // Get the Destiny player
@@ -564,7 +564,7 @@ export class Destiny {
 
   };
 
-  public static getUserStuff (user, callback) {
+  public static getUserStuff (user, callback, lang: string) {
     //debug("getUserStuff ");
 
     // Get the Destiny player
@@ -620,7 +620,7 @@ export class Destiny {
                     result.vendors[characterId] = data;
                   }
                   callback(err);
-                })
+                }, lang)
               },
               function (err) {
                 result.characters.sort(function (c1, c2) {
@@ -842,8 +842,9 @@ export class Destiny {
                                 rewardCategory.entries,
                                 function (reward, callback) {
                                   reward.rewardCategoryHash = rewardCategory.rewardCategoryHash;
+                                  reward.itemHash = reward.rewardEntryHash;
                                   milestone.rewards.push(reward);
-                                  //debug.warn(JSON.stringify(reward, null, 2));
+                                  // debug(JSON.stringify(reward, null, 2));
                                   callback();
                                 },
                                 function (err) {
@@ -855,6 +856,7 @@ export class Destiny {
                             });
                         },
                         function (callback) {
+                          //debug(milestone); // "536115997"
                           // Read the rewards from quests
                           if (milestone.data.milestoneHash) {
 
@@ -871,17 +873,18 @@ export class Destiny {
                                     Destiny.queryItemById(milestoneDef.quests[questItemHash].questRewards.items[0].itemHash, (err, data) => {
                                       milestoneDef.quests[questItemHash].questRewards.items[0].displayProperties = data.displayProperties;
                                       callback();
-                                    })
+                                    }, lang)
 
                                   },
                                   function (err) {
+                                    //debug(JSON.stringify(milestone.rewards, null, 2));
                                     callback(err);
                                   }
                                 )
                               } else {
                                 callback(err);
                               }
-                            })
+                            }, lang)
                           } else {
                             callback(err);
                           }
@@ -925,7 +928,7 @@ export class Destiny {
                       checklist.checklistName = "Unknown name";
                     }
                     callback(null);
-                  })
+                  }, lang)
                 } else {
                   error("Empty checklist definition");
                   //error(JSON.stringify(checklist.instanceId, null, 2));
@@ -991,7 +994,7 @@ export class Destiny {
                                         item.itemName = "Unknown name";
                                       }
                                       callback(null);
-                                    });
+                                    }, lang);
                                   },
                                   function (err) {
                                     callback(err);
@@ -1026,7 +1029,7 @@ export class Destiny {
                                     objective.itemName = "Unknown name";
                                   }
                                   callback(null);
-                                });
+                                }, lang);
                               },
                               function (err) {
                                 callback(err);
@@ -1045,7 +1048,7 @@ export class Destiny {
 
                         callback(err);
                       });
-                  })
+                  }, lang)
                 } else {
                   error("Empty milestone definition");
                   error(JSON.stringify(milestone.instanceId, null, 2));
@@ -1122,7 +1125,7 @@ export class Destiny {
                             item.itemName = "Unknown name";
                           }
                           callback(null, item);
-                        })
+                        }, lang)
                       } else {
                         error("Empty definition");
                         //error(JSON.stringify(item, null, 2));
@@ -1203,7 +1206,7 @@ export class Destiny {
                                   }
                                   return callback(null, item);
 
-                                });
+                                }, lang);
                               } else {
                                 return callback(null, item);
                               }
@@ -1242,7 +1245,7 @@ export class Destiny {
                             item.bucketName = item.bucketHash;
                           }
                           callback(null, item);
-                        })
+                        }, lang)
                       } else {
                         error("Empty bucket");
                         //error(JSON.stringify(item, null, 2));
@@ -1267,7 +1270,7 @@ export class Destiny {
                             item.bucketNameTarget = item.item.inventory.bucketTypeHash;
                           }
                           callback(null, item);
-                        })
+                        }, lang)
                       } else {
                         error("Empty bucket");
                         //error(JSON.stringify(item, null, 2));
@@ -1287,7 +1290,7 @@ export class Destiny {
                             Destiny.queryItemById(value.itemHash, function (err, itemValue) {
                               value.item = itemValue;
                               callback();
-                            })
+                            }, lang)
                           },
                           function (err) {
                             callback(err, item);
@@ -1318,7 +1321,7 @@ export class Destiny {
                             Destiny.queryObjectiveById(objective.objectiveHash, function (err, itemValue) {
                               objective.item = itemValue;
                               callback();
-                            })
+                            }, lang)
                           },
                           function (err) {
                             callback(err, item);
@@ -1359,6 +1362,7 @@ export class Destiny {
                       //}
                       try {
                         const newItem = {
+                          "bucket": item.bucket,
                           "bucketName": item.bucketName,
                           "bucketNameTarget": item.bucketNameTarget,
                           "itemInstanceId": (item.itemInstanceId ? item.itemInstanceId : null),
@@ -1433,14 +1437,14 @@ export class Destiny {
                   function (err, item) {
                     if (item) {
                       // We classify by bucketNameTarget and itemTypeDisplayName
-                      if (!result.items[item.bucketNameTarget]) {
-                        result.items[item.bucketNameTarget] = {};
+                      if (!result.items[item.bucket.hash]) {
+                        result.items[item.bucket.hash] = {};
                       }
-                      if (!result.items[item.bucketNameTarget][item.itemTypeDisplayName]) {
-                        result.items[item.bucketNameTarget][item.itemTypeDisplayName] = [];
+                      if (!result.items[item.bucket.hash][item.itemTypeDisplayName]) {
+                        result.items[item.bucket.hash][item.itemTypeDisplayName] = [];
                       }
                       //debug(item.bucketName+" : "+item.bucketNameTarget+" : "+item.name+" - "+item.itemTypeDisplayName);
-                      result.items[item.bucketNameTarget][item.itemTypeDisplayName].push(item);
+                      result.items[item.bucket.hash][item.itemTypeDisplayName].push(item);
                     }
 
                     async.setImmediate(function () {
@@ -1464,7 +1468,7 @@ export class Destiny {
 
   };
 
-  public static getVendors (user, characterId, callback) {
+  public static getVendors (user, characterId, callback, lang: string) {
     //debug("getVendors ");
 
     // Get the Destiny player
@@ -1516,7 +1520,7 @@ export class Destiny {
 
                   //debug(JSON.stringify(vendor, null, 2));
                   callback();
-                })
+                }, lang)
               },
               //get sales items
               function (callback) {
@@ -1564,14 +1568,15 @@ export class Destiny {
                                 hash: value.itemHash,
                                 quantity: value.quantity,
                                 name: "",
-                                item: {}
+                                item: {},
+                                itemHash: value.itemHash
                               };
                               sale.rewards.push(reward);
                               Destiny.queryItemById(value.itemHash, function (err, itemValue) {
                                 reward.name = itemValue.displayProperties.name;
                                 reward.item = itemValue;
                                 callback();
-                              })
+                              }, lang)
                             } else {
                               callback();
                             }
@@ -1583,7 +1588,7 @@ export class Destiny {
                       } else {
                         callback();
                       }
-                    });
+                    }, lang);
 
                   },
                   function (err) {
@@ -1750,11 +1755,11 @@ export class Destiny {
 
   };
 
-  public static initManifestDb (callback) {
+  public static initManifestDb (callback, lang: string) {
 
     //debug("initManifestDb");
 
-    if (Destiny.manifestDb) {
+    if (Destiny.manifestDb[lang]) {
       return callback();
     }
 
@@ -1769,13 +1774,15 @@ export class Destiny {
           return callback(err);
         }
         return callback();
-      });
+      }, lang);
 
-    })
+    }, lang)
 
   };
 
-  public static refreshManifestDb (callback) {
+  public static refreshManifestDb (callback, lang: string) {
+
+    lang = Config.getLang(lang);
 
     //debug("refreshManifestDb");
 
@@ -1785,15 +1792,15 @@ export class Destiny {
       if (err) {
         return callback(err)
       }
-      const contentPath = data.mobileWorldContentPaths.en;
+      const contentPath = data.mobileWorldContentPaths[lang];
 
-      let manifestPath = 'data/' + path.basename(contentPath);
+      let manifestPath = 'data/' + lang + '_' + path.basename(contentPath);
 
       if (fs.existsSync(manifestPath)) {
-        Destiny.manifestDb = new sqlite.Database(manifestPath);
+        Destiny.manifestDb[lang] = new sqlite.Database(manifestPath);
         return callback();
       }
-      debug(manifestPath);
+      // debug(manifestPath);
 
       let manifestZipPath = manifestPath + '_' + Math.ceil(Math.random() * 100000000) + '.zip';
       let manifestNewPath = manifestPath + '_' + Math.ceil(Math.random() * 100000000) + '.content';
@@ -1838,87 +1845,95 @@ export class Destiny {
 
                     // reset all the cache tables
                     Destiny.manifestDb = new sqlite.Database(manifestPath);
-                    Destiny.bucketHashCache = null;
-                    Destiny.bucketHashCacheByName = null;
-                    Destiny.itemHashCacheById = null;
-                    Destiny.itemHashCacheByName = null;
-                    Destiny.checklistHashCacheById = null;
-                    Destiny.milestoneHashCacheById = null;
-                    Destiny.objectiveHashCacheById = null;
-                    Destiny.vendorHashCacheById = null;
-                    Destiny.vendorHashCacheById = null;
-                    Destiny.vendorHashCacheById = null;
+                    Destiny.bucketHashCache = {};
+                    Destiny.bucketHashCacheByName = {};
+                    Destiny.itemHashCacheById = {};
+                    Destiny.itemHashCacheByName = {};
+                    Destiny.checklistHashCacheById = {};
+                    Destiny.milestoneHashCacheById = {};
+                    Destiny.objectiveHashCacheById = {};
+                    Destiny.vendorHashCacheById = {};
+                    Destiny.vendorHashCacheById = {};
+                    Destiny.vendorHashCacheById = {};
 
-                    async.waterfall([
-                        function (callback) {
-                          fs.unlink(manifestZipPath, callback)
-                        },
-                        function (callback) {
-                          // suppress old files
-                          fs.readdir('data', (err, files) => {
-                            files.forEach(file => {
-                              if (file.match(/^world_sql_content/)) {
-                                fs.stat('data/' + file, ((err, stats) => {
-                                  if (err) {
-                                    return error(err);
-                                  }
-                                  const age = (new Date().getTime()) - stats.atimeMs;
+                    async.eachSeries(
+                      Config.languages,
+                      (lang, callback) => {
+                        async.waterfall([
+                            function (callback) {
+                              fs.unlink(manifestZipPath, callback)
+                            },
+                            function (callback) {
+                              // suppress old files
+                              fs.readdir('data', (err, files) => {
+                                files.forEach(file => {
+                                  if (file.match(/world_sql_content/)) {
+                                    fs.stat('data/' + file, ((err, stats) => {
+                                      if (err) {
+                                        return error(err);
+                                      }
+                                      const age = (new Date().getTime()) - stats.atimeMs;
 
-                                  if (age > 2 * 60 * 60 * 1000) {
-                                    fs.unlink('data/' + file);
+                                      if (age > 2 * 60 * 60 * 1000) {
+                                        fs.unlink('data/' + file);
+                                      }
+                                    }))
                                   }
-                                }))
-                              }
-                            });
-                          });
-                          callback();
-                        },
-                        function (callback) {
-                          fs.unlink(manifestZipPath, callback)
-                        },
-                        function (callback) {
-                          Destiny.queryBucketById("", callback);
-                        },
-                        function (foo, callback) {
-                          Destiny.queryItemById("", callback);
-                        },
+                                });
+                              });
+                              callback();
+                            },
+                            function (callback) {
+                              fs.unlink(manifestZipPath, callback)
+                            },
+                            function (callback) {
+                              Destiny.queryBucketById("", callback, lang);
+                            },
+                            function (foo, callback) {
+                              Destiny.queryItemById("", callback, lang);
+                            },
 //    function (foo, callback) {
 //      Destiny.queryItemById("802464007", function(err, item) {
 //        console.log(item);
 //        callback(err, item);
-//      });
+//      }, lang);
 //    },
 //    function (foo, callback) {
 //      Destiny.queryBucket("2401704334", function(err, item) {
 //        console.log(item);
 //        callback(err, item);
-//      });
+//      }, lang);
 //    },
-                        function (foo, callback) {
-                          Destiny.queryItemByName("", callback);
-                        },
-                        function (foo, callback) {
-                          Destiny.queryBucketByName("Pursuits", function (err, bucket) {
-                            //console.log(bucket);
-                            Destiny.pursuitsBucket = bucket;
-                            callback(err, bucket);
-                          });
-                        },
-                        function (foo, callback) {
-                          Destiny.queryChecklistById("", callback);
-                        },
-                        function (foo, callback) {
-                          Destiny.queryMilestoneById("", callback);
-                        },
-                        function (foo, callback) {
-                          Destiny.queryVendorById("", callback);
-                        },
-                        function (foo, callback) {
-                          Destiny.queryObjectiveById("", callback);
-                        },
-                      ],
+                            function (foo, callback) {
+                              Destiny.queryItemByName("", callback, lang);
+                            },
+                            function (foo, callback) {
+                              Destiny.queryBucketByName("Pursuits", function (err, bucket) {
+                                //console.log(bucket);
+                                Destiny.pursuitsBucket = bucket;
+                                callback(err, bucket);
+                              }, lang);
+                            },
+                            function (foo, callback) {
+                              Destiny.queryChecklistById("", callback, lang);
+                            },
+                            function (foo, callback) {
+                              Destiny.queryMilestoneById("", callback, lang);
+                            },
+                            function (foo, callback) {
+                              Destiny.queryVendorById("", callback, lang);
+                            },
+                            function (foo, callback) {
+                              Destiny.queryObjectiveById("", callback, lang);
+                            },
+                          ],
 
-                      function (err) {
+                          function (err) {
+                            callback(err);
+
+                          }
+                        );
+                     }, (err) => {
                         if (err) {
                           error(err);
                           process.exit(-1);
@@ -1926,7 +1941,7 @@ export class Destiny {
                         callback(err);
 
                       }
-                    );
+                    )
 
                   })
               }
@@ -1940,7 +1955,7 @@ export class Destiny {
   };
 
 // get tables names
-  private static queryManifestTables (callback) {
+  private static queryManifestTables (callback, lang: string) {
 
     Destiny.initManifestDb((err) => {
       if (err) {
@@ -1949,10 +1964,10 @@ export class Destiny {
 
       const rows = [];
       try {
-        Destiny.manifestDb.serialize(function () {
+        Destiny.manifestDb[Config.getLang(lang)].serialize(function () {
 
           const query = 'SELECT name FROM sqlite_master WHERE type=\'table\'';
-          Destiny.manifestDb.each(query, function (err, row) {
+          Destiny.manifestDb[Config.getLang(lang)].each(query, function (err, row) {
             if (err) throw err;
 
             //console.log(row);
@@ -1965,59 +1980,60 @@ export class Destiny {
         callback(e);
       }
 
-    })
+    }, Config.getLang(lang))
 
   };
 
 // get bucket definition
-  private static queryBucketById (buckedHash, callback) {
-    if (!Destiny.bucketHashCache) {
-      Destiny.bucketHashCache = {};
+  private static queryBucketById (buckedHash, callback, lang: string) {
+    if (!Destiny.bucketHashCache[Config.getLang(lang)]) {
+      Destiny.bucketHashCache[Config.getLang(lang)] = {};
       try {
         Destiny.initManifestDb((err) => {
           if (err) {
             return callback(err);
           }
-          Destiny.manifestDb.serialize(function () {
+          Destiny.manifestDb[Config.getLang(lang)].serialize(function () {
             const query = "SELECT * FROM DestinyInventoryBucketDefinition";
-            Destiny.manifestDb.each(query, function (err, row) {
+            Destiny.manifestDb[Config.getLang(lang)].each(query, function (err, row) {
               if (err) throw err;
 
               //debug(JSON.stringify(row, null, 2));
               const data = JSON.parse(row.json);
               //debug(JSON.stringify(data, null, 2));
-              Destiny.bucketHashCache[data.hash] = data;
+              Destiny.bucketHashCache[Config.getLang(lang)][data.hash] = data;
             }, function (err, cpt) {
               debug(cpt + " bucket definitions read");
               //debug(JSON.stringify(bucketHashCache, null, 2));
-              callback(null, Destiny.bucketHashCache[buckedHash]);
+              callback(null, Destiny.bucketHashCache[Config.getLang(lang)][buckedHash]);
             });
           });
-        });
+        }, Config.getLang(lang));
 
       } catch (e) {
         callback(e);
       }
 
     } else {
-      callback(null, Destiny.bucketHashCache[buckedHash]);
+      callback(null, Destiny.bucketHashCache[Config.getLang(lang)][buckedHash]);
     }
 
   };
 
-  private static bucketHashCache;
+  private static bucketHashCache: { [lang: string]: object } = {};
+
 // get bucket definition
-  private static queryBucketByName = function (bucketName, callback) {
-    if (!Destiny.bucketHashCacheByName) {
+  private static queryBucketByName = function (bucketName, callback, lang: string) {
+    if (!Destiny.bucketHashCacheByName[Config.getLang(lang)]) {
       const bucketHashCacheByNameTmp = {};
       try {
         Destiny.initManifestDb((err) => {
           if (err) {
             return callback(err);
           }
-          Destiny.manifestDb.serialize(function () {
+          Destiny.manifestDb[Config.getLang(lang)].serialize(function () {
             const query = "SELECT * FROM DestinyInventoryBucketDefinition";
-            Destiny.manifestDb.each(query, function (err, row) {
+            Destiny.manifestDb[Config.getLang(lang)].each(query, function (err, row) {
               if (err) throw err;
 
               //debug(JSON.stringify(row, null, 2));
@@ -2026,49 +2042,49 @@ export class Destiny {
               bucketHashCacheByNameTmp[data.displayProperties.name] = data;
             }, function (err, cpt) {
               debug(cpt + " bucket definitions read");
-              Destiny.bucketHashCacheByName = bucketHashCacheByNameTmp;
+              Destiny.bucketHashCacheByName[Config.getLang(lang)] = bucketHashCacheByNameTmp;
               //debug(JSON.stringify(bucketHashCache, null, 2));
-              callback(null, Destiny.bucketHashCacheByName[bucketName]);
+              callback(null, Destiny.bucketHashCacheByName[Config.getLang(lang)][bucketName]);
             });
           });
-        });
+        }, Config.getLang(lang));
 
       } catch (e) {
         callback(e);
       }
 
     } else {
-      callback(null, Destiny.bucketHashCacheByName[bucketName]);
+      callback(null, Destiny.bucketHashCacheByName[Config.getLang(lang)][bucketName]);
     }
 
   };
-  private static bucketHashCacheByName;
+  private static bucketHashCacheByName: { [lang: string]: object } = {};
 
 // get item definition
-  private static queryItemById (itemHash, callback) {
-    if (!Destiny.itemHashCacheById) {
-      Destiny.itemHashCacheById = {};
+  private static queryItemById (itemHash, callback, lang: string) {
+    if (!Destiny.itemHashCacheById[Config.getLang(lang)]) {
+      Destiny.itemHashCacheById[Config.getLang(lang)] = {};
       try {
         Destiny.initManifestDb((err) => {
           if (err) {
             return callback(err);
           }
-          Destiny.manifestDb.serialize(function () {
+          Destiny.manifestDb[Config.getLang(lang)].serialize(function () {
             const query = "SELECT * FROM DestinyInventoryItemDefinition";
-            Destiny.manifestDb.each(query, function (err, row) {
+            Destiny.manifestDb[Config.getLang(lang)].each(query, function (err, row) {
               if (err) throw err;
 
               //debug(JSON.stringify(row, null, 2));
               const data = JSON.parse(row.json);
               //debug(JSON.stringify(data, null, 2));
-              Destiny.itemHashCacheById[data.hash] = data;
+              Destiny.itemHashCacheById[Config.getLang(lang)][data.hash] = data;
             }, function (err, cpt) {
               debug(cpt + " item definitions read");
               //debug(JSON.stringify(itemHashCacheById, null, 2));
-              callback(null, Destiny.itemHashCacheById[itemHash]);
+              callback(null, Destiny.itemHashCacheById[Config.getLang(lang)][itemHash]);
             });
           });
-        });
+        }, Config.getLang(lang));
 
       } catch (e) {
         callback(e);
@@ -2077,24 +2093,24 @@ export class Destiny {
     } else {
       //debug(JSON.stringify(itemHash, null, 2));
       //debug(JSON.stringify(itemHashCacheById[itemHash], null, 2));
-      callback(null, Destiny.itemHashCacheById[itemHash]);
+      callback(null, Destiny.itemHashCacheById[Config.getLang(lang)][itemHash]);
     }
 
   };
 
-  private static itemHashCacheById;
+  private static itemHashCacheById: { [lang: string]: object } = {};
 
-  private static queryItemByName (itemName, callback) {
-    if (!Destiny.itemHashCacheByName) {
+  private static queryItemByName (itemName, callback, lang: string) {
+    if (!Destiny.itemHashCacheByName[Config.getLang(lang)]) {
       const itemHashCacheByNameTmp = {};
       try {
         Destiny.initManifestDb((err) => {
           if (err) {
             return callback(err);
           }
-          Destiny.manifestDb.serialize(function () {
+          Destiny.manifestDb[Config.getLang(lang)].serialize(function () {
             const query = "SELECT * FROM DestinyInventoryItemDefinition";
-            Destiny.manifestDb.each(query, function (err, row) {
+            Destiny.manifestDb[Config.getLang(lang)].each(query, function (err, row) {
               if (err) throw err;
 
               //debug(JSON.stringify(row, null, 2));
@@ -2103,180 +2119,180 @@ export class Destiny {
               itemHashCacheByNameTmp[data.displayProperties.name] = data;
             }, function (err, cpt) {
               debug(cpt + " item definitions read");
-              Destiny.itemHashCacheByName = itemHashCacheByNameTmp;
+              Destiny.itemHashCacheByName[Config.getLang(lang)] = itemHashCacheByNameTmp;
               //debug(JSON.stringify(itemHashCache, null, 2));
-              callback(null, Destiny.itemHashCacheByName[itemName]);
+              callback(null, Destiny.itemHashCacheByName[Config.getLang(lang)][itemName]);
             });
           });
-        });
+        }, Config.getLang(lang));
 
       } catch (e) {
         callback(e);
       }
 
     } else {
-      callback(null, Destiny.itemHashCacheByName[itemName]);
+      callback(null, Destiny.itemHashCacheByName[Config.getLang(lang)][itemName]);
     }
 
   };
 
-  private static itemHashCacheByName;
+  private static itemHashCacheByName: { [lang: string]: object } = {};
 
 // get checklist definition
-  private static queryChecklistById (checklistHash, callback) {
-    if (!Destiny.checklistHashCacheById) {
-      Destiny.checklistHashCacheById = {};
+  private static queryChecklistById (checklistHash, callback, lang: string) {
+    if (!Destiny.checklistHashCacheById[Config.getLang(lang)]) {
+      Destiny.checklistHashCacheById[Config.getLang(lang)] = {};
       try {
         Destiny.initManifestDb((err) => {
           if (err) {
             return callback(err);
           }
-          Destiny.manifestDb.serialize(function () {
+          Destiny.manifestDb[Config.getLang(lang)].serialize(function () {
             const query = "SELECT * FROM DestinyChecklistDefinition";
-            Destiny.manifestDb.each(query, function (err, row) {
+            Destiny.manifestDb[Config.getLang(lang)].each(query, function (err, row) {
               if (err) throw err;
 
               //debug(JSON.stringify(row, null, 2));
               const data = JSON.parse(row.json);
               //debug(JSON.stringify(data, null, 2));
-              Destiny.checklistHashCacheById[data.hash] = data;
+              Destiny.checklistHashCacheById[Config.getLang(lang)][data.hash] = data;
             }, function (err, cpt) {
               debug(cpt + " checklist definitions read");
               //debug(JSON.stringify(checklistHash, null, 2));
-              callback(null, Destiny.checklistHashCacheById[checklistHash]);
+              callback(null, Destiny.checklistHashCacheById[Config.getLang(lang)][checklistHash]);
             });
           });
-        });
+        }, Config.getLang(lang));
 
       } catch (e) {
         callback(e);
       }
 
     } else {
-      callback(null, Destiny.checklistHashCacheById[checklistHash]);
+      callback(null, Destiny.checklistHashCacheById[Config.getLang(lang)][checklistHash]);
     }
 
   };
 
-  private static checklistHashCacheById;
+  private static checklistHashCacheById: { [lang: string]: object } = {};
 
 // get milestone definition
-  private static queryMilestoneById (milestoneHash, callback) {
-    if (!Destiny.milestoneHashCacheById) {
-      Destiny.milestoneHashCacheById = {};
+  private static queryMilestoneById (milestoneHash, callback, lang: string) {
+    if (!Destiny.milestoneHashCacheById[Config.getLang(lang)]) {
+      Destiny.milestoneHashCacheById[Config.getLang(lang)] = {};
       try {
         Destiny.initManifestDb((err) => {
           if (err) {
             return callback(err);
           }
-          Destiny.manifestDb.serialize(function () {
+          Destiny.manifestDb[Config.getLang(lang)].serialize(function () {
             const query = "SELECT * FROM DestinyMilestoneDefinition";
-            Destiny.manifestDb.each(query, function (err, row) {
+            Destiny.manifestDb[Config.getLang(lang)].each(query, function (err, row) {
               if (err) throw err;
 
               //debug(JSON.stringify(row, null, 2));
               const data = JSON.parse(row.json);
               //debug(JSON.stringify(data, null, 2));
-              Destiny.milestoneHashCacheById[data.hash] = data;
+              Destiny.milestoneHashCacheById[Config.getLang(lang)][data.hash] = data;
             }, function (err, cpt) {
               debug(cpt + " milestone definitions read");
               //debug(JSON.stringify(milestoneHash, null, 2));
-              callback(null, Destiny.milestoneHashCacheById[milestoneHash]);
+              callback(null, Destiny.milestoneHashCacheById[Config.getLang(lang)][milestoneHash]);
             });
           });
-        });
+        }, Config.getLang(lang));
 
       } catch (e) {
         callback(e);
       }
 
     } else {
-      callback(null, Destiny.milestoneHashCacheById[milestoneHash]);
+      callback(null, Destiny.milestoneHashCacheById[Config.getLang(lang)][milestoneHash]);
     }
 
   };
 
-  private static milestoneHashCacheById;
+  private static milestoneHashCacheById: { [lang: string]: object } = {};
 
 // get objective definition
   //noinspection JSUnusedLocalSymbols
-  private static queryObjectiveById (objectiveHash, callback) {
-    if (!Destiny.objectiveHashCacheById) {
-      Destiny.objectiveHashCacheById = {};
+  private static queryObjectiveById (objectiveHash, callback, lang: string) {
+    if (!Destiny.objectiveHashCacheById[Config.getLang(lang)]) {
+      Destiny.objectiveHashCacheById[Config.getLang(lang)] = {};
       try {
         Destiny.initManifestDb((err) => {
           if (err) {
             return callback(err);
           }
-          Destiny.manifestDb.serialize(function () {
+          Destiny.manifestDb[Config.getLang(lang)].serialize(function () {
             const query = "SELECT * FROM DestinyObjectiveDefinition";
-            Destiny.manifestDb.each(query, function (err, row) {
+            Destiny.manifestDb[Config.getLang(lang)].each(query, function (err, row) {
               if (err) throw err;
 
               //debug(JSON.stringify(row, null, 2));
               const data = JSON.parse(row.json);
               //debug(JSON.stringify(data, null, 2));
-              Destiny.objectiveHashCacheById[data.hash] = data;
+              Destiny.objectiveHashCacheById[Config.getLang(lang)][data.hash] = data;
             }, function (err, cpt) {
               debug(cpt + " objective definitions read");
               //debug(JSON.stringify(objectiveHash, null, 2));
-              callback(null, Destiny.objectiveHashCacheById[objectiveHash]);
+              callback(null, Destiny.objectiveHashCacheById[Config.getLang(lang)][objectiveHash]);
             });
           });
-        });
+        }, Config.getLang(lang));
 
       } catch (e) {
         callback(e);
       }
 
     } else {
-      callback(null, Destiny.objectiveHashCacheById[objectiveHash]);
+      callback(null, Destiny.objectiveHashCacheById[Config.getLang(lang)][objectiveHash]);
     }
 
   };
 
-  private static objectiveHashCacheById;
+  private static objectiveHashCacheById: { [lang: string]: object } = {};
 
 // get vendor definition
-  private static queryVendorById (vendorHash, callback) {
-    if (!Destiny.vendorHashCacheById) {
-      Destiny.vendorHashCacheById = {};
+  private static queryVendorById (vendorHash, callback, lang: string) {
+    if (!Destiny.vendorHashCacheById[Config.getLang(lang)]) {
+      Destiny.vendorHashCacheById[Config.getLang(lang)] = {};
       try {
         Destiny.initManifestDb((err) => {
           if (err) {
             return callback(err);
           }
-          Destiny.manifestDb.serialize(function () {
+          Destiny.manifestDb[Config.getLang(lang)].serialize(function () {
             const query = "SELECT * FROM DestinyVendorDefinition";
-            Destiny.manifestDb.each(query, function (err, row) {
+            Destiny.manifestDb[Config.getLang(lang)].each(query, function (err, row) {
               if (err) throw err;
 
               //debug(JSON.stringify(row, null, 2));
               const data = JSON.parse(row.json);
               //debug(JSON.stringify(data, null, 2));
-              Destiny.vendorHashCacheById[data.hash] = data;
+              Destiny.vendorHashCacheById[Config.getLang(lang)][data.hash] = data;
             }, function (err, cpt) {
               debug(cpt + " vendor definitions read");
               //debug(JSON.stringify(vendorHash, null, 2));
-              callback(null, Destiny.vendorHashCacheById[vendorHash]);
+              callback(null, Destiny.vendorHashCacheById[Config.getLang(lang)][vendorHash]);
             });
           });
-        });
+        }, Config.getLang(lang));
 
       } catch (e) {
         callback(e);
       }
 
     } else {
-      callback(null, Destiny.vendorHashCacheById[vendorHash]);
+      callback(null, Destiny.vendorHashCacheById[Config.getLang(lang)][vendorHash]);
     }
 
   };
 
-  private static vendorHashCacheById;
+  private static vendorHashCacheById: { [lang: string]: object } = {};
 
   //noinspection JSUnusedLocalSymbols
-  public static checkConf (conf, callback) {
+  public static checkConf (conf, callback, lang: string) {
     const messages = [];
 
     //debug(JSON.stringify(conf, null, 2));
@@ -2290,7 +2306,7 @@ export class Destiny {
           }
 
           callback(err);
-        });
+        }, lang);
       },
       function (err) {
         callback(err, messages);
@@ -2472,13 +2488,20 @@ export class Destiny {
 
 
 function refresh () {
-  Destiny.refreshManifestDb((err) => {
-    if (err) {
-      error(err);
+  async.eachSeries(
+    Config.languages,
+    (lang, callback) => {
+      Destiny.refreshManifestDb(callback, lang);
+    },
+    (err) => {
+      if (err) {
+        error(err);
+      }
+      setTimeout(refresh,
+        (60 + Math.random() * 60) * 1000);
+
     }
-    setTimeout(refresh,
-      (60 + Math.random() * 60) * 1000);
-  });
+  )
 
 }
 

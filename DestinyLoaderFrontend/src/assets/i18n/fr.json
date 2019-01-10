@@ -6,5 +6,10 @@
 	"title": "Bibulle's tools",
 	"class0": "Titan",
 	"class1": "Chasseur",
-	"class2": "Arcaniste"
+	"class2": "Arcaniste",
+	"power_gear_only": "Seulement équip. puissant",
+	"power_gear_not_only": "Pas seulement équip. puissant",
+	"logout": "Déconnexion",
+	"label.french": "Changer pour le français",
+	"label.english": "Switch to english"
 }

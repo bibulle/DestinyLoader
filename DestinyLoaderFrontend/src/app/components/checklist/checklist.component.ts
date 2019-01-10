@@ -27,6 +27,8 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
                private elRef: ElementRef) {
   }
 
+  private static PURSUIT_HASH = '1345459588';
+
   ngOnInit () {
 
 
@@ -35,7 +37,7 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
 
         checklist = checklist as Checklist;
         // If we have things to show
-        if (checklist && checklist.items && checklist.items.Pursuits && checklist.characters && checklist.times && checklist.currentTimes) {
+        if (checklist && checklist.items && checklist.items[ChecklistComponent.PURSUIT_HASH] && checklist.characters && checklist.times && checklist.currentTimes) {
 
           // create by user and by objective objective time array
           const currentTimeObjective: { [characterId: string]: { [objectiId: string]: ObjectiveTime } } = {};
@@ -64,9 +66,9 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
             char.pursuits = [];
 
             // foreach pursuit type
-            Object.keys(checklist.items.Pursuits).forEach(key => {
+            Object.keys(checklist.items[ChecklistComponent.PURSUIT_HASH]).forEach(key => {
               // foreach pursuit, add to the character pursuits
-              checklist.items.Pursuits[key].forEach(pursuit => {
+              checklist.items[ChecklistComponent.PURSUIT_HASH][key].forEach(pursuit => {
                 if (pursuit.characterId === char.characterId) {
                   char.pursuits.push(pursuit);
                 }
@@ -108,7 +110,8 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
                     identifierIcon: reward.definition.displayProperties.icon,
                     redeemed: reward.redeemed,
                     earned: reward.earned,
-                    objectivesSize: milestone.objectives.length
+                    objectivesSize: milestone.objectives.length,
+                    itemHash: reward.itemHash
                   };
                   newMilestone.rewards.push(newReward);
                 } else {
@@ -120,7 +123,8 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
                     identifierIcon: null,
                     redeemed: false,
                     earned: false,
-                    objectivesSize: milestone.objectives.length
+                    objectivesSize: milestone.objectives.length,
+                    itemHash: reward.itemHash
                   };
                   newMilestone.rewards.push(newReward);
                 }

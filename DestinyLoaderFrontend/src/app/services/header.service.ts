@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { Observable } from 'rxjs/Observable';
 import { Config } from '../models/config';
+import { TranslateService } from '@ngx-translate/core';
 
 @Injectable({
   providedIn: 'root'
@@ -17,12 +18,18 @@ export class HeaderService {
   private static KEY_CONFIG_LOCAL_STORAGE = 'config';
 
 
-  constructor () {
+  constructor (private _translate: TranslateService) {
 
     this.reloadingSubject = new BehaviorSubject<boolean>(false);
 
 
     this.config = HeaderService.loadConfigFromLocalStorage();
+    if (!this.config.language) {
+      this.config.language = this._translate.getBrowserLang();
+    }
+    // console.log(this.config.language);
+    this._translate.use(this.config.language);
+
     this.configSubject = new BehaviorSubject<Config>(this.config);
 
   }
@@ -53,7 +60,7 @@ export class HeaderService {
 // tslint:disable-next-line:member-ordering
   static loadConfigFromLocalStorage (): Config {
     try {
-      const ret = JSON.parse(localStorage.getItem(HeaderService.KEY_CONFIG_LOCAL_STORAGE));
+      const ret: Config = JSON.parse(localStorage.getItem(HeaderService.KEY_CONFIG_LOCAL_STORAGE));
       if (ret) {
         return ret;
       } else {
@@ -69,6 +76,17 @@ export class HeaderService {
     this.configSubject.next(this.config);
     HeaderService.saveConfigFromLocalStorage(this.config);
   }
+
+  changeLanguage(language: string) {
+    this.config.language = language;
+
+    // console.log(this.config.language);
+    this._translate.use(this.config.language);
+
+    this.configSubject.next(this.config);
+    HeaderService.saveConfigFromLocalStorage(this.config);
+  }
+
 
 
 }

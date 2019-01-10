@@ -24,6 +24,8 @@ export class ChecklistService {
   private checklistUrl = environment.serverUrl + 'monitorstuff/api';
   private runningUrl = environment.serverUrl + 'monitorstuff/running';
 
+  private language = '';
+
   constructor (private httpClient: HttpClient,
                private _userService: UserService,
                private _headerService: HeaderService,
@@ -35,6 +37,24 @@ export class ChecklistService {
       this.currentChecklistSubject = new BehaviorSubject<Checklist>(new Checklist());
     }
 
+    this._headerService.configObservable().subscribe(
+      rel => {
+        // console.log(this.language + ' ' + rel.language);
+        if (this.language !== rel.language) {
+          this.language = rel.language;
+
+          this._loadChecklistFromBungie()
+              .then(checklist => {
+                // console.log('currentChecklistSubject.next ' + checklist.length);
+                ChecklistService._saveChecklistFromLocalStorage(checklist);
+                this.currentChecklistSubject.next(checklist);
+              })
+              .catch((reason) => {
+                console.log(reason);
+                this._notificationService.error(reason);
+              });
+        }
+      });
   }
 
   /**
@@ -87,7 +107,10 @@ export class ChecklistService {
    */
   startLoadingChecklist () {
     if (!ChecklistService._refreshIsRunning) {
-      this._refreshChecklist(this);
+      setTimeout(() => {
+          this._refreshChecklist(this);
+        }
+        , ChecklistService.REFRESH_EVERY);
     }
   }
 
@@ -99,7 +122,7 @@ export class ChecklistService {
 
     this._headerService.startReloading();
     return new Promise<Checklist>((resolve, reject) => {
-      this.httpClient.get(this.checklistUrl)
+      this.httpClient.get(this.checklistUrl + '?lang=' + this.language)
       // .map((res: Response) => res.json().data as Book[])
           .subscribe(
             (data: Object) => {
@@ -151,6 +174,7 @@ export class ChecklistService {
           );
     }));
   }
+
   stopObjective (objective: Objective, characterId: string, pursuitId: string): Promise<Objective> {
     return new Promise<Objective>(((resolve, reject) => {
       this.httpClient.post(this.runningUrl, {
