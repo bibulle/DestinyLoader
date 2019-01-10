@@ -1,5 +1,6 @@
 import { Config } from "../config/config";
 import { ObjectiveTime } from "../../models/objectiveTime";
+import { Stat } from "../../models/stat";
 
 const debug = require('debug')('server:debug:destinyDb');
 const error = require('debug')('server:error:destinyDb');
@@ -333,7 +334,7 @@ export class DestinyDb {
     });
   };
 
-  public static insertStats (data, callback) {
+  public static insertStats (data: Stat, callback) {
     //debug("insertStats");
     this._initDb(function (err) {
       if (err) {
@@ -359,7 +360,7 @@ export class DestinyDb {
       //_db.collection("stats").find({}).toArray().sort({date: 1, name: 1}).exec(callback);
       DestinyDb._colStats.find({"date": {$gte: new Date("2018-04-01T00:00:00.000Z")}})
                .sort({date: 1, name: 1})
-               .toArray(function (err, docs) {
+               .toArray(function (err, docs:Stat[]) {
                  if (err) {
                    return callback(err);
                  }
@@ -375,7 +376,7 @@ export class DestinyDb {
    * @param callback
    */
   public static deleteStats (id, callback) {
-    debug('deleteStats : '+id);
+    //debug('deleteStats : '+id);
     this._initDb(function (err) {
       if (err) {
         return callback(err);

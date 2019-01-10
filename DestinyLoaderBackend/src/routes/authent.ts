@@ -5,10 +5,10 @@ import { Config } from "../utils/config/config";
 
 const https = require('https');
 
-let debug = require('debug')('server:routes:debug:authent');
-let error = require('debug')('server:routes:error:authent');
+let debug = require('debug')('server:routes:debug:authentication');
+let error = require('debug')('server:routes:error:authentication');
 
-function authentRouter (passport) {
+function authenticationRouter (passport) {
   const router: Router = Router();
 
   router.route('/bungie')
@@ -78,7 +78,7 @@ function authentRouter (passport) {
   return router;
 }
 
-export { authentRouter, refreshBungieToken };
+export { authenticationRouter, refreshBungieToken };
 
 
 function getBungieToken (url, code, callback) {
@@ -104,7 +104,7 @@ function _getBungieToken (url, postData, callback) {
     port: 443,
     path: url,
     headers: {
-      'Authorization': 'Basic ' + new Buffer(Config.oAuthClientId + ":" + Config.oAuthClientSecret).toString('base64'),
+      'Authorization': 'Basic ' + Buffer.from(Config.oAuthClientId + ":" + Config.oAuthClientSecret).toString('base64'),
       'Content-Type': 'application/x-www-form-urlencoded',
       'Content-Length': postData.length
     },

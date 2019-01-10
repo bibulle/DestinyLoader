@@ -407,7 +407,7 @@ function monitorRouter (passport): Router {
               port: 443,
               path: url,
               headers: {
-                'Authorization': 'Basic ' + new Buffer(Config.oAuthClientId + ":" + Config.oAuthClientSecret).toString('base64'),
+                'Authorization': 'Basic ' + Buffer.from(Config.oAuthClientId + ":" + Config.oAuthClientSecret).toString('base64'),
                 'Content-Type': 'application/x-www-form-urlencoded',
                 'Content-Length': postData.length
               },

@@ -10,10 +10,11 @@ const error = require('debug')('server:error:routes:api1');
 import { DestinyDb } from "../utils/destinyDb/destinyDb";
 import { Config } from "../utils/config/config";
 
-let resultCache = null;
+let resultCache: StatSummed[] = null;
 let dateCache = new Date(2000, 1, 1);
 
 import * as _ from "lodash";
+import { Stat, StatSummed } from "../models/stat";
 
 //noinspection JSUnusedLocalSymbols
 function api1Router (passport): Router {
@@ -85,7 +86,7 @@ const calcList = _.throttle((callback) => {
 
 
     // debug("calcList");
-    DestinyDb.listStats(function (err, docs) {
+    DestinyDb.listStats(function (err, docs:Stat[]) {
       if (err) {
         if (callback) {
           callback(err);
@@ -102,8 +103,8 @@ const calcList = _.throttle((callback) => {
         }
         let previousRatio = [];
         let listByKey = {};
-        let list = docs
-          .reduce(function (result, d) {
+        let list: { [id: string]: StatSummed } = docs
+          .reduce(function (result: { [id: string]: StatSummed } , d:Stat) {
 
             //debug(d);
             let month = d.date.getMonth() + 1; //months from 1-12
@@ -141,7 +142,7 @@ const calcList = _.throttle((callback) => {
               listByKey[key].push(d);
 
               if (!result[key]) {
-                result[key] = {};
+                result[key] = new StatSummed();
                 result[key].lightMax = d.light;
                 result[key].lightMin = lightMin;
                 result[key].name = d.name;
@@ -203,7 +204,7 @@ const calcList = _.throttle((callback) => {
           if (listByKey[key].length > 2) {
             //debug(key+" -> "+listByKey[key][0].date);
             listByKey[key].sort((d1, d2) => {
-              return d1.date.getTime()-d2.date.getTime();
+              return d1.date.getTime() - d2.date.getTime();
             });
 
             listByKey[key].forEach((d, index) => {
@@ -238,7 +239,7 @@ const calcList = _.throttle((callback) => {
         async.eachSeries(
           toBeRemoved,
           (d, callback) => {
-            //debug(d);
+            debug('delete stats : ' + d.name + ' ' + d.date.toISOString().replace(/T/, ' ').replace(/\..+/, ''));
             DestinyDb.deleteStats(d._id, callback);
           },
           (err) => {
@@ -249,17 +250,16 @@ const calcList = _.throttle((callback) => {
         );
 
 
-
-        list = Object.keys(list).map(function (key) {
+        let listOutput: StatSummed[] = Object.keys(list).map(function (key) {
           //console.log(listStats[key]);
           return list[key];
         });
 
-        resultCache = list;
+        resultCache = listOutput;
         dateCache = new Date();
 
         if (callback) {
-          callback(null, list);
+          callback(null, listOutput);
         }
       }
     });

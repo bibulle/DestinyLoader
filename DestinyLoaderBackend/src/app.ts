@@ -12,13 +12,13 @@ const MongoDBStore = require('connect-mongodb-session')(session);
 const flash = require('connect-flash');
 
 // const debug = require('debug')('server:debug:app');
-const error = require('debug')('server:error:app');
+// const error = require('debug')('server:error:app');
 
 import { defaultRouter } from "./routes";
 import { apiRouter } from "./routes/api";
 import { api1Router } from "./routes/api1";
 import { monitorRouter } from "./routes/monitor";
-import { authentRouter } from "./routes/authent";
+import { authenticationRouter } from "./routes/authent";
 
 import { Config } from "./utils/config/config";
 import { DestinyDb } from "./utils/destinyDb/destinyDb";
@@ -98,7 +98,7 @@ app.use('/', defaultRouter(passport));
 app.use('/api',  apiRouter(passport));
 app.use('/api1',  api1Router(passport));
 app.use("/monitorStuff", monitorRouter(passport));
-app.use("/authent", authentRouter(passport));
+app.use("/authent", authenticationRouter(passport));
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
