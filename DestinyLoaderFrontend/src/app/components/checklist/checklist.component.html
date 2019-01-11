@@ -5,7 +5,7 @@
       <div>
         <mat-card-title
             [style.background-image]="'url(https://www.bungie.net'+character.emblemBackgroundPath+')'">
-          <div class="type">{{'class' + character.classType|translate}}<span class="light">{{character.light}}</span>
+          <div class="type">{{character.genderedClassNames}}<span class="race">{{character.genderedRaceNames}}</span><span class="light">{{character.light}}</span>
           </div>
 
         </mat-card-title>
@@ -21,7 +21,7 @@
       <div>
         <mat-card-title
             [style.background-image]="'url(https://www.bungie.net'+character.emblemBackgroundPath+')'">
-          <div class="type">{{'class' + character.classType|translate}}<span class="light">{{character.light}}</span>
+          <div class="type">{{character.genderedClassNames}}<span class="race">{{character.genderedRaceNames}}</span><span class="light">{{character.light}}</span>
           </div>
 
         </mat-card-title>
@@ -90,26 +90,3 @@
   </div>
 
 </div>
-
-<!--baseCharacterLevel: 50-->
-<!--characterId: "2305843009262856643"-->
-<!--checklists: (3) [{…}, {…}, {…}]-->
-<!--classHash: 3655393761-->
-<!--classType: 0-->
-<!--dateLastPlayed: "2018-12-09T22:11:34Z"-->
-<!--emblemBackgroundPath: "/common/destiny2_content/icons/fc8a4349dc04777c474ec140c7b66d9e.jpg"-->
-<!--emblemColor: {red: 5, green: 4, blue: 5, alpha: 255}-->
-<!--emblemHash: 4085986809-->
-<!--emblemPath: "/common/destiny2_content/icons/9d59645b596c0adf3e164c90a41c4702.jpg"-->
-<!--genderHash: 3111576190-->
-<!--genderType: 0-->
-<!--levelProgression: {progressionHash: 1716568313, dailyProgress: 0, dailyLimit: 0, weeklyProgress: 0, weeklyLimit: 0, …}-->
-<!--light: 612-->
-<!--membershipId: "4611686018447976074"-->
-<!--membershipType: 2-->
-<!--milestones: (10) [{…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}]-->
-<!--minutesPlayedThisSession: "63"-->
-<!--minutesPlayedTotal: "37796"-->
-<!--percentToNextLevel: 0-->
-<!--raceHash: 2803282938-->
-<!--raceType: 1-->

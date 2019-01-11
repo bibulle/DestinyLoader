@@ -45,6 +45,12 @@ export class Destiny {
   //private static MANIFEST_CONTENT = 'data/manifest.content';
   //private static MANIFEST_CONTENT_NEW = 'data/manifest_new.content';
 
+  private static genderType = {
+    0: "Male",
+    1: "Female",
+    2: "Unknown"
+  };
+
 
   private static pursuitsBucket;
 
@@ -614,13 +620,7 @@ export class Destiny {
               Object.keys(data.characters.data),
               function (characterId, callback) {
                 result.characters.push(data.characters.data[characterId]);
-                // add vendors to character
-                Destiny.getVendors(user, characterId, function (err, data) {
-                  if (data) {
-                    result.vendors[characterId] = data;
-                  }
-                  callback(err);
-                }, lang)
+                callback();
               },
               function (err) {
                 result.characters.sort(function (c1, c2) {
@@ -636,6 +636,59 @@ export class Destiny {
                 callback(err);
               }
             );
+          },
+
+          // complete characters
+          function (callback) {
+            async.eachSeries(
+              result.characters,
+              function (character, callback) {
+                async.series(
+                  [
+                    // complete classes
+                    (callback) => {
+                      Destiny.queryClassById(character.classHash, (err, data) => {
+                        if (data) {
+                          //debug(JSON.stringify(data, null, 2));
+                          character.genderedClassNames = data.genderedClassNames[Destiny.genderType[character.genderType]];
+                        }
+                        callback(err);
+                      }, lang);
+
+                    },
+                    // complete race
+                    (callback) => {
+                      Destiny.queryRaceById(character.raceHash, (err, data) => {
+                        if (data) {
+                          //debug(JSON.stringify(data, null, 2));
+                          character.genderedRaceNames = data.genderedRaceNames[Destiny.genderType[character.genderType]];
+                        }
+                        callback(err);
+                      }, lang);
+
+                    },
+                    // add vendors to character
+                    (callback) => {
+                      Destiny.getVendors(user, character.characterId, function (err, data) {
+                        if (data) {
+                          result.vendors[character.characterId] = data;
+                        }
+                        callback(err);
+                      }, lang)
+
+                    }
+                  ],
+                  function (err) {
+                    callback(err);
+                  }
+                );
+
+              },
+              function (err) {
+                callback(err);
+              }
+            );
+
           },
 
           // read the item instance
@@ -1853,8 +1906,8 @@ export class Destiny {
                     Destiny.milestoneHashCacheById = {};
                     Destiny.objectiveHashCacheById = {};
                     Destiny.vendorHashCacheById = {};
-                    Destiny.vendorHashCacheById = {};
-                    Destiny.vendorHashCacheById = {};
+                    Destiny.classHashCacheById = {};
+                    Destiny.raceHashCacheById = {};
 
                     async.eachSeries(
                       Config.languages,
@@ -1924,6 +1977,12 @@ export class Destiny {
                               Destiny.queryVendorById("", callback, lang);
                             },
                             function (foo, callback) {
+                              Destiny.queryClassById("", callback, lang);
+                            },
+                            function (foo, callback) {
+                              Destiny.queryRaceById("", callback, lang);
+                            },
+                            function (foo, callback) {
                               Destiny.queryObjectiveById("", callback, lang);
                             },
                           ],
@@ -1933,7 +1992,7 @@ export class Destiny {
 
                           }
                         );
-                     }, (err) => {
+                      }, (err) => {
                         if (err) {
                           error(err);
                           process.exit(-1);
@@ -2290,6 +2349,82 @@ export class Destiny {
   };
 
   private static vendorHashCacheById: { [lang: string]: object } = {};
+
+  // get class definition
+  private static queryClassById (classHash, callback, lang: string) {
+    if (!Destiny.classHashCacheById[Config.getLang(lang)]) {
+      Destiny.classHashCacheById[Config.getLang(lang)] = {};
+      try {
+        Destiny.initManifestDb((err) => {
+          if (err) {
+            return callback(err);
+          }
+          Destiny.manifestDb[Config.getLang(lang)].serialize(function () {
+            const query = "SELECT * FROM DestinyClassDefinition";
+            Destiny.manifestDb[Config.getLang(lang)].each(query, function (err, row) {
+              if (err) throw err;
+
+              //debug(JSON.stringify(row, null, 2));
+              const data = JSON.parse(row.json);
+              //debug(JSON.stringify(data, null, 2));
+              Destiny.classHashCacheById[Config.getLang(lang)][data.hash] = data;
+            }, function (err, cpt) {
+              debug(cpt + " class definitions read");
+              //debug(JSON.stringify(classHash, null, 2));
+              callback(null, Destiny.classHashCacheById[Config.getLang(lang)][classHash]);
+            });
+          });
+        }, Config.getLang(lang));
+
+      } catch (e) {
+        callback(e);
+      }
+
+    } else {
+      callback(null, Destiny.classHashCacheById[Config.getLang(lang)][classHash]);
+    }
+
+  };
+
+  private static classHashCacheById: { [lang: string]: object } = {};
+
+  // get race definition
+  private static queryRaceById (raceHash, callback, lang: string) {
+    if (!Destiny.raceHashCacheById[Config.getLang(lang)]) {
+      Destiny.raceHashCacheById[Config.getLang(lang)] = {};
+      try {
+        Destiny.initManifestDb((err) => {
+          if (err) {
+            return callback(err);
+          }
+          Destiny.manifestDb[Config.getLang(lang)].serialize(function () {
+            const query = "SELECT * FROM DestinyRaceDefinition";
+            Destiny.manifestDb[Config.getLang(lang)].each(query, function (err, row) {
+              if (err) throw err;
+
+              //debug(JSON.stringify(row, null, 2));
+              const data = JSON.parse(row.json);
+              //debug(JSON.stringify(data, null, 2));
+              Destiny.raceHashCacheById[Config.getLang(lang)][data.hash] = data;
+            }, function (err, cpt) {
+              debug(cpt + " race definitions read");
+              //debug(JSON.stringify(raceHash, null, 2));
+              callback(null, Destiny.raceHashCacheById[Config.getLang(lang)][raceHash]);
+            });
+          });
+        }, Config.getLang(lang));
+
+      } catch (e) {
+        callback(e);
+      }
+
+    } else {
+      callback(null, Destiny.raceHashCacheById[Config.getLang(lang)][raceHash]);
+    }
+
+  };
+
+  private static raceHashCacheById: { [lang: string]: object } = {};
 
   //noinspection JSUnusedLocalSymbols
   public static checkConf (conf, callback, lang: string) {

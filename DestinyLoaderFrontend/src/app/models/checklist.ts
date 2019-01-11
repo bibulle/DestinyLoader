@@ -18,6 +18,8 @@ export class Character {
   checklists: Object[];
   //noinspection JSUnusedGlobalSymbols
   classType: number;
+  genderedClassNames: string;
+  genderedRaceNames: string;
   //noinspection JSUnusedGlobalSymbols
   emblemBackgroundPath: string;
   dateLastPlayed: string;
