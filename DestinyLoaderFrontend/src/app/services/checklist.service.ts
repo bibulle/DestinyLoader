@@ -43,16 +43,19 @@ export class ChecklistService {
         if (this.language !== rel.language) {
           this.language = rel.language;
 
-          this._loadChecklistFromBungie()
-              .then(checklist => {
-                // console.log('currentChecklistSubject.next ' + checklist.length);
-                ChecklistService._saveChecklistFromLocalStorage(checklist);
-                this.currentChecklistSubject.next(checklist);
-              })
-              .catch((reason) => {
-                console.log(reason);
-                this._notificationService.error(reason);
-              });
+          if (this._userService.isAuthent()) {
+            this._loadChecklistFromBungie()
+                .then(checklist => {
+                  // console.log('currentChecklistSubject.next ' + checklist.length);
+                  ChecklistService._saveChecklistFromLocalStorage(checklist);
+                  this.currentChecklistSubject.next(checklist);
+                })
+                .catch((reason) => {
+                  console.log(reason);
+                  this._notificationService.error(reason);
+                });
+          }
+
         }
       });
   }
