@@ -41,6 +41,7 @@
           <div class="pursuit-text">
             <span class="pursuit-itemType" *ngIf="!pursuit.icon">{{pursuit.itemTypeDisplayName}} : </span>
             {{pursuit.name}}
+            <div class="pursuit-description" *ngIf="pursuit.itemTypeDisplayName == 'Vendor'">{{pursuit.saleDescription}} {{'can_be_purchased' | translate}} {{pursuit.vendorName}}</div>
             <div class="pursuit-description">{{pursuit.description}}</div>
             <div class="pursuit-expiration"
                  *ngIf="pursuit.expirationDate">{{pursuit.expirationDate | timeExpiration }}</div>

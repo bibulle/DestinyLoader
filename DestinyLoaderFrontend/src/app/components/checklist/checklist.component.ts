@@ -2,7 +2,7 @@
 import { AfterViewChecked, Component, ElementRef, HostListener, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { Subscription } from 'rxjs/Subscription';
 import { ChecklistService } from '../../services/checklist.service';
-import { Character, Checklist, Milestone, Objective, ObjectiveTime, Pursuit, Reward } from '../../models/checklist';
+import { Character, Checklist, Objective, ObjectiveTime, Pursuit, Reward } from '../../models/checklist';
 import { Config } from '../../models/config';
 import { HeaderService } from '../../services/header.service';
 
@@ -87,7 +87,7 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
               }
 
               // else create the object
-              const newMilestone: Milestone = {
+              const newMilestone: Pursuit = {
                 itemInstanceId: milestone.instanceId,
                 itemTypeDisplayName: 'Milestone',
                 description: milestone.description,
@@ -96,7 +96,9 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
                 expirationDate: undefined,
                 rewards: [],
                 maxRewardLevel: -2,
-                objectives: []
+                objectives: [],
+                vendorName: undefined,
+                saleDescription: undefined,
               };
 
               // add well formed rewards
@@ -162,8 +164,8 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
                 }
 
                 if (currentTimeObjective[char.characterId] &&
-                    currentTimeObjective[char.characterId][objective.objectiveHash] &&
-                    currentTimeObjective[char.characterId][objective.objectiveHash].pursuitId === pursuit.itemInstanceId) {
+                  currentTimeObjective[char.characterId][objective.objectiveHash] &&
+                  currentTimeObjective[char.characterId][objective.objectiveHash].pursuitId === pursuit.itemInstanceId) {
                   objective.runningTimeObjective = currentTimeObjective[char.characterId][objective.objectiveHash];
                   objective.runningTimeObjective.timeStart = new Date(objective.runningTimeObjective.timeStart);
                   objective.runningTimeObjective.timeRunning = (new Date().getTime() - objective.runningTimeObjective.timeStart.getTime());
@@ -171,6 +173,75 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
                 }
               });
             });
+
+            // add purchasable bounties
+            Object.keys(checklist.vendors).forEach(
+              key => {
+                if (key === char.characterId) {
+                  checklist.vendors[key].forEach(
+                    vendor => {
+                      if (vendor.enabled) {
+                        vendor.sales.forEach(
+                          sale => {
+                            // if there is rewards and it's purchasable
+                            if ((sale.rewards.length !== 0) && (sale.saleStatus < 3)) {
+                              // console.log(key + ' ' + vendor.name + ' : ' + sale.name + ' (' + sale.itemTypeDisplayName + ')');
+                              const newSale: Pursuit = {
+                                itemInstanceId: '-1',
+                                itemTypeDisplayName: 'Vendor',
+                                description: sale.displaySource,
+                                vendorName: vendor.name,
+                                saleDescription: sale.itemTypeDisplayName,
+                                name: sale.name,
+                                icon: sale.icon,
+                                expirationDate: undefined,
+                                rewards: [],
+                                maxRewardLevel: -2,
+                                objectives: []
+                              };
+
+                              // add  rewards
+                              sale.rewards.forEach(reward => {
+                                const newReward: Reward = {
+                                    name: reward.item.displayProperties.name,
+                                    icon: reward.item.displayProperties.icon,
+                                    quantity: reward.quantity,
+                                    identifier: '',
+                                    identifierIcon: null,
+                                    redeemed: false,
+                                    earned: false,
+                                    objectivesSize: sale.objectives.length,
+                                    itemHash: reward.itemHash
+                                  };
+                                  newSale.rewards.push(newReward);
+
+                              });
+
+                              // add well formed objectives
+                              sale.objectives.forEach(objective => {
+                                const newObjective: Objective = {
+                                    objectiveHash: objective.objectiveHash,
+                                    completionValue: objective.completionValue,
+                                    complete: objective.complete,
+                                    progress: objective.progress,
+                                    item: objective.item,
+                                    timeTillFinished: Number.MAX_SAFE_INTEGER
+                                  }
+                                ;
+                                newSale.objectives.push(newObjective);
+                              });
+
+                              char.pursuits.push(newSale);
+
+                            }
+                          }
+                        );
+                      }
+                    }
+                  );
+                }
+              }
+            );
 
             // sort pursuit
             char.pursuits.sort((p1, p2) => {

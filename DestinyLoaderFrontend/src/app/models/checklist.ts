@@ -6,6 +6,9 @@ export class Checklist {
   characters: Character[];
   times: { [id: string]: ObjectiveTimeSummed };
   currentTimes: ObjectiveTime[];
+  vendors: {
+
+  };
 
 
 }
@@ -75,20 +78,8 @@ export class Pursuit {
   rewards: Reward[];
   maxRewardLevel: number;
   objectives: Objective[];
-
-
-}
-
-export class Milestone {
-  itemInstanceId: string;
-  itemTypeDisplayName: string;
-  name: string;
-  description: string;
-  icon: string;
-  expirationDate: string;
-  rewards: Reward[];
-  maxRewardLevel: number;
-  objectives: Objective[];
+  vendorName: string;
+  saleDescription: string;
 }
 
 export class Reward {
@@ -153,6 +144,7 @@ export class Reward {
         return Reward.VALUE_IMPORTANT_CONSUMABLE;
       case 580961571: // Loaded Question
       case 792755504: // Nightshade
+      case 324382200: // Breakneck
         return 5;
       case 183980811: // Crucible Token
       case 304443327: // Clan XP
@@ -167,10 +159,14 @@ export class Reward {
       case 592227263: // Baryon Bough
       case 2014411539: // Alkane Dust
       case 950899352: // Dusklight Shard
+      case 31293053: // Seraphide
       case 2817410917: // Bright Dust
       case 1305274547: // Phaseglass Needle
       case 3487922223: // Microphasic Datalattice
+      case 353785467: // Prismatic Facet
+      case 3085039018: // Glimmer
       case 3159615086: // Glimmer
+      case 49145143: // Simulation Seed
         return 0;
       default:
         console.log('reward "' + r.itemHash + '" not found (' + r.name + ')');

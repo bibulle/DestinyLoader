@@ -1588,9 +1588,11 @@ export class Destiny {
                       quantity: 0,
                       saleStatus: 0,
                       rewards: [],
+                      objectives: [],
                       name: "",
                       itemTypeDisplayName: "",
-                      displaySource: ""
+                      displaySource: "",
+                      icon: ""
                     };
                     vendor.sales.push(sale);
 
@@ -1599,48 +1601,91 @@ export class Destiny {
                     sale.quantity = saleItem.quantity;
                     sale.saleStatus = saleItem.saleStatus;
 
-                    //if (sale.hash == '1781061075') {
-                    //debug(JSON.stringify(saleItem, null, 2));
+                    //if (sale.hash == 1438932723) {
+                      //debug(JSON.stringify(saleItem, null, 2));
                     //}
 
                     Destiny.queryItemById(sale.hash, function (err, soldItem) {
-                      //if (sale.hash == '1781061075') {
-                      //debug(JSON.stringify(soldItem, null, 2));
+                      //if (sale.hash == 1438932723) {
+                        //debug(JSON.stringify(soldItem, null, 2));
                       //}
 
                       sale.name = soldItem.displayProperties.name;
+                      sale.icon = soldItem.displayProperties.icon;
                       sale.itemTypeDisplayName = soldItem.itemTypeDisplayName;
                       sale.displaySource = soldItem.displaySource;
 
-                      if (soldItem.value && soldItem.value.itemValue) {
-                        async.eachSeries(
-                          soldItem.value.itemValue,
-                          function (value, callback) {
-                            if (value.itemHash != 0) {
-                              const reward = {
-                                hash: value.itemHash,
-                                quantity: value.quantity,
-                                name: "",
-                                item: {},
-                                itemHash: value.itemHash
-                              };
-                              sale.rewards.push(reward);
-                              Destiny.queryItemById(value.itemHash, function (err, itemValue) {
-                                reward.name = itemValue.displayProperties.name;
-                                reward.item = itemValue;
-                                callback();
-                              }, lang)
+                      async.series(
+                        [
+                          // add rewards
+                          (callback) => {
+                            if (soldItem.value && soldItem.value.itemValue) {
+                              async.eachSeries(
+                                soldItem.value.itemValue,
+                                function (value, callback) {
+                                  if (value.itemHash != 0) {
+                                    const reward = {
+                                      hash: value.itemHash,
+                                      quantity: value.quantity,
+                                      name: "",
+                                      item: {},
+                                      itemHash: value.itemHash
+                                    };
+                                    sale.rewards.push(reward);
+                                    Destiny.queryItemById(value.itemHash, function (err, itemValue) {
+                                      reward.name = itemValue.displayProperties.name;
+                                      reward.item = itemValue;
+                                      callback();
+                                    }, lang)
+                                  } else {
+                                    callback();
+                                  }
+                                },
+                                function (err) {
+                                  callback(err);
+                                }
+                              );
                             } else {
                               callback();
                             }
                           },
-                          function (err) {
-                            callback(err);
+                          // add objectives
+                          (callback) => {
+                            if (soldItem.objectives && soldItem.objectives.objectiveHashes) {
+                              async.eachSeries(
+                                soldItem.objectives.objectiveHashes,
+                                function (objectiveHash, callback) {
+                                  const objective = {
+                                    complete: false,
+                                    completionValue: 0,
+                                    item: {},
+                                    objectiveHash: objectiveHash,
+                                    progress: 0,
+                                    timeTillFinished: 0,
+                                    visible: true,
+                                  };
+                                  sale.objectives.push(objective);
+                                  //debug(soldItem.displayProperties.name+" "+objectiveHash);
+                                  Destiny.queryObjectiveById(objectiveHash, function (err, item) {
+                                    objective.completionValue = item.completionValue;
+                                    objective.item = item;
+
+                                    //debug(item);
+                                    callback();
+                                  }, lang)
+                                },
+                                function (err) {
+                                  callback(err);
+                                })
+                            } else {
+                              callback();
+                            }
                           }
-                        );
-                      } else {
-                        callback();
-                      }
+                        ],
+                        (err) => {
+                          callback(err);
+                        }
+                      )
                     }, lang);
 
                   },
