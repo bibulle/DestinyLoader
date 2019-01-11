@@ -5,7 +5,8 @@
       <div>
         <mat-card-title
             [style.background-image]="'url(https://www.bungie.net'+character.emblemBackgroundPath+')'">
-          <div class="type">{{character.genderedClassNames}}<span class="race">{{character.genderedRaceNames}}</span><span class="light">{{character.light}}</span>
+          <div class="type">{{character.genderedClassNames}}<span
+              class="race">{{character.genderedRaceNames}}</span><span class="light">{{character.light}}</span>
           </div>
 
         </mat-card-title>
@@ -21,7 +22,8 @@
       <div>
         <mat-card-title
             [style.background-image]="'url(https://www.bungie.net'+character.emblemBackgroundPath+')'">
-          <div class="type">{{character.genderedClassNames}}<span class="race">{{character.genderedRaceNames}}</span><span class="light">{{character.light}}</span>
+          <div class="type">{{character.genderedClassNames}}<span
+              class="race">{{character.genderedRaceNames}}</span><span class="light">{{character.light}}</span>
           </div>
 
         </mat-card-title>
@@ -41,10 +43,12 @@
           <div class="pursuit-text">
             <span class="pursuit-itemType" *ngIf="!pursuit.icon">{{pursuit.itemTypeDisplayName}} : </span>
             {{pursuit.name}}
-            <div class="pursuit-description" *ngIf="pursuit.itemTypeDisplayName == 'Vendor'">{{pursuit.saleDescription}} {{'can_be_purchased' | translate}} {{pursuit.vendorName}}</div>
             <div class="pursuit-description">{{pursuit.description}}</div>
             <div class="pursuit-expiration"
                  *ngIf="pursuit.expirationDate">{{pursuit.expirationDate | timeExpiration }}</div>
+            <div class="pursuit-expiration"
+                 *ngIf="pursuit.itemTypeDisplayName == 'Vendor'">{{'available_bounty' | translate }}
+              : {{pursuit.vendorName}}</div>
           </div>
         </mat-card-title>
         <mat-card-subtitle class="reward" *ngFor="let reward of pursuit.rewards">
@@ -73,17 +77,19 @@
             </span>
               <span class="objective-progress">{{objective.progress}}/{{objective.completionValue}}</span>
             </mat-checkbox>
-            <div class="objective-running"
-                 *ngIf="objective.runningTimeObjective && !objective.runningTimeObjective.finished"
-                 (click)="stopObjectiveTime(objective, character.characterId, pursuit.itemInstanceId)">
-              <mat-icon>stop</mat-icon>
-              <span>{{objective.runningTimeObjective.timeRunning | timeExpiration}}</span>
-            </div>
-            <div class="objective-running"
-                 *ngIf="!objective.runningTimeObjective || objective.runningTimeObjective.finished"
-                 (click)="launchObjectiveTime(objective, character.characterId, pursuit.itemInstanceId)">
-              <mat-icon>play_arrow</mat-icon>
-            </div>
+              <div class="objective-running"
+                   *ngIf="(pursuit.itemTypeDisplayName != 'Vendor') && (objective.runningTimeObjective && !objective.runningTimeObjective.finished)"
+                   (click)="stopObjectiveTime(objective, character.characterId, pursuit.itemInstanceId)">
+                <mat-icon>stop</mat-icon>
+                <span>{{objective.runningTimeObjective.timeRunning | timeExpiration}}</span>
+              </div>
+              <div class="objective-running"
+                   *ngIf="(pursuit.itemTypeDisplayName != 'Vendor') && (!objective.runningTimeObjective || objective.runningTimeObjective.finished)"
+                   (click)="launchObjectiveTime(objective, character.characterId, pursuit.itemInstanceId)">
+                <mat-icon>play_arrow</mat-icon>
+              </div>
+              <div class="objective-running" *ngIf="pursuit.itemTypeDisplayName == 'Vendor'">
+              </div>
           </mat-card-subtitle>
         </div>
       </mat-card>
