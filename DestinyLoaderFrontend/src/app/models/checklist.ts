@@ -136,6 +136,7 @@ export class Reward {
       case 2127149322: // Legendary Gear
       case 1: // Black Armory Badge
       case 4072589658: // Augmented Weapon
+      case 257827327: // Offering to the Oracle
         return Reward.VALUE_LEGENDARY_GEAR;
       case 3853748946: // Enhancement Core
       case 1633854071: // Dark Fragment
@@ -146,13 +147,16 @@ export class Reward {
       case 792755504: // Nightshade
       case 324382200: // Breakneck
         return 5;
+      case 3782248531: // Modulus Report
       case 183980811: // Crucible Token
       case 304443327: // Clan XP
       case 372496383: // Infamy Rank Points
       case 3899548068: // Vanguard Tactician Token
       case 1: // Nessus Rewards
       case 1: // Titan Rewards
+      case 1317670974: // EDZ Rewards
       case 2169340581: // Ballistics Log
+      case 2109561326: // Eververse Bounty Note
         return 3;
       case 1022552290: // Legendary Shards
         return 1;

@@ -1959,7 +1959,9 @@ export class Destiny {
                       (lang, callback) => {
                         async.waterfall([
                             function (callback) {
-                              fs.unlink(manifestZipPath, callback)
+                              fs.unlink(manifestZipPath, (err) => {
+                                callback();
+                              })
                             },
                             function (callback) {
                               // suppress old files
