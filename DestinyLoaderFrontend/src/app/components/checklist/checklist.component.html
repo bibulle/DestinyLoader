@@ -35,7 +35,7 @@
            (click)="toggleShowOnlyPowerfulGear()">{{'power_gear_only'|translate}}
       </div>
     </mat-card>
-    <div *ngFor="let pursuit of character.pursuits">
+    <div *ngFor="let pursuit of character.pursuits" [ngClass]="{'glow': (pursuitHasRunningObjectives(pursuit))}">
       <mat-card class="pursuit-item" *ngIf="pursuitShouldBeDisplayed(pursuit)" title="{{pursuit.description}}">
         <mat-card-title class="pursuit-title">
           <img class="pursuit-item-icon" *ngIf="pursuit.icon" src="https://www.bungie.net{{pursuit.icon}}"
@@ -78,13 +78,13 @@
               <span class="objective-progress">{{objective.progress}}/{{objective.completionValue}}</span>
             </mat-checkbox>
               <div class="objective-running"
-                   *ngIf="(pursuit.itemTypeDisplayName != 'Vendor') && (objective.runningTimeObjective && !objective.runningTimeObjective.finished)"
+                   *ngIf="(pursuit.itemTypeDisplayName != 'Vendor') && objectivesIsRunning(objective)"
                    (click)="stopObjectiveTime(objective, character.characterId, pursuit.itemInstanceId)">
                 <mat-icon>stop</mat-icon>
                 <span>{{objective.runningTimeObjective.timeRunning | timeExpiration}}</span>
               </div>
               <div class="objective-running"
-                   *ngIf="(pursuit.itemTypeDisplayName != 'Vendor') && (!objective.runningTimeObjective || objective.runningTimeObjective.finished)"
+                   *ngIf="(pursuit.itemTypeDisplayName != 'Vendor') && !objectivesIsRunning(objective)"
                    (click)="launchObjectiveTime(objective, character.characterId, pursuit.itemInstanceId)">
                 <mat-icon>play_arrow</mat-icon>
               </div>

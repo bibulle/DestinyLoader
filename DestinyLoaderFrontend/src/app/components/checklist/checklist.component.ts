@@ -203,17 +203,17 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
                               // add  rewards
                               sale.rewards.forEach(reward => {
                                 const newReward: Reward = {
-                                    name: reward.item.displayProperties.name,
-                                    icon: reward.item.displayProperties.icon,
-                                    quantity: reward.quantity,
-                                    identifier: '',
-                                    identifierIcon: null,
-                                    redeemed: false,
-                                    earned: false,
-                                    objectivesSize: sale.objectives.length,
-                                    itemHash: reward.itemHash
-                                  };
-                                  newSale.rewards.push(newReward);
+                                  name: reward.item.displayProperties.name,
+                                  icon: reward.item.displayProperties.icon,
+                                  quantity: reward.quantity,
+                                  identifier: '',
+                                  identifierIcon: null,
+                                  redeemed: false,
+                                  earned: false,
+                                  objectivesSize: sale.objectives.length,
+                                  itemHash: reward.itemHash
+                                };
+                                newSale.rewards.push(newReward);
 
                               });
 
@@ -449,5 +449,20 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
       return false;
     }
     return !this.config.showOnlyPowerfulGear || (pursuit.maxRewardLevel >= Reward.VALUE_POWER_GEAR);
+  }
+
+  pursuitHasRunningObjectives (pursuit: Pursuit) {
+    let ret = false;
+    pursuit.objectives.forEach((obj) => {
+      if (this.objectivesIsRunning(obj)) {
+        ret = true;
+      }
+    });
+
+    return ret;
+  }
+
+  objectivesIsRunning (objective) {
+    return objective.runningTimeObjective && !objective.runningTimeObjective.finished;
   }
 }

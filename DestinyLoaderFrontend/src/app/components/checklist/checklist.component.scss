@@ -1,5 +1,8 @@
 @import '~@angular/material/theming';
 
+
+
+
 :host {
   display: flex;
   flex-direction: column;
@@ -90,6 +93,17 @@
         z-index: 25;
       }
 
+      @-webkit-keyframes glowing {
+        from {
+          background-color: #424242;
+        }
+        to {
+          background-color: #666666;
+        }
+      }
+      .glow mat-card {
+        animation: glowing 1s ease-in-out infinite alternate;
+      }
 
       .pursuit-item {
 
