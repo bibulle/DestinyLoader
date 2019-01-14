@@ -897,7 +897,7 @@ export class Destiny {
                                   reward.rewardCategoryHash = rewardCategory.rewardCategoryHash;
                                   reward.itemHash = reward.rewardEntryHash;
                                   milestone.rewards.push(reward);
-                                  // debug(JSON.stringify(reward, null, 2));
+                                  //debug(JSON.stringify(reward, null, 2));
                                   callback();
                                 },
                                 function (err) {
@@ -907,6 +907,35 @@ export class Destiny {
                             function (err) {
                               callback(err);
                             });
+                        },
+                        function (callback) {
+                          // Add rewards on missing one
+                          if ((milestone.data.milestoneHash === 463010297) || (milestone.data.milestoneHash === 536115997)) {
+                            if (milestone.rewards.length == 0) {
+                              let reward = {
+                                earned: false,
+                                itemHash: 326786556,
+                                items: [],
+                                redeemed: false,
+                                rewardCategoryHash: 326786556,
+                                rewardEntryHash: 326786556,
+                                quantity: 1,
+                                displayProperties: {}
+                              };
+                              milestone.rewards.push(reward);
+
+                              Destiny.queryItemById(4039143015, (err, data) => {
+                                reward.displayProperties = data.displayProperties;
+                                //debug(JSON.stringify(reward, null, 2));
+                                callback();
+                              }, lang);
+
+                            } else {
+                              callback();
+                            }
+                          } else {
+                            callback();
+                          }
                         },
                         function (callback) {
                           //debug(milestone); // "536115997"
@@ -924,6 +953,7 @@ export class Destiny {
                                     //debug(milestoneDef.displayProperties.description);
                                     milestone.rewards.push(milestoneDef.quests[questItemHash].questRewards.items[0]);
                                     Destiny.queryItemById(milestoneDef.quests[questItemHash].questRewards.items[0].itemHash, (err, data) => {
+                                      //debug(data.displayProperties);
                                       milestoneDef.quests[questItemHash].questRewards.items[0].displayProperties = data.displayProperties;
                                       callback();
                                     }, lang)
@@ -945,7 +975,7 @@ export class Destiny {
                       ],
                       function (err) {
                         //if (milestoneId === '3603098564') {
-                        //  debug(milestone);
+                        //debug(milestone);
                         //}
                         character.milestones.push(milestone);
                         milestoneToLoad.push(milestone);
@@ -1095,8 +1125,8 @@ export class Destiny {
                         }
                       ],
                       (err) => {
-                        //if (milestone.instanceId === '157823523') {
-                        //debug(milestone);
+                        //if (milestone.instanceId === '463010297') {
+                        // debug(milestone);
                         //}
 
                         callback(err);
@@ -1602,12 +1632,12 @@ export class Destiny {
                     sale.saleStatus = saleItem.saleStatus;
 
                     //if (sale.hash == 1438932723) {
-                      //debug(JSON.stringify(saleItem, null, 2));
+                    //debug(JSON.stringify(saleItem, null, 2));
                     //}
 
                     Destiny.queryItemById(sale.hash, function (err, soldItem) {
                       //if (sale.hash == 1438932723) {
-                        //debug(JSON.stringify(soldItem, null, 2));
+                      //debug(JSON.stringify(soldItem, null, 2));
                       //}
 
                       sale.name = soldItem.displayProperties.name;
@@ -1959,7 +1989,7 @@ export class Destiny {
                       (lang, callback) => {
                         async.waterfall([
                             function (callback) {
-                              fs.unlink(manifestZipPath, (err) => {
+                              fs.unlink(manifestZipPath, () => {
                                 callback();
                               })
                             },
@@ -2183,6 +2213,7 @@ export class Destiny {
               //debug(JSON.stringify(row, null, 2));
               const data = JSON.parse(row.json);
               //debug(JSON.stringify(data, null, 2));
+              //debug(data.hash+" "+data.displayProperties.name);
               Destiny.itemHashCacheById[Config.getLang(lang)][data.hash] = data;
             }, function (err, cpt) {
               debug(cpt + " item definitions read");
