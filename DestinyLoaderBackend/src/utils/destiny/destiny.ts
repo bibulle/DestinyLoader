@@ -1,5 +1,8 @@
 import { Config } from "../config/config";
 import { Database } from "sqlite3";
+import { DestinyDb } from "../destinyDb/destinyDb";
+import { ObjectiveTime } from "../../models/objectiveTime";
+import { User } from "../../models/user";
 
 const debug = require('debug')('server:debug:Destiny');
 const error = require('debug')('server:error:Destiny');
@@ -1743,6 +1746,69 @@ export class Destiny {
     }, user.auth.access_token);
   };
 
+  public static addObjectivesTime (user, data, callback) {
+    DestinyDb.listTimes((err, times) => {
+      if (err) {
+        return callback(err);
+      }
+      data.times = {};
+
+      // debug(data.objectives);
+
+      async.eachSeries(
+        times,
+        (objectiveTime: ObjectiveTime, callback) => {
+          let modified = false;
+          const key = objectiveTime.characterId + objectiveTime.pursuitId + objectiveTime.objectiveId;
+          // debug(key+ " -> " + data.objectives[key]);
+
+          // if this objective is for this user
+          if (objectiveTime.bungieNetUser === user.bungieNetUser.membershipId) {
+            if (!objectiveTime.finished && data.objectives[key] && (objectiveTime.countEnd < data.objectives[key])) {
+              // if not finished and objective count change
+              objectiveTime.countEnd = data.objectives[key];
+              objectiveTime.timeEnd = new Date();
+              modified = true;
+              debug("Objective change " + objectiveTime.objectiveId);
+              debug(objectiveTime);
+            } else if (!objectiveTime.finished && (data.objectives[key] == null)) {
+              // if not finished and not any more objective
+              //   if not so old, end count
+              if ((new Date().getTime() - objectiveTime.lastVerified.getTime()) < 3 * 60 * 1000) {
+                objectiveTime.countEnd = objectiveTime.countFinished;
+                objectiveTime.timeEnd = new Date();
+                objectiveTime.finished = true;
+                modified = true;
+                debug("Force countEnd " + objectiveTime.objectiveId);
+                debug(objectiveTime);
+              }
+            }
+          }
+
+          // if modified, save it
+          if (modified) {
+            DestinyDb.insertTime(
+              objectiveTime.bungieNetUser,
+              objectiveTime,
+              (err) => {
+                data.times[objectiveTime.objectiveId] = ObjectiveTime.getSum(objectiveTime, data.times[objectiveTime.objectiveId]);
+                callback(err);
+              });
+          } else {
+            data.times[objectiveTime.objectiveId] = ObjectiveTime.getSum(objectiveTime, data.times[objectiveTime.objectiveId]);
+            callback(null);
+          }
+
+        },
+        (err) => {
+          // debug(data.times);
+          callback(err, data, times);
+        }
+      )
+
+    });
+  }
+
   //noinspection JSUnusedGlobalSymbols
   public static lockItem (user, item, characterId, state, callback) {
     //debug("lockItem");
@@ -2697,10 +2763,73 @@ export class Destiny {
   }
 
 
+  /**
+   * Manage the off line evaluation of objective running
+   *
+   */
+  static _calculateObjectiveRunning (callback) {
+    //debug('_calculateObjectiveRunning');
+
+    DestinyDb.listTimes((err, times:ObjectiveTime[]) => {
+      if (err) {
+        return callback(err);
+      }
+
+      async.eachSeries(
+        times,
+        (time, callback) => {
+          if (!Destiny.objectiveRunningList[time.bungieNetUser]) {
+            debug('not Found ' + time.bungieNetUser);
+            return callback(null);
+          }
+          const user = Destiny.objectiveRunningList[time.bungieNetUser];
+          debug('Watching '+user.bungieNetUser.displayName);
+
+          // debug(user);
+          async.waterfall([
+              (callback) => {
+                Destiny.getUserStuff(user, callback, Config.defaultLanguage);
+              },
+              (data, callback) => {
+                Destiny.addObjectivesTime(user, data, callback);
+              },
+              // If no times for the user, remove it
+              function (data, times, callback) {
+                data.currentTimes = [];
+                times.forEach((objectiveTime: ObjectiveTime) => {
+                  //debug(objectiveTime);
+                  if (!objectiveTime.finished && (objectiveTime.bungieNetUser === user.bungieNetUser.membershipId)) {
+                    data.currentTimes.push(objectiveTime);
+                  }
+                });
+                callback(null, data);
+              }
+            ],
+            (err) => {
+              callback(err);
+            })
+        }
+        ,
+        (err) => {
+          callback(err);
+        }
+      )
+
+    });
+
+
+  }
+
+  public static addUserToObjectiveRunningList (user) {
+    Destiny.objectiveRunningList[user.bungieNetUser.membershipId] = user;
+  }
+
+  private static objectiveRunningList: { [userId: string]: User } = {};
+
 }
 
 
-function refresh () {
+function refreshManifest () {
   async.eachSeries(
     Config.languages,
     (lang, callback) => {
@@ -2710,7 +2839,7 @@ function refresh () {
       if (err) {
         error(err);
       }
-      setTimeout(refresh,
+      setTimeout(refreshManifest,
         (60 + Math.random() * 60) * 1000);
 
     }
@@ -2718,5 +2847,23 @@ function refresh () {
 
 }
 
-setTimeout(refresh,
+function refreshObjectiveTime () {
+
+  Destiny._calculateObjectiveRunning(
+    (err) => {
+      if (err) {
+        error(err);
+      }
+      setTimeout(refreshObjectiveTime,
+        (20 + Math.random() * 10) * 1000);
+
+    }
+  )
+
+}
+
+setTimeout(refreshManifest,
   Math.random() * 60 * 1000);
+setTimeout(refreshObjectiveTime,
+  Math.random() * 30 * 1000);
+

@@ -8,7 +8,7 @@ export class Config {
   public static mongoUrl = "";
   public static dbPath = "";
 
-  private static defaultLanguage = 'en';
+  public static defaultLanguage = 'en';
   public static languages = ['en', 'fr'];
 
   public static crontab = "";

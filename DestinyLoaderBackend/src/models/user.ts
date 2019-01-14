@@ -3,12 +3,17 @@ import { sign, verify } from "jsonwebtoken";
 import { refreshBungieToken } from "../routes/authent";
 import { Destiny } from "../utils/destiny/destiny";
 
-const debug = require('debug')('server:debug:user');
+//const debug = require('debug')('server:debug:user');
 
 
 export class User {
 
   id: string;
+
+  bungieNetUser: {
+    membershipId: string;
+    displayName: string;
+  };
 
 
 //  constructor(options: {}) {

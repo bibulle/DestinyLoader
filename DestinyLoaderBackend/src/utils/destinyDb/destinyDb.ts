@@ -251,7 +251,7 @@ export class DestinyDb {
                            DestinyDb.listTimes(callback)
                          });
                      } else {
-                       debug(docs.length + " times");
+                       //debug(docs.length + " times");
                        // update last verified date
                        async.eachSeries(docs,
                          (doc: ObjectiveTime, callback) => {

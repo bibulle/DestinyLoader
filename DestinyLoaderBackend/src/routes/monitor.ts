@@ -43,6 +43,7 @@ function monitorRouter (passport): Router {
           }
         });
 
+
   router.route('/api')
         // ====================================
         // route for getting monitorStuff data
@@ -107,66 +108,7 @@ function monitorRouter (passport): Router {
                 },
                 // Add the times summed
                 function (data, conf, callback) {
-                  DestinyDb.listTimes((err, times) => {
-                    if (err) {
-                      return callback(err);
-                    }
-                    data.times = {};
-
-                    // debug(data.objectives);
-
-                    async.eachSeries(
-                      times,
-                      (objectiveTime: ObjectiveTime, callback) => {
-                        let modified = false;
-                        const key = objectiveTime.characterId + objectiveTime.pursuitId + objectiveTime.objectiveId;
-                        // debug(key+ " -> " + data.objectives[key]);
-
-                        // if this objective is for this user
-                        if (objectiveTime.bungieNetUser === user.bungieNetUser.membershipId) {
-                          if (!objectiveTime.finished && data.objectives[key] && (objectiveTime.countEnd < data.objectives[key])) {
-                            // if not finished and objective count change
-                            objectiveTime.countEnd = data.objectives[key];
-                            objectiveTime.timeEnd = new Date();
-                            modified = true;
-                            debug("Objective change "+objectiveTime.objectiveId);
-                            debug(objectiveTime);
-                          } else if (!objectiveTime.finished && (data.objectives[key] == null)) {
-                            // if not finished and not any more objective
-                            //   if not so old, end count
-                            if ((new Date().getTime() - objectiveTime.lastVerified.getTime()) < 3 * 60 * 1000) {
-                              objectiveTime.countEnd = objectiveTime.countFinished;
-                              objectiveTime.timeEnd = new Date();
-                              objectiveTime.finished = true;
-                              modified = true;
-                              debug("Force countEnd "+objectiveTime.objectiveId);
-                              debug(objectiveTime);
-                            }
-                          }
-                        }
-
-                        // if modified, save it
-                        if (modified) {
-                          DestinyDb.insertTime(
-                            objectiveTime.bungieNetUser,
-                            objectiveTime,
-                            (err) => {
-                              data.times[objectiveTime.objectiveId] = ObjectiveTime.getSum(objectiveTime, data.times[objectiveTime.objectiveId]);
-                              callback(err);
-                            });
-                        } else {
-                          data.times[objectiveTime.objectiveId] = ObjectiveTime.getSum(objectiveTime, data.times[objectiveTime.objectiveId]);
-                          callback(null);
-                        }
-
-                      },
-                      (err) => {
-                        // debug(data.times);
-                        callback(err, data, times);
-                      }
-                    )
-
-                  });
+                  Destiny.addObjectivesTime(user, data, callback);
                 },
                 // Add current times for the user
                 function (data, times, callback) {
@@ -175,6 +117,7 @@ function monitorRouter (passport): Router {
                     //debug(objectiveTime);
                     if (!objectiveTime.finished && (objectiveTime.bungieNetUser === user.bungieNetUser.membershipId)) {
                       data.currentTimes.push(objectiveTime);
+                      Destiny.addUserToObjectiveRunningList(user);
                     }
                   });
                   //debug(data.currentTimes);
