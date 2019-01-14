@@ -2778,6 +2778,9 @@ export class Destiny {
       async.eachSeries(
         times,
         (time, callback) => {
+          if (time.finished) {
+            return callback(null);
+          }
           if (!Destiny.objectiveRunningList[time.bungieNetUser]) {
             debug('not Found ' + time.bungieNetUser);
             return callback(null);
