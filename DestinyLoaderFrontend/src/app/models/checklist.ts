@@ -137,6 +137,7 @@ export class Reward {
       case 1: // Black Armory Badge
       case 4072589658: // Augmented Weapon
       case 257827327: // Offering to the Oracle
+      case 3682636565: // Etched Engram
         return Reward.VALUE_LEGENDARY_GEAR;
       case 3853748946: // Enhancement Core
       case 1633854071: // Dark Fragment
@@ -149,6 +150,7 @@ export class Reward {
         return 5;
       case 3782248531: // Modulus Report
       case 183980811: // Crucible Token
+      case 1873857625: // Iron Banner Token
       case 304443327: // Clan XP
       case 372496383: // Infamy Rank Points
       case 3899548068: // Vanguard Tactician Token
