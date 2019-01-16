@@ -573,6 +573,16 @@ export class Destiny {
 
   };
 
+  private static MILESTONE_FLASH_POINT = 463010297;
+
+  private static MILESTONE_GUARDIAN_OF_ALL = 536115997;
+
+  private static MILESTONE_IRON_BANNER = 3427325023;
+
+  private static CHALLENGE_SOURCED_REWARD = 326786556;
+
+  private static POWERFUL_GEAR = 4039143015;
+
   public static getUserStuff (user, callback, lang: string) {
     //debug("getUserStuff ");
 
@@ -913,21 +923,23 @@ export class Destiny {
                         },
                         function (callback) {
                           // Add rewards on missing one
-                          if ((milestone.data.milestoneHash === 463010297) || (milestone.data.milestoneHash === 536115997)) {
+                          if ((milestone.data.milestoneHash === Destiny.MILESTONE_FLASH_POINT) ||
+                            (milestone.data.milestoneHash === Destiny.MILESTONE_GUARDIAN_OF_ALL) ||
+                            (milestone.data.milestoneHash === Destiny.MILESTONE_IRON_BANNER)) {
                             if (milestone.rewards.length == 0) {
                               let reward = {
                                 earned: false,
-                                itemHash: 326786556,
+                                itemHash: Destiny.CHALLENGE_SOURCED_REWARD,
                                 items: [],
                                 redeemed: false,
-                                rewardCategoryHash: 326786556,
-                                rewardEntryHash: 326786556,
+                                rewardCategoryHash: Destiny.CHALLENGE_SOURCED_REWARD,
+                                rewardEntryHash: Destiny.CHALLENGE_SOURCED_REWARD,
                                 quantity: 1,
                                 displayProperties: {}
                               };
                               milestone.rewards.push(reward);
 
-                              Destiny.queryItemById(4039143015, (err, data) => {
+                              Destiny.queryItemById(Destiny.POWERFUL_GEAR, (err, data) => {
                                 reward.displayProperties = data.displayProperties;
                                 //debug(JSON.stringify(reward, null, 2));
                                 callback();
@@ -1128,7 +1140,12 @@ export class Destiny {
                         }
                       ],
                       (err) => {
-                        //if (milestone.instanceId === '463010297') {
+                        //if (milestone.data && milestone.data.activities && (milestone.data.activities[0].challenges.length > 1)) {
+                        //  debug(milestone.milestoneName+" "+milestone.instanceId);
+                        //  debug(milestone.data.activities);
+                        //}
+
+                        //if (milestone.instanceId === '3427325023') {
                         // debug(milestone);
                         //}
 
@@ -2055,9 +2072,11 @@ export class Destiny {
                       (lang, callback) => {
                         async.waterfall([
                             function (callback) {
-                              fs.unlink(manifestZipPath, () => {
-                                callback();
-                              })
+                              if (fs.existsSync(manifestZipPath)) {
+                                fs.unlink(manifestZipPath, () => {
+                                  callback();
+                                })
+                              }
                             },
                             function (callback) {
                               // suppress old files
@@ -2066,12 +2085,13 @@ export class Destiny {
                                   if (file.match(/world_sql_content/)) {
                                     fs.stat('data/' + file, ((err, stats) => {
                                       if (err) {
-                                        return error(err);
-                                      }
-                                      const age = (new Date().getTime()) - stats.atimeMs;
+                                        return debug(err);
+                                      } else {
+                                        const age = (new Date().getTime()) - stats.atimeMs;
 
-                                      if (age > 2 * 60 * 60 * 1000) {
-                                        fs.unlink('data/' + file);
+                                        if (age > 2 * 60 * 60 * 1000) {
+                                          fs.unlink('data/' + file);
+                                        }
                                       }
                                     }))
                                   }
@@ -2080,26 +2100,17 @@ export class Destiny {
                               callback();
                             },
                             function (callback) {
-                              fs.unlink(manifestZipPath, callback)
-                            },
-                            function (callback) {
                               Destiny.queryBucketById("", callback, lang);
                             },
                             function (foo, callback) {
                               Destiny.queryItemById("", callback, lang);
                             },
-//    function (foo, callback) {
-//      Destiny.queryItemById("802464007", function(err, item) {
-//        console.log(item);
-//        callback(err, item);
-//      }, lang);
-//    },
-//    function (foo, callback) {
-//      Destiny.queryBucket("2401704334", function(err, item) {
-//        console.log(item);
-//        callback(err, item);
-//      }, lang);
-//    },
+                            //function (foo, callback) {
+                            //  Destiny.queryItemById(Destiny.POWERFUL_GEAR, function (err, item) {
+                            //    console.log(item);
+                            //    callback(err, item);
+                            //  }, lang);
+                            //},
                             function (foo, callback) {
                               Destiny.queryItemByName("", callback, lang);
                             },
@@ -2116,6 +2127,12 @@ export class Destiny {
                             function (foo, callback) {
                               Destiny.queryMilestoneById("", callback, lang);
                             },
+                            // function (foo, callback) {
+                            //   Destiny.queryMilestoneById(Destiny.MILESTONE_GUARDIAN_OF_ALL, function (err, milestone) {
+                            //     console.log(milestone);
+                            //     callback(err, milestone);
+                            //   }, lang);
+                            // },
                             function (foo, callback) {
                               Destiny.queryVendorById("", callback, lang);
                             },
@@ -2770,7 +2787,7 @@ export class Destiny {
   static _calculateObjectiveRunning (callback) {
     //debug('_calculateObjectiveRunning');
 
-    DestinyDb.listTimes((err, times:ObjectiveTime[]) => {
+    DestinyDb.listTimes((err, times: ObjectiveTime[]) => {
       if (err) {
         return callback(err);
       }
@@ -2782,11 +2799,11 @@ export class Destiny {
             return callback(null);
           }
           if (!Destiny.objectiveRunningList[time.bungieNetUser]) {
-            debug('not Found ' + time.bungieNetUser);
+            //debug('not Found ' + time.bungieNetUser);
             return callback(null);
           }
           const user = Destiny.objectiveRunningList[time.bungieNetUser];
-          debug('Watching '+user.bungieNetUser.displayName);
+          debug('Watching ' + user.bungieNetUser.displayName);
 
           // debug(user);
           async.waterfall([
