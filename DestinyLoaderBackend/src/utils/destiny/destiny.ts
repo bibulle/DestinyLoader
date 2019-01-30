@@ -1595,12 +1595,12 @@ export class Destiny {
       }
 
       //console.log(data);
-      //debug(JSON.stringify(data, null, 2));
+      //debug(JSON.stringify(data.sales, null, 2));
 
       async.eachSeries(
         Object.keys(data.sales.data),
         function (vendorId, callback) {
-
+          //debug(JSON.stringify(vendorId, null, 2));
           const vendor = {
             name: "",
             enabled: false,
@@ -1614,16 +1614,26 @@ export class Destiny {
               //fill vendor from Database
               function (callback) {
                 //debug(JSON.stringify(data.vendors.data[vendorId], null, 2));
-                Destiny.queryVendorById(data.vendors.data[vendorId].vendorHash, function (err, vendorItem) {
+                if (data.vendors.data[vendorId]) {
+                  Destiny.queryVendorById(data.vendors.data[vendorId].vendorHash, function (err, vendorItem) {
 
-                  vendor.name = vendorItem.displayProperties.name;
-                  vendor.enabled = vendorItem.enabled;
-                  vendor.visible = vendorItem.visible;
-                  vendor.index = vendorItem.index;
+                    vendor.name = vendorItem.displayProperties.name;
+                    vendor.enabled = vendorItem.enabled;
+                    vendor.visible = vendorItem.visible;
+                    vendor.index = vendorItem.index;
+
+                    //debug(JSON.stringify(vendor, null, 2));
+                    callback();
+                  }, lang)
+                } else {
+                  vendor.name = "unknown";
+                  vendor.enabled = false;
+                  vendor.visible = false;
+                  vendor.index = 0;
 
                   //debug(JSON.stringify(vendor, null, 2));
                   callback();
-                }, lang)
+                }
               },
               //get sales items
               function (callback) {
