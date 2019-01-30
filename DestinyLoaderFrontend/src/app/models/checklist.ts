@@ -131,9 +131,11 @@ export class Reward {
     switch (r.itemHash) {
       case 4039143015: // Powerful Gear
       case 326786556: // Powerful Gear
+      case 964120289: // Powerful Gear
         return Reward.VALUE_POWER_GEAR;
       case 2646629159: // Luminous Engram
       case 2127149322: // Legendary Gear
+      case 2169340581: // Ballistics Log
       case 1: // Black Armory Badge
       case 4072589658: // Augmented Weapon
       case 257827327: // Offering to the Oracle
@@ -154,10 +156,10 @@ export class Reward {
       case 304443327: // Clan XP
       case 372496383: // Infamy Rank Points
       case 3899548068: // Vanguard Tactician Token
+      case 3196288028: // Boon of the Crucible
       case 1: // Nessus Rewards
       case 1: // Titan Rewards
       case 1317670974: // EDZ Rewards
-      case 2169340581: // Ballistics Log
       case 2109561326: // Eververse Bounty Note
         return 3;
       case 1022552290: // Legendary Shards
