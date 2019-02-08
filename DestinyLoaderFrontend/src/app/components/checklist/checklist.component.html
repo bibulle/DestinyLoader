@@ -36,7 +36,8 @@
       </div>
     </mat-card>
     <div *ngFor="let pursuit of character.pursuits" [ngClass]="{'glow': (pursuitHasRunningObjectives(pursuit))}">
-      <mat-card class="pursuit-item" *ngIf="pursuitShouldBeDisplayed(pursuit)" title="{{pursuit.description}}">
+      <mat-card class="pursuit-item" *ngIf="pursuitShouldBeDisplayed(pursuit, character)" title="{{pursuit.description}}" (click)="toggleSelectedPursuit(pursuit, character)" [ngClass]="{'selected': (pursuitIsSelected(pursuit, character))}">
+        <div class="selected">&nbsp;</div>
         <mat-card-title class="pursuit-title">
           <img class="pursuit-item-icon" *ngIf="pursuit.icon" src="https://www.bungie.net{{pursuit.icon}}"
                alt="{{pursuit.itemTypeDisplayName}}" title="{{pursuit.itemTypeDisplayName}}">

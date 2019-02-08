@@ -35,6 +35,8 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
     this._currentChecklistSubscription = this._checklistService.currentChecklistObservable().subscribe(
       (checklist: Checklist) => {
 
+        const listOfPursuitsKey = [];
+
         checklist = checklist as Checklist;
         // If we have things to show
         if (checklist && checklist.items && checklist.items[ChecklistComponent.PURSUIT_HASH] && checklist.characters && checklist.times && checklist.currentTimes) {
@@ -70,6 +72,7 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
               // foreach pursuit, add to the character pursuits
               checklist.items[ChecklistComponent.PURSUIT_HASH][key].forEach(pursuit => {
                 if (pursuit.characterId === char.characterId) {
+                  listOfPursuitsKey.push(ChecklistComponent.getPursuitKey(pursuit, char));
                   char.pursuits.push(pursuit);
                 }
 
@@ -149,6 +152,7 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
                 newMilestone.objectives.push(newObjective);
               });
 
+              listOfPursuitsKey.push(ChecklistComponent.getPursuitKey(newMilestone, char));
               char.pursuits.push(newMilestone);
             });
 
@@ -187,7 +191,7 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
                             if ((sale.rewards.length !== 0) && (sale.saleStatus < 3)) {
                               // console.log(key + ' ' + vendor.name + ' : ' + sale.name + ' (' + sale.itemTypeDisplayName + ')');
                               const newSale: Pursuit = {
-                                itemInstanceId: '-1',
+                                itemInstanceId: sale.hash,
                                 itemTypeDisplayName: 'Vendor',
                                 description: sale.displaySource,
                                 vendorName: vendor.name,
@@ -231,6 +235,7 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
                                 newSale.objectives.push(newObjective);
                               });
 
+                              listOfPursuitsKey.push(ChecklistComponent.getPursuitKey(newSale, char));
                               char.pursuits.push(newSale);
 
                             }
@@ -244,30 +249,19 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
             );
 
             // sort pursuit
-            char.pursuits.sort((p1, p2) => {
-              {
-                const r1 = Reward.getMaxReward(p1.rewards);
-                p1.maxRewardLevel = Reward.getRewardValue(r1);
-                const r2 = Reward.getMaxReward(p2.rewards);
-                p2.maxRewardLevel = Reward.getRewardValue(r2);
-
-                const t1 = Objective.getMaxTimeTillFinished(p1.objectives);
-                const t2 = Objective.getMaxTimeTillFinished(p2.objectives);
-
-                const rewardsCompared = Reward.compareRewards(r1, r2);
-
-                if (rewardsCompared !== 0) {
-                  return rewardsCompared;
-                } else {
-                  // let's compare on objective times
-                  return t1 - t2;
-                }
-              }
-            });
+            this.sortPursuits(char);
 
           });
 
         }
+
+        // clean the selected pursuit list
+        if (this.config.selectedPursuits) {
+          this.config.selectedPursuits = this.config.selectedPursuits.filter(key => {
+            return (listOfPursuitsKey.indexOf(key) > -1);
+          });
+        }
+        // console.log(this.config.selectedPursuits);
 
         console.log(checklist);
         ChecklistComponent.updateObject(checklist, this.checklist);
@@ -281,6 +275,11 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
     this._currentConfigSubscription = this._headerService.configObservable().subscribe(
       rel => {
         this.config = rel;
+
+        this.checklist.characters.forEach(char => {
+          this.sortPursuits(char);
+        });
+
       });
 
     // refresh the running times
@@ -300,6 +299,39 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
     setTimeout(() => {
       this.refreshRunningTimes();
     }, 5000);
+  }
+
+  sortPursuits (char) {
+    char.pursuits.sort((p1, p2) => {
+      {
+        let selectedCompare = 0;
+        if (this.pursuitIsSelected(p1, char)) {
+          selectedCompare--;
+        }
+        if (this.pursuitIsSelected(p2, char)) {
+          selectedCompare++;
+        }
+
+        const r1 = Reward.getMaxReward(p1.rewards);
+        p1.maxRewardLevel = Reward.getRewardValue(r1);
+        const r2 = Reward.getMaxReward(p2.rewards);
+        p2.maxRewardLevel = Reward.getRewardValue(r2);
+
+        const t1 = Objective.getMaxTimeTillFinished(p1.objectives);
+        const t2 = Objective.getMaxTimeTillFinished(p2.objectives);
+
+        const rewardsCompared = Reward.compareRewards(r1, r2);
+
+        if (selectedCompare !== 0) {
+          return selectedCompare;
+        } else if (rewardsCompared !== 0) {
+          return rewardsCompared;
+        } else {
+          // let's compare on objective times
+          return t1 - t2;
+        }
+      }
+    });
   }
 
   ngOnDestroy (): void {
@@ -444,11 +476,25 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
     this._headerService.toggleShowOnlyPowerfulGear();
   }
 
-  pursuitShouldBeDisplayed (pursuit: Pursuit) {
+
+  static getPursuitKey(pursuit, character) {
+    return character.characterId + ' ' + pursuit.itemInstanceId;
+  }
+
+  toggleSelectedPursuit (pursuit, character) {
+    this._headerService.toggleSelectedPursuit(ChecklistComponent.getPursuitKey(pursuit, character));
+    // console.log(pursuit);
+  }
+
+  pursuitIsSelected(pursuit, character) {
+    return this.config.selectedPursuits && (this.config.selectedPursuits.indexOf(ChecklistComponent.getPursuitKey(pursuit, character)) > -1);
+  }
+
+  pursuitShouldBeDisplayed (pursuit: Pursuit, character) {
     if (!pursuit) {
       return false;
     }
-    return !this.config.showOnlyPowerfulGear || (pursuit.maxRewardLevel >= Reward.VALUE_POWER_GEAR);
+    return this.pursuitIsSelected(pursuit, character) || !this.config.showOnlyPowerfulGear || (pursuit.maxRewardLevel >= Reward.VALUE_POWER_GEAR);
   }
 
   pursuitHasRunningObjectives (pursuit: Pursuit) {
