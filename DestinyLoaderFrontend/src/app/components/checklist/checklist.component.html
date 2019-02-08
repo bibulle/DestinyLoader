@@ -1,4 +1,4 @@
-<div class="page" *ngIf="checklist">
+<div class="page characters-{{checklist.characters.length}}" *ngIf="checklist">
   <div class="character character{{i}}" *ngFor="let character of checklist.characters; let i = index"
        [style.flex]="'1 1 '+(100/checklist.characters.length)+'%'">
     <mat-card class="character-card-sticky character-card-sticky{{i}}">

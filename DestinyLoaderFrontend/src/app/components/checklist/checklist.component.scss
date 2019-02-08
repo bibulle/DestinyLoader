@@ -13,9 +13,14 @@
 
     .character {
       flex: 1 1 auto;
+      //display: flex;
+      flex-wrap: wrap;
+      align-content: flex-start;
+      align-items: stretch;
 
       .character-card-sticky, .character-card {
         background-color: #303030;
+        flex: 1 1 100%;
 
         > div {
           padding-top: 16px;
@@ -108,6 +113,7 @@
       .pursuit-item {
 
         overflow: hidden;
+        height: 100%;
 
         .pursuit-title {
           display: flex;
@@ -258,9 +264,64 @@
   }
 }
 
-@media (max-width: 720px) {
+@media (max-width: 700px) {
   .page {
     flex-direction: column;
   }
 }
 
+// ONE CHARACTER
+@media (min-width: 700px) and (max-width: 1400px) {
+  .page.characters-1 .character {
+    display: flex;
+    > div {
+      flex: 0 1 50%;
+    }
+  }
+}
+@media (min-width: 1400px) and (max-width: 2100px) {
+  .page.characters-1 .character {
+    display: flex;
+    > div {
+      flex: 0 1 33%;
+    }
+  }
+}
+@media (min-width: 2100px) {
+  .page.characters-1 .character {
+    display: flex;
+
+    > div {
+      flex: 0 1 25%;
+    }
+  }
+}
+
+
+// TWO CHARACTERS
+@media (min-width: 2100px) and (max-width: 3500px) {
+  .page.characters-2 .character {
+    display: flex;
+    > div {
+      flex: 0 1 50%;
+    }
+  }
+}
+@media (min-width: 3500px) {
+  .page.characters-2 .character {
+    display: flex;
+    > div {
+      flex: 0 1 33%;
+    }
+  }
+}
+
+// THREE CHARACTERS
+@media (min-width: 3500px) {
+  .page.characters-3 .character {
+    display: flex;
+    > div {
+      flex: 0 1 50%;
+    }
+  }
+}
