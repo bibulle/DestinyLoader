@@ -53,7 +53,7 @@ export class HeaderService {
   }
 
 // tslint:disable-next-line:member-ordering
-  static saveConfigFromLocalStorage (config: Config) {
+  static saveConfigToLocalStorage (config: Config) {
     localStorage.setItem(HeaderService.KEY_CONFIG_LOCAL_STORAGE, JSON.stringify(config));
   }
 
@@ -71,22 +71,36 @@ export class HeaderService {
     }
   }
 
-  toggleShowOnlyPowerfulGear() {
+  toggleShowOnlyPowerfulGear () {
     this.config.showOnlyPowerfulGear = !this.config.showOnlyPowerfulGear;
     this.configSubject.next(this.config);
-    HeaderService.saveConfigFromLocalStorage(this.config);
+    HeaderService.saveConfigToLocalStorage(this.config);
   }
 
-  changeLanguage(language: string) {
+  changeLanguage (language: string) {
     this.config.language = language;
 
     // console.log(this.config.language);
     this._translate.use(this.config.language);
 
     this.configSubject.next(this.config);
-    HeaderService.saveConfigFromLocalStorage(this.config);
+    HeaderService.saveConfigToLocalStorage(this.config);
   }
 
+  toggleSelectedPursuit (key) {
+    if (!this.config.selectedPursuits) {
+      this.config.selectedPursuits = [];
+    }
+
+    const index = this.config.selectedPursuits.indexOf(key);
+    if (index > -1) {
+      this.config.selectedPursuits.splice(index, 1);
+    } else {
+      this.config.selectedPursuits.push(key);
+    }
+    this.configSubject.next(this.config);
+    HeaderService.saveConfigToLocalStorage(this.config);
+  }
 
 
 }

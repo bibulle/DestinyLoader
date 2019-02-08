@@ -107,6 +107,8 @@
 
       .pursuit-item {
 
+        overflow: hidden;
+
         .pursuit-title {
           display: flex;
           align-items: center;
@@ -135,6 +137,20 @@
           font-style: italic;
           float: right;
         }
+
+        .selected {
+          -webkit-transform: rotate(45deg);
+          position: absolute;
+          right: -34px;
+          top: 10px;
+          width: 100px;
+          text-align: center;
+          font-size: 13px;
+          line-height: 15px;
+          background-color: #ffff8d;
+          display: none;
+        }
+
 
         .reward {
           padding-left: 4em;
@@ -216,6 +232,10 @@
           }
         }
       }
+      .pursuit-item.selected .selected {
+        display: block;
+      }
+
 
     }
 
