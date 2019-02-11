@@ -12,10 +12,10 @@
         </mat-card-title>
       </div>
       <div class="tooltip" *ngIf="(i === checklist.characters.length - 1) && !config.showOnlyPowerfulGear"
-           (click)="toggleShowOnlyPowerfulGear()">{{'power_gear_not_only'|translate}}
+           (click)="toggleShowOnlyPowerfulGear($event)">{{'power_gear_not_only'|translate}}
       </div>
       <div class="tooltip" *ngIf="(i === checklist.characters.length - 1) &&  config.showOnlyPowerfulGear"
-           (click)="toggleShowOnlyPowerfulGear()">{{'power_gear_only'|translate}}
+           (click)="toggleShowOnlyPowerfulGear($event)">{{'power_gear_only'|translate}}
       </div>
     </mat-card>
     <mat-card class="character-card character-card{{i}}">
@@ -29,14 +29,14 @@
         </mat-card-title>
       </div>
       <div class="tooltip" *ngIf="(i === checklist.characters.length - 1) && !config.showOnlyPowerfulGear"
-           (click)="toggleShowOnlyPowerfulGear()">{{'power_gear_not_only'|translate}}
+           (click)="toggleShowOnlyPowerfulGear($event)">{{'power_gear_not_only'|translate}}
       </div>
       <div class="tooltip" *ngIf="(i === checklist.characters.length - 1) &&  config.showOnlyPowerfulGear"
-           (click)="toggleShowOnlyPowerfulGear()">{{'power_gear_only'|translate}}
+           (click)="toggleShowOnlyPowerfulGear($event)">{{'power_gear_only'|translate}}
       </div>
     </mat-card>
     <div *ngFor="let pursuit of character.pursuits" [ngClass]="{'glow': (pursuitHasRunningObjectives(pursuit))}">
-      <mat-card class="pursuit-item" *ngIf="pursuitShouldBeDisplayed(pursuit, character)" title="{{pursuit.description}}" (click)="toggleSelectedPursuit(pursuit, character)" [ngClass]="{'selected': (pursuitIsSelected(pursuit, character))}">
+      <mat-card class="pursuit-item" *ngIf="pursuitShouldBeDisplayed(pursuit, character)" title="{{pursuit.description}}" (click)="toggleSelectedPursuit(pursuit, character, $event)" [ngClass]="{'selected': (pursuitIsSelected(pursuit, character))}">
         <div class="selected">&nbsp;</div>
         <mat-card-title class="pursuit-title">
           <img class="pursuit-item-icon" *ngIf="pursuit.icon" src="https://www.bungie.net{{pursuit.icon}}"
@@ -80,13 +80,13 @@
             </mat-checkbox>
               <div class="objective-running"
                    *ngIf="(pursuit.itemTypeDisplayName != 'Vendor') && objectivesIsRunning(objective)"
-                   (click)="stopObjectiveTime(objective, character.characterId, pursuit.itemInstanceId)">
+                   (click)="stopObjectiveTime(objective, character.characterId, pursuit.itemInstanceId, $event)">
                 <mat-icon>stop</mat-icon>
                 <span>{{objective.runningTimeObjective.timeRunning | timeExpiration}}</span>
               </div>
               <div class="objective-running"
                    *ngIf="(pursuit.itemTypeDisplayName != 'Vendor') && !objectivesIsRunning(objective)"
-                   (click)="launchObjectiveTime(objective, character.characterId, pursuit.itemInstanceId)">
+                   (click)="launchObjectiveTime(objective, character.characterId, pursuit.itemInstanceId, $event)">
                 <mat-icon>play_arrow</mat-icon>
               </div>
               <div class="objective-running" *ngIf="pursuit.itemTypeDisplayName == 'Vendor'">

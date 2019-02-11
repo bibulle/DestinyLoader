@@ -414,8 +414,9 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
     }
   }
 
-  stopObjectiveTime (objective: Objective, characterId: string, pursuitId: string) {
-    console.log('stopObjectiveTime');
+  stopObjectiveTime (objective: Objective, characterId: string, pursuitId: string, event: any) {
+    // console.log('stopObjectiveTime');
+    event.stopPropagation();
     this._checklistService.stopObjective(objective, characterId, pursuitId)
         .then(obj => {
 
@@ -426,8 +427,9 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
         });
   }
 
-  launchObjectiveTime (objective: Objective, characterId: string, pursuitId: string) {
-    console.log('launchObjectiveTime');
+  launchObjectiveTime (objective: Objective, characterId: string, pursuitId: string, event: any) {
+    // console.log('launchObjectiveTime');
+    event.stopPropagation();
     this._checklistService.startObjective(objective, characterId, pursuitId)
         .then(obj => {
 
@@ -474,7 +476,8 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
   }
 
 
-  toggleShowOnlyPowerfulGear () {
+  toggleShowOnlyPowerfulGear (event: any) {
+    event.stopPropagation();
     this._headerService.toggleShowOnlyPowerfulGear();
   }
 
@@ -483,7 +486,9 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
     return character.characterId + ' ' + pursuit.itemInstanceId;
   }
 
-  toggleSelectedPursuit (pursuit, character) {
+  toggleSelectedPursuit (pursuit, character, event: any) {
+    // console.log('toggleSelectedPursuit');
+    event.stopPropagation();
     this._headerService.toggleSelectedPursuit(ChecklistComponent.getPursuitKey(pursuit, character));
     // console.log(pursuit);
   }
