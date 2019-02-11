@@ -1,11 +1,5 @@
 /* tslint:disable:member-ordering */
 import { Pipe, PipeTransform } from '@angular/core';
-import 'rxjs-compat/add/operator/repeatWhen';
-import 'rxjs-compat/add/operator/mergeMap';
-import 'rxjs-compat/add/observable/timer';
-import 'rxjs-compat/add/operator/takeWhile';
-import 'rxjs-compat/add/operator/map';
-import 'rxjs-compat/add/observable/of';
 
 /**
  * time expiration pipe
@@ -54,7 +48,7 @@ export class TimeExpirationPipe implements PipeTransform {
       return `${Math.floor(delta / 3600)} hours`;
     } else if (delta < 86400 * 2) {
       return `${Math.floor(delta / 3600)} day`;
-    } else if (delta < Number.MAX_SAFE_INTEGER/1000) {
+    } else if (delta < Number.MAX_SAFE_INTEGER / 1000) {
       return `${Math.floor(delta / 86400)} days`;
     } else {
       return 'Infinity';

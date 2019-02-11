@@ -1,3 +1,5 @@
+
+import {distinctUntilChanged} from 'rxjs/operators';
 import { Injectable } from '@angular/core';
 import { JwtHelperService } from '@auth0/angular-jwt';
 import { User } from '../models/user';
@@ -5,7 +7,6 @@ import { environment } from '../../environments/environment';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { BehaviorSubject, Observable, timer } from 'rxjs';
 import { WindowService } from './window.service';
-import 'rxjs-compat/add/operator/distinctUntilChanged';
 
 @Injectable({
   providedIn: 'root'
@@ -131,15 +132,15 @@ export class UserService {
    * @returns {Observable<User>}
    */
   userObservable(): Observable<User> {
-    return this.userSubject
+    return this.userSubject.pipe(
                // .debounceTime(200)
-               .distinctUntilChanged(
+               distinctUntilChanged(
                  (a, b) => {
                    // console.log(JSON.stringify(a.local));
                    // console.log(JSON.stringify(b.local));
                    return JSON.stringify(a) === JSON.stringify(b);
                  }
-               );
+               ));
   }
 
   /**

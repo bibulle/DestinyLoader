@@ -1,6 +1,6 @@
 /* tslint:disable:member-ordering */
 import { AfterViewChecked, Component, ElementRef, HostListener, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { Subscription } from 'rxjs/Subscription';
+import { Subscription } from 'rxjs';
 import { ChecklistService } from '../../services/checklist.service';
 import { Character, Checklist, Objective, ObjectiveTime, Pursuit, Reward } from '../../models/checklist';
 import { Config } from '../../models/config';
@@ -277,7 +277,9 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
         this.config = rel;
 
         this.checklist.characters.forEach(char => {
-          this.sortPursuits(char);
+          setTimeout(() => {
+            this.sortPursuits(char);
+          }, 500);
         });
 
       });

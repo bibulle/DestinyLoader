@@ -1,5 +1,5 @@
 import { Component, OnDestroy, OnInit} from '@angular/core';
-import { Subscription } from 'rxjs/Subscription';
+import { Subscription } from 'rxjs';
 import { StatsService } from '../../services/stats.service';
 import { Character } from '../../models/character';
 import { GraphTypeKey } from '../../models/graph';
