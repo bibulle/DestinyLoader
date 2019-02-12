@@ -110,8 +110,9 @@ export class StatsService {
               StatsService.statsList.forEach(function (d) {
                 // Calculate the labels
                 d.userId = d.values[d.values.length - 1].userId;
-                d.labelClass = d.values[d.values.length - 1].userId + ' / ' + d.values[d.values.length - 1].class + '';
+                d.class = d.values[d.values.length - 1].class;
                 d.label = d.userId;
+                d.running = '';
 
                 if (d.values[d.values.length - 1].isOnLine == null) {
                   try {
@@ -122,7 +123,7 @@ export class StatsService {
                   }
                 }
                 if (d.values[d.values.length - 1].isOnLine) {
-                  d.labelClass = d.labelClass + ' &bull;';
+                  d.running = ' &bull;';
                   isOnLine[d.userId] = true;
                 }
 
@@ -161,7 +162,7 @@ export class StatsService {
               StatsService.statsList.forEach(function (d) {
                 if (isOnLine[d.userId]) {
                   d.isOnLine = true;
-                  d.label = d.label + ' &bull;';
+                  d.running = ' &bull;';
                 } else {
                   d.isOnLine = false;
                 }

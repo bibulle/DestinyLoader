@@ -5,7 +5,8 @@ export class Character {
   key: string;
   charNum?: number;
   label?: string;
-  labelClass?: string;
+  class?: string;
+  running?: string;
   userId?: string;
   isOnLine?: boolean;
   minutePlayedTotalTotal?: number;

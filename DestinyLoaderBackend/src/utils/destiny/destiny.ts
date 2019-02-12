@@ -34,7 +34,7 @@ export class Destiny {
 //private static _URL_GET_AGGREGATE_CLAN_BOARD = '/Platform/Destiny2/Stats/AggregateClanStats/{groupId}/?maxtop=200&modes=3,4,16,17';
 //private static _URL_GET_ACCOUNT_STAT = '/Platform/Destiny2/{membershipType}/Account/{destinyMembershipId}/Stats/?groups=102';
 //private static _URL_GET_ACCOUNT_STAT = '/Platform/Destiny2/{membershipType}/Account/{destinyMembershipId}/Character/{characterId}/Stats/AggregateActivityStats/';
-  private static _URL_GET_ACCOUNT_STAT = '/Platform/Destiny2/{membershipType}/Account/{destinyMembershipId}/Character/{characterId}/Stats/?modes=16,17,4,3,5,39&groups=0';
+  private static _URL_GET_ACCOUNT_STAT = '/Platform/Destiny2/{membershipType}/Account/{destinyMembershipId}/Character/{characterId}/Stats/?modes=16,17,4,3,5,39,19,46,63,66,69,70&groups=0';
   private static _URL_GET_USER_STUFF = '/Platform/Destiny2/{membershipType}/Profile/{destinyMembershipId}/?components=100,102,104,200,201,202,204,205,300,301,302,304,305,306,307,308,900';
   private static _URL_GET_VENDORS = '/Platform/Destiny2/{membershipType}/Profile/{destinyMembershipId}/Character/{characterId}/Vendors/?components=400,401,402';
 
@@ -230,14 +230,22 @@ export class Destiny {
               class: "",
               nightfallEntered: 0,
               nightfallCleared: 0,
+              scored_nightfallEntered: 0,
+              scored_nightfallCleared: 0,
               heroicNightfallEntered: 0,
               heroicNightfallCleared: 0,
               raidEntered: 0,
               raidCleared: 0,
               strikeEntered: 0,
               strikeCleared: 0,
+              blackArmoryRunEntered: 0,
+              blackArmoryRunCleared: 0,
               allPvPEntered: 0,
               allPvPWon: 0,
+              pvpCompetitiveEntered: 0,
+              pvpCompetitiveWon: 0,
+              gambitEntered: 0,
+              gambitWon: 0,
               trialsOfTheNineEntered: 0,
               trialsOfTheNineWon: 0,
               allPvPAssists: 0,
@@ -280,6 +288,8 @@ export class Destiny {
             Destiny._getFromBungie(url, function (err, data) {
               //debug(JSON.stringify(err, null, 2));
               //debug(JSON.stringify(data, null, 2));
+
+
               if (err) {
                 return callback(err);
               }
@@ -292,6 +302,16 @@ export class Destiny {
               resultChar.nightfallCleared = 0;
               try {
                 resultChar.nightfallCleared = data.nightfall.allTime.activitiesCleared.basic.value;
+              } catch (e) {
+              }
+              resultChar.scored_nightfallEntered = 0;
+              try {
+                resultChar.scored_nightfallEntered = data.scored_nightfall.allTime.activitiesEntered.basic.value;
+              } catch (e) {
+              }
+              resultChar.scored_nightfallCleared = 0;
+              try {
+                resultChar.scored_nightfallCleared = data.scored_nightfall.allTime.activitiesCleared.basic.value;
               } catch (e) {
               }
               resultChar.heroicNightfallEntered = 0;
@@ -324,6 +344,16 @@ export class Destiny {
                 resultChar.strikeCleared = data.strike.allTime.activitiesCleared.basic.value;
               } catch (e) {
               }
+              resultChar.blackArmoryRunEntered = 0;
+              try {
+                resultChar.blackArmoryRunEntered = data.blackArmoryRun.allTime.activitiesEntered.basic.value;
+              } catch (e) {
+              }
+              resultChar.blackArmoryRunCleared = 0;
+              try {
+                resultChar.blackArmoryRunCleared = data.blackArmoryRun.allTime.activitiesCleared.basic.value;
+              } catch (e) {
+              }
               resultChar.allPvPEntered = 0;
               try {
                 resultChar.allPvPEntered = data.allPvP.allTime.activitiesEntered.basic.value;
@@ -332,6 +362,26 @@ export class Destiny {
               resultChar.allPvPWon = 0;
               try {
                 resultChar.allPvPWon = data.allPvP.allTime.activitiesWon.basic.value;
+              } catch (e) {
+              }
+              resultChar.pvpCompetitiveEntered = 0;
+              try {
+                resultChar.pvpCompetitiveEntered = data.pvpCompetitive.allTime.activitiesEntered.basic.value;
+              } catch (e) {
+              }
+              resultChar.pvpCompetitiveWon = 0;
+              try {
+                resultChar.pvpCompetitiveWon = data.pvpCompetitive.allTime.activitiesWon.basic.value;
+              } catch (e) {
+              }
+              resultChar.gambitEntered = 0;
+              try {
+                resultChar.gambitEntered = data.pvecomp_gambit.allTime.activitiesEntered.basic.value;
+              } catch (e) {
+              }
+              resultChar.gambitWon = 0;
+              try {
+                resultChar.gambitWon = data.pvecomp_gambit.allTime.activitiesWon.basic.value;
               } catch (e) {
               }
               resultChar.trialsOfTheNineEntered = 0;

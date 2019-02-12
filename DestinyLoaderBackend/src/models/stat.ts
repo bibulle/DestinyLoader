@@ -12,14 +12,22 @@ export class Stat {
   minutesPlayedTotal: number;
   nightfallEntered: number;
   nightfallCleared: number;
+  scored_nightfallEntered: number;
+  scored_nightfallCleared: number;
   heroicNightfallEntered: number;
   heroicNightfallCleared: number;
   raidEntered: number;
   raidCleared: number;
   strikeEntered: number;
   strikeCleared: number;
+  blackArmoryRunEntered: number;
+  blackArmoryRunCleared: number;
   allPvPEntered: number;
   allPvPWon: number;
+  pvpCompetitiveEntered: number;
+  pvpCompetitiveWon: number;
+  gambitEntered: number;
+  gambitWon: number;
   trialsOfTheNineEntered: number;
   trialsOfTheNineWon: number;
   allPvPKills: number;
@@ -49,16 +57,24 @@ export class StatSummed {
   minutesPlayedTotal:number;
   nightfallEntered:number;
   nightfallCleared:number;
+  scored_nightfallEntered: number;
+  scored_nightfallCleared: number;
   heroicNightfallEntered:number;
   heroicNightfallCleared:number;
   raidEntered:number;
   raidCleared:number;
   strikeEntered:number;
   strikeCleared:number;
+  blackArmoryRunEntered: number;
+  blackArmoryRunCleared: number;
   allPvPEntered:number;
   allPvPWon:number;
   trialsOfTheNineEntered:number;
   trialsOfTheNineWon:number;
+  pvpCompetitiveEntered: number;
+  pvpCompetitiveWon: number;
+  gambitEntered: number;
+  gambitWon: number;
   allPvPKillsDeathsAssistsRatio:number;
 
 }

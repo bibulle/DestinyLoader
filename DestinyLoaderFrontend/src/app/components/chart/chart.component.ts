@@ -1,16 +1,19 @@
-import { Component, ElementRef, Input, OnChanges, OnInit, SimpleChanges, ViewChild } from '@angular/core';
+/* tslint:disable:member-ordering */
+import { Component, ElementRef, Input, OnChanges, OnDestroy, OnInit, SimpleChanges, ViewChild } from '@angular/core';
 import * as d3 from 'd3';
 import { Graph, GraphTypeKey } from '../../models/graph';
 import { Character } from '../../models/character';
 import { Stats } from '../../models/stats';
 import { TranslateService } from '@ngx-translate/core';
+import { HeaderService } from '../../services/header.service';
+import { Subscription } from 'rxjs/internal/Subscription';
 
 @Component({
   selector: 'app-chart',
   templateUrl: './chart.component.html',
   styleUrls: ['./chart.component.scss']
 })
-export class ChartComponent implements OnInit, OnChanges {
+export class ChartComponent implements OnInit, OnDestroy, OnChanges {
 
   private static TEXT_SPACE = 9;
 
@@ -45,14 +48,41 @@ export class ChartComponent implements OnInit, OnChanges {
     '#1397a3', '#f940a5', '#66aeff', '#d097e7', '#fe6ef9', '#d86507', '#8b900a', '#d47270', '#e8ac48', '#cf7c97', '#cebb11', '#718a90', '#e78139', '#ff7463', '#bea1fd'
   ];
 
+
+  language = this._translateService.currentLang;
+  private readonly _currentConfigSubscription: Subscription;
+
+
   needToUpdate = false;
 
-  constructor (private _translateService: TranslateService) {
+  constructor (private _translateService: TranslateService, private _headerService: HeaderService) {
+
+    this._currentConfigSubscription = this._headerService.configObservable().subscribe(
+      rel => {
+
+        // console.log(this.language + ' ' + rel.language);
+        if (this.language !== rel.language) {
+          this.language = rel.language;
+          setTimeout(() => {
+            // console.log('refresh chart');
+            this.deleteChart();
+            this.initChart();
+            this.updateChart();
+          });
+        }
+
+        this.language = rel.language;
+
+
+      });
+
   }
+
 
   ngOnInit () {
     this.created = false;
     setTimeout(() => {
+      // console.log('ngOnInit');
       this.initChart();
       this.updateChart();
     });
@@ -67,8 +97,21 @@ export class ChartComponent implements OnInit, OnChanges {
     }
   }
 
+  ngOnDestroy (): void {
+    if (this._currentConfigSubscription) {
+      this._currentConfigSubscription.unsubscribe();
+    }
+  }
+
+
+  private deleteChart () {
+    const element = this.chartContainer.nativeElement;
+
+    d3.select(element).select('svg').remove();
+  }
 
   private initChart (): void {
+    // console.log('initChart');
     const element = this.chartContainer.nativeElement;
 
     this.width = element.offsetWidth - this.margin.right - this.margin.left;
@@ -84,7 +127,8 @@ export class ChartComponent implements OnInit, OnChanges {
                  .attr('transform', 'translate(' + this.margin.left + ',' + this.margin.top + ')');
 
     // manage locale
-    ChartComponent._defineLocalFormater(this._translateService.currentLang);
+    this._getLocaleLabels();
+    ChartComponent._defineLocalFormatter(this.language);
 
     /* create tooltip div */
     this.tooltip = d3.select(element)
@@ -171,7 +215,6 @@ export class ChartComponent implements OnInit, OnChanges {
       resultTickValues = tempXTickValues;
       tempXTickValues = [];
     }
-
 
 
     // ---------
@@ -440,10 +483,10 @@ export class ChartComponent implements OnInit, OnChanges {
       case GraphTypeKey.LIGHT:
       case  GraphTypeKey.RATIO:
       default:
-        return d.labelClass;
+        return d.label + ' / ' + this.localLabels[d.class] + d.running;
       // case GraphTypeKey.TIME:
       case GraphTypeKey.TRIUMPH:
-        return d.label;
+        return d.label + d.running;
     }
   }
 
@@ -476,46 +519,54 @@ export class ChartComponent implements OnInit, OnChanges {
   }
 
   _getTitle (d, that = this) {
+    // console.log(d.values[d.values.length - 1]);
     let title = '';
 
     switch (that.graphType) {
       case GraphTypeKey.LIGHT:
       case GraphTypeKey.RATIO:
         title += `<div class="left">`;
-        title += `<div class="label">name / class</div>`;
-        title += `<div class="label">triumph</div>`;
-        title += `<div class="label">played total</div>`;
-        title += `<div class="label">light</div>`;
-        title += `<div class="label">played</div>`;
-        title += `<div class="label">raid</div>`;
-        title += `<div class="label">nightfall</div>`;
-        title += `<div class="label">heroic Nightfall</div>`;
-        title += `<div class="label">strike</div>`;
-        title += `<div class="label">Trial of the nine</div>`;
-        title += `<div class="label">PvP</div>`;
-        title += `<div class="label">PvP ratio</div>`;
+        title += `<div class="label">${this.localLabels['name / class']}</div>`;
+        title += `<div class="label">${this.localLabels['triumph']}</div>`;
+        title += `<div class="label">${this.localLabels['played total']}</div>`;
+        title += `<div class="label">${this.localLabels['light']}</div>`;
+        title += `<div class="label">${this.localLabels['played']}</div>`;
+        title += `<div class="label">${this.localLabels['raid']}</div>`;
+        title += `<div class="label">${this.localLabels['nightfall']}</div>`;
+        // title += `<div class="label">${this.localLabels['heroic Nightfall']}</div>`;
+        title += `<div class="label">${this.localLabels['strike']}</div>`;
+        title += `<div class="label">${this.localLabels['black armory']}</div>`;
+        // title += `<div class="label">${this.localLabels['Trial of the nine']}</div>`;
+        title += `<div class="label">${this.localLabels['PvP']}</div>`;
+        title += `<div class="label">${this.localLabels['PvP ratio']}</div>`;
+        title += `<div class="label">${this.localLabels['PvP competitive']}</div>`;
+        title += `<div class="label">${this.localLabels['gambit']}</div>`;
         title += `</div>`;
         title += `<div class="right">`;
-        title += `<div class="value">${d.values[d.values.length - 1].userId + ' / ' + d.values[d.values.length - 1].class}</div>`;
+        title += `<div class="value">${d.values[d.values.length - 1].userId + ' / ' + this.localLabels[d.values[d.values.length - 1].class]}</div>`;
         title += `<div class="value">${d3.format('.0f')(d.values[d.values.length - 1].triumphScore)}</div>`;
         title += `<div class="value">${that._niceDate(d.minutePlayedTotalTotal)}</div>`;
         title += `<div class="value">${d3.format('.0f')(d.values[d.values.length - 1].lightMax)}</div>`;
         title += `<div class="value">${that._niceDate(d.values[d.values.length - 1].minutesPlayedTotal)}</div>`;
         title += `<div class="value">${d.values[d.values.length - 1].raidCleared + ' / ' + d.values[d.values.length - 1].raidEntered}</div>`;
-        title += `<div class="value">${d.values[d.values.length - 1].nightfallCleared + ' / ' + d.values[d.values.length - 1].nightfallEntered}</div>`;
-        title += `<div class="value">${d.values[d.values.length - 1].heroicNightfallCleared + ' / ' + d.values[d.values.length - 1].heroicNightfallEntered}</div>`;
+        title += `<div class="value">${(d.values[d.values.length - 1].nightfallCleared + d.values[d.values.length - 1].scored_nightfallCleared) + ' / '
+        + (d.values[d.values.length - 1].nightfallEntered + d.values[d.values.length - 1].scored_nightfallEntered)}</div>`;
+        // title += `<div class="value">${d.values[d.values.length - 1].heroicNightfallCleared + ' / ' + d.values[d.values.length - 1].heroicNightfallEntered}</div>`;
         title += `<div class="value">${d.values[d.values.length - 1].strikeCleared + ' / ' + d.values[d.values.length - 1].strikeEntered}</div>`;
-        title += `<div class="value">${d.values[d.values.length - 1].trialsOfTheNineWon + ' / ' + d.values[d.values.length - 1].trialsOfTheNineEntered}</div>`;
+        title += `<div class="value">${d.values[d.values.length - 1].blackArmoryRunCleared + ' / ' + d.values[d.values.length - 1].blackArmoryRunEntered}</div>`;
+        // title += `<div class="value">${d.values[d.values.length - 1].trialsOfTheNineWon + ' / ' + d.values[d.values.length - 1].trialsOfTheNineEntered}</div>`;
         title += `<div class="value">${d.values[d.values.length - 1].allPvPWon + ' / ' + d.values[d.values.length - 1].allPvPEntered}</div>`;
         title += `<div class="value">${d.values[d.values.length - 1].allPvPKillsDeathsAssistsRatio.toFixed(2)}</div>`;
+        title += `<div class="value">${d.values[d.values.length - 1].pvpCompetitiveWon + ' / ' + d.values[d.values.length - 1].pvpCompetitiveEntered}</div>`;
+        title += `<div class="value">${d.values[d.values.length - 1].gambitWon + ' / ' + d.values[d.values.length - 1].gambitEntered}</div>`;
         title += `</div>`;
         break;
 //    case GraphTypeKey.TIME:
       case GraphTypeKey.TRIUMPH:
         title += `<div class="left">`;
-        title += `<div class="label">name</div>`;
-        title += `<div class="label">triumph</div>`;
-        title += `<div class="label">played total</div>`;
+        title += `<div class="label">${this.localLabels['name']}</div>`;
+        title += `<div class="label">${this.localLabels['triumph']}</div>`;
+        title += `<div class="label">${this.localLabels['played total']}</div>`;
         title += `</div>`;
         title += `<div class="right">`;
         title += `<div class="value">${d.values[d.values.length - 1].userId}</div>`;
@@ -536,15 +587,15 @@ export class ChartComponent implements OnInit, OnChanges {
   _niceDate (minutes) {
     // console.log(minutes);
     if (minutes < 2 * 60) {
-      return minutes + ' minutes';
+      return minutes + ' ' + this.localLabels['minutes'];
     } else if (minutes < 2 * 24 * 60) {
-      return d3.format('.2f')(minutes / 60) + ' hours';
+      return d3.format('.2f')(minutes / 60) + ' ' + this.localLabels['hours'];
     } else if (minutes < 2 * 7 * 24 * 60) {
-      return d3.format('.2f')(minutes / (24 * 60)) + ' days';
+      return d3.format('.2f')(minutes / (24 * 60)) + ' ' + this.localLabels['days'];
     } else if (minutes < 30 * 24 * 60) {
-      return d3.format('.2f')(minutes / (7 * 24 * 60)) + ' weeks';
+      return d3.format('.2f')(minutes / (7 * 24 * 60)) + ' ' + this.localLabels['weeks'];
     } else {
-      return d3.format('.2f')(minutes / (30 * 24 * 60)) + ' months';
+      return d3.format('.2f')(minutes / (30 * 24 * 60)) + ' ' + this.localLabels['months'];
     }
 
   }
@@ -592,6 +643,41 @@ export class ChartComponent implements OnInit, OnChanges {
 
   }
 
+  private localLabels = {
+    'name': 'name',
+    'name / class': 'name / class',
+    'triumph': 'triumph',
+    'played total': 'played total',
+    'light': 'light',
+    'played': 'played',
+    'raid': 'raid',
+    'nightfall': 'nightfall',
+    'heroic Nightfall': 'heroic Nightfall',
+    'strike': 'strike',
+    'black armory': 'black armory',
+    'Trial of the nine': 'Trial of the nine',
+    'PvP': 'PvP',
+    'PvP ratio': 'PvP ratio',
+    'PvP competitive': 'PvP competitive',
+    'gambit': 'gambit',
+    'minutes': 'minutes',
+    'hours': 'hours',
+    'days': 'days',
+    'weeks': 'weeks',
+    'months': 'months',
+    'T': 'T',
+    'H': 'H',
+    'W': 'W'
+  };
+
+  private _getLocaleLabels () {
+    Object.keys(this.localLabels).forEach(key => {
+      this._translateService.get(key)
+          .subscribe((text => {
+            this.localLabels[key] = text;
+          }));
+    });
+  }
 
   //noinspection TsLint
   private static _getLocaleFormat (loc: string) {
@@ -625,7 +711,7 @@ export class ChartComponent implements OnInit, OnChanges {
 
 
   //noinspection TsLint
-  private static _defineLocalFormater (loc: string) {
+  private static _defineLocalFormatter (loc: string) {
     const d3Locale = ChartComponent._getLocaleFormat(loc);
 
     this.formatMillisecond = d3Locale.format('.%L');

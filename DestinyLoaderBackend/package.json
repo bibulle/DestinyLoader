@@ -5,7 +5,8 @@
   "scripts": {
     "start": "node ./src/bin/www",
     "devel-www": "tsc -p ./src && concurrently \"tsc -w -p ./src\" \"DEBUG=server:* nodemon --ignore ./data/ ./src/bin/www.js\"",
-    "devel-dataminer": "tsc -p ./src && concurrently \"tsc -w -p ./src\" \"DEBUG=server:* nodemon --ignore ./data/ ./src/bin/dataminer.js\" "
+    "devel-dataminer": "tsc -p ./src && concurrently \"tsc -w -p ./src\" \"DEBUG=server:* nodemon --ignore ./data/ ./src/bin/dataminer.js\" ",
+    "devel-test": "tsc -p ./src && concurrently \"tsc -w -p ./src\" \"DEBUG=server:* nodemon --ignore ./data/ ./src/bin/test.js\" "
   },
   "dependencies": {
     "@types/mongodb": "^3.1.18",

@@ -106,7 +106,7 @@ const calcList = _.throttle((callback) => {
         let list: { [id: string]: StatSummed } = docs
           .reduce(function (result: { [id: string]: StatSummed } , d:Stat) {
 
-            //debug(d);
+            // debug(d);
             let month = d.date.getMonth() + 1; //months from 1-12
             let day = d.date.getDate();
             let year = d.date.getFullYear();
@@ -172,14 +172,22 @@ const calcList = _.throttle((callback) => {
 
               result[key].nightfallEntered = d.nightfallEntered;
               result[key].nightfallCleared = d.nightfallCleared;
+              result[key].scored_nightfallEntered = d.scored_nightfallEntered;
+              result[key].scored_nightfallCleared = d.scored_nightfallCleared;
               result[key].heroicNightfallEntered = d.heroicNightfallEntered;
               result[key].heroicNightfallCleared = d.heroicNightfallCleared;
               result[key].raidEntered = d.raidEntered;
               result[key].raidCleared = d.raidCleared;
               result[key].strikeEntered = d.strikeEntered;
               result[key].strikeCleared = d.strikeCleared;
+              result[key].blackArmoryRunEntered = d.blackArmoryRunEntered;
+              result[key].blackArmoryRunCleared = d.blackArmoryRunCleared;
               result[key].allPvPEntered = d.allPvPEntered;
               result[key].allPvPWon = d.allPvPWon;
+              result[key].pvpCompetitiveEntered = d.pvpCompetitiveEntered;
+              result[key].pvpCompetitiveWon = d.pvpCompetitiveWon;
+              result[key].gambitEntered = d.gambitEntered;
+              result[key].gambitWon = d.gambitWon;
               result[key].trialsOfTheNineEntered = d.trialsOfTheNineEntered;
               result[key].trialsOfTheNineWon = d.trialsOfTheNineWon;
               result[key].allPvPKillsDeathsAssistsRatio = (d.allPvPKills + d.allPvPAssists / 2) / Math.max(1, d.allPvPDeaths);
