@@ -486,7 +486,7 @@ export class ChartComponent implements OnInit, OnDestroy, OnChanges {
         return d.label + ' / ' + this.localLabels[d.class] + d.running;
       // case GraphTypeKey.TIME:
       case GraphTypeKey.TRIUMPH:
-        return d.label + d.running;
+        return d.label + d.runningTotal;
     }
   }
 

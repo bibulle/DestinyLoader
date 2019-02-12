@@ -7,6 +7,7 @@ export class Character {
   label?: string;
   class?: string;
   running?: string;
+  runningTotal?: string;
   userId?: string;
   isOnLine?: boolean;
   minutePlayedTotalTotal?: number;

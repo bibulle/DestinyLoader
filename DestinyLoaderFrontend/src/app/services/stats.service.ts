@@ -113,6 +113,7 @@ export class StatsService {
                 d.class = d.values[d.values.length - 1].class;
                 d.label = d.userId;
                 d.running = '';
+                d.runningTotal = '';
 
                 if (d.values[d.values.length - 1].isOnLine == null) {
                   try {
@@ -162,7 +163,7 @@ export class StatsService {
               StatsService.statsList.forEach(function (d) {
                 if (isOnLine[d.userId]) {
                   d.isOnLine = true;
-                  d.running = ' &bull;';
+                  d.runningTotal = ' &bull;';
                 } else {
                   d.isOnLine = false;
                 }
@@ -198,6 +199,7 @@ export class StatsService {
                 });
 
               });
+
 
 //              // Calculate de date_min
 //              var savedGraphType = graphType;
