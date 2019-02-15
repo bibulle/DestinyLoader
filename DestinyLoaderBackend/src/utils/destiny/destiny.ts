@@ -862,10 +862,12 @@ export class Destiny {
             function (callback) {
               let src = [].concat(
                 Object.keys(data.profileInventory.data.items).map(key => data.profileInventory.data.items[key]),
-                Object.keys(data.characterEquipment.data).map(key => data.characterEquipment.data[key].items),
-                Object.keys(data.characterInventories.data).map(key => data.characterInventories.data[key].items))
-                          .flat();
-              //debug(src);
+                [].concat.apply([],Object.keys(data.characterEquipment.data).map(key => data.characterEquipment.data[key].items)),
+                [].concat.apply([],Object.keys(data.characterInventories.data).map(key => data.characterInventories.data[key].items)));
+
+              //src.forEach(v => {
+              //  debug(Array.isArray(v));
+              //})
               async.forEachSeries(
                 src,
                 (inventoryItem, callback) => {
