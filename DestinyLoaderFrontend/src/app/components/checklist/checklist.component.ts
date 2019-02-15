@@ -2,9 +2,10 @@
 import { AfterViewChecked, Component, ElementRef, HostListener, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { ChecklistService } from '../../services/checklist.service';
-import { Character, Checklist, Objective, ObjectiveTime, Pursuit, Reward } from '../../models/checklist';
+import { catalystState, Character, Checklist, Objective, ObjectiveTime, Pursuit, PursuitType, Reward } from '../../models/checklist';
 import { Config } from '../../models/config';
 import { HeaderService } from '../../services/header.service';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-checklist',
@@ -23,6 +24,7 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
   private _currentConfigSubscription: Subscription;
 
   constructor (private _checklistService: ChecklistService,
+               private _translateService: TranslateService,
                private _headerService: HeaderService,
                private elRef: ElementRef) {
   }
@@ -49,6 +51,7 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
               currentTimeObjective[ot.characterId] = {};
             }
             currentTimeObjective[ot.characterId][ot.objectiveId] = ot;
+            // console.log(ot);
           });
 
 
@@ -64,7 +67,9 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
           });
 
           // forEach character
+          let charIndex = 0;
           checklist.characters.forEach(char => {
+            charIndex++;
             char.pursuits = [];
 
             // foreach pursuit type
@@ -73,6 +78,7 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
               checklist.items[ChecklistComponent.PURSUIT_HASH][key].forEach(pursuit => {
                 if (pursuit.characterId === char.characterId) {
                   listOfPursuitsKey.push(ChecklistComponent.getPursuitKey(pursuit, char));
+                  pursuit.type = PursuitType.PURSUIT;
                   char.pursuits.push(pursuit);
                 }
 
@@ -102,6 +108,7 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
                 objectives: [],
                 vendorName: undefined,
                 saleDescription: undefined,
+                type: PursuitType.MILESTONE
               };
 
               // add well formed rewards
@@ -201,7 +208,8 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
                                 expirationDate: undefined,
                                 rewards: [],
                                 maxRewardLevel: -2,
-                                objectives: []
+                                objectives: [],
+                                type: PursuitType.SALE
                               };
 
                               // add  rewards
@@ -248,6 +256,79 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
               }
             );
 
+            // add catalyst (to the first character)
+            if (charIndex === 1) {
+              checklist.catalysts.forEach(
+                catalyst => {
+                  if ((catalyst.state === catalystState.DROPPED) || (catalyst.state === catalystState.TO_BE_COMPLETED)) {
+                    const newCatalyst: Pursuit = {
+                      itemInstanceId: catalyst.inventoryItem.itemInstanceId,
+                      itemTypeDisplayName: 'Catalyst',
+                      description: catalyst.item.displayProperties.description,
+                      name: catalyst.inventoryItem.itemName,
+                      icon: catalyst.item.displayProperties.icon,
+                      expirationDate: undefined,
+                      rewards: [],
+                      maxRewardLevel: -2,
+                      objectives: [],
+                      vendorName: undefined,
+                      saleDescription: undefined,
+                      type: PursuitType.CATALYST
+                    };
+
+                    this._translateService
+                        .get('catalyst', {name: catalyst.inventoryItem.itemName})
+                        .subscribe(res => {
+                          newCatalyst.name = res;
+                        });
+
+                    // change description on dropped catalyst
+                    if (catalyst.state === catalystState.DROPPED) {
+                      this._translateService
+                          .get('catalyst.dropped')
+                          .subscribe(res => {
+                            newCatalyst.description = res;
+                          });
+                    }
+
+
+                    listOfPursuitsKey.push(ChecklistComponent.getPursuitKey(newCatalyst, char));
+                    char.pursuits.push(newCatalyst);
+
+                    // add well formed objectives
+                    if (catalyst.objectives) {
+                      // console.log(newCatalyst.itemInstanceId+" "+newCatalyst.name);
+                      catalyst.objectives.forEach(objective => {
+                        const newObjective: Objective = {
+                          objectiveHash: objective.objectiveHash,
+                          completionValue: objective.completionValue,
+                          complete: objective.complete,
+                          progress: objective.progress,
+                          item: objective.item,
+                          timeTillFinished: Number.MAX_SAFE_INTEGER
+                        };
+                        newCatalyst.objectives.push(newObjective);
+
+
+                        // add running objective
+                        if (currentTimeObjective[char.characterId] &&
+                          currentTimeObjective[char.characterId][objective.objectiveHash] &&
+                          currentTimeObjective[char.characterId][objective.objectiveHash].pursuitId === newCatalyst.itemInstanceId) {
+                          newObjective.runningTimeObjective = currentTimeObjective[char.characterId][objective.objectiveHash];
+                          newObjective.runningTimeObjective.timeStart = new Date(newObjective.runningTimeObjective.timeStart);
+                          newObjective.runningTimeObjective.timeRunning = (new Date().getTime() - newObjective.runningTimeObjective.timeStart.getTime());
+
+                        }
+
+                      });
+                    }
+
+                    // console.log(catalyst);
+                  }
+                }
+              );
+            }
+
             // sort pursuit
             this.sortPursuits(char);
 
@@ -275,6 +356,7 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
     this._currentConfigSubscription = this._headerService.configObservable().subscribe(
       rel => {
         this.config = rel;
+        // console.log(rel);
 
         this.checklist.characters.forEach(char => {
           setTimeout(() => {
@@ -314,6 +396,14 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
           selectedCompare++;
         }
 
+        let catalystCompare = 0;
+        if ((p1.type === PursuitType.CATALYST) && (p1.objectives.length === 0)) {
+          catalystCompare--;
+        }
+        if ((p2.type === PursuitType.CATALYST) && (p2.objectives.length === 0)) {
+          catalystCompare++;
+        }
+
         const r1 = Reward.getMaxReward(p1.rewards);
         p1.maxRewardLevel = Reward.getRewardValue(r1);
         const r2 = Reward.getMaxReward(p2.rewards);
@@ -326,6 +416,8 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
 
         if (selectedCompare !== 0) {
           return selectedCompare;
+        } else if (catalystCompare !== 0) {
+          return catalystCompare;
         } else if (rewardsCompared !== 0) {
           return rewardsCompared;
         } else {
@@ -417,6 +509,7 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
   stopObjectiveTime (objective: Objective, characterId: string, pursuitId: string, event: any) {
     // console.log('stopObjectiveTime');
     event.stopPropagation();
+
     this._checklistService.stopObjective(objective, characterId, pursuitId)
         .then(obj => {
 
@@ -430,6 +523,7 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
   launchObjectiveTime (objective: Objective, characterId: string, pursuitId: string, event: any) {
     // console.log('launchObjectiveTime');
     event.stopPropagation();
+
     this._checklistService.startObjective(objective, characterId, pursuitId)
         .then(obj => {
 
@@ -482,7 +576,7 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
   }
 
 
-  static getPursuitKey(pursuit, character) {
+  static getPursuitKey (pursuit, character) {
     return character.characterId + ' ' + pursuit.itemInstanceId;
   }
 
@@ -493,7 +587,7 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
     // console.log(pursuit);
   }
 
-  pursuitIsSelected(pursuit, character) {
+  pursuitIsSelected (pursuit, character) {
     return this.config.selectedPursuits && (this.config.selectedPursuits.indexOf(ChecklistComponent.getPursuitKey(pursuit, character)) > -1);
   }
 

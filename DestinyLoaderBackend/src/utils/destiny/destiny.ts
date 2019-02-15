@@ -54,6 +54,50 @@ export class Destiny {
     2: "Unknown"
   };
 
+  private static itemType = {
+    None: 0,
+    Currency: 1,
+    Armor: 2,
+    Weapon: 3,
+    Message: 7,
+    Engram: 8,
+    Consumable: 9,
+    ExchangeMaterial: 10,
+    MissionReward: 11,
+    QuestStep: 12,
+    QuestStepComplete: 13,
+    Emblem: 14,
+    Quest: 15,
+    Subclass: 16,
+    ClanBanner: 17,
+    Aura: 18,
+    Mod: 19,
+    Dummy: 20,
+    Ship: 21,
+    Vehicle: 22,
+    Emote: 23,
+    Ghost: 24,
+    Package: 25,
+    Bounty: 26,
+  };
+
+  private static tierType = {
+    Unknown: 0,
+    Currency: 1,
+    Basic: 2,
+    Common: 3,
+    Rare: 4,
+    Superior: 5,
+    Exotic: 6
+  };
+
+  private static catalystState = {
+    Unknown: 0,
+    Done: 1,
+    Dropped: 2,
+    ToBeCompleted: 3
+  };
+
 
   private static pursuitsBucket;
 
@@ -643,977 +687,1149 @@ export class Destiny {
     //debug(JSON.stringify(url, null, 2));
 
     Destiny._getFromBungie(url, function (err, data) {
-      //debug(JSON.stringify(err, null, 2));
-      //debug(JSON.stringify(data, null, 2));
-      if (err) {
-        return callback(err);
-      }
-      if (!data) {
-        return callback("Error");
-      }
+        //debug(JSON.stringify(err, null, 2));
+        //debug(JSON.stringify(data, null, 2));
+        if (err) {
+          return callback(err);
+        }
+        if (!data) {
+          return callback("Error");
+        }
 
-      //console.log(data);
-      //debug(JSON.stringify(data, null, 2));
-      //console.log(data.characterInventories.data["2305843009262856644"]);
-      //console.log(data.characterProgressions.data["2305843009262856644"].items);
-      //console.log(data.itemComponents.instances.data);
-      //debug(JSON.stringify(data.profileProgression, null, 2));
-      //debug(JSON.stringify(data.characterProgressions.checklists, null, 2));
+        //console.log(Object.keys(data));
+        //debug(JSON.stringify(data, null, 2));
 
-      const result = {
-        items: {},
-        characters: [],
-        checklists: [],
-        vendors: {},
-        objectives: {}
-      };
-      let itemsToLoad;
-      const itemInstancesTable = {};
-      const itemObjectivesTable = {};
-      const itemSocketsTable = {};
+        //debug(JSON.stringify(data.profileInventory, null, 2));
+        //debug(JSON.stringify(data.profile, null, 2));
+        //debug(JSON.stringify(data.profilePlugSets, null, 2));
+        //debug(JSON.stringify(data.profileProgression, null, 2));
+        //debug(JSON.stringify(data.profileRecords, null, 2));
+        //debug(JSON.stringify(data.characters, null, 2));
+        //debug(JSON.stringify(data.characterInventories, null, 2));
+        //debug(JSON.stringify(data.characterProgressions, null, 2));
+        //debug(JSON.stringify(data.characterActivities, null, 2));
+        //debug(JSON.stringify(data.characterEquipment, null, 2));
+        //debug(JSON.stringify(data.characterPlugSets, null, 2));
+        //debug(JSON.stringify(data.characterUninstancedItemComponents, null, 2));
+        //debug(JSON.stringify(data.characterRecords, null, 2));
+        //debug(JSON.stringify(data.itemComponents, null, 2));
 
-      const checklistToLoad = [];
-      const milestoneToLoad = [];
+        //console.log(data.characterInventories.data["2305843009262856644"]);
+        //console.log(data.characterProgressions.data["2305843009262856644"].items);
 
 
-      async.series([
-          // Add characters
-          function (callback) {
-            async.eachSeries(
-              Object.keys(data.characters.data),
-              function (characterId, callback) {
-                result.characters.push(data.characters.data[characterId]);
-                callback();
-              },
-              function (err) {
-                result.characters.sort(function (c1, c2) {
-                  if (c1.dateLastPlayed > c2.dateLastPlayed) {
-                    return -1;
-                  } else if (c2.dateLastPlayed > c1.dateLastPlayed) {
-                    return 1;
-                  }
-                  return 0;
-                });
+        const result = {
+          items: {},
+          characters: [],
+          checklists: [],
+          vendors: {},
+          objectives: {},
+          catalysts: []
+        };
+        let itemsToLoad;
+        const itemInstancesTable = {};
+        const itemObjectivesTable = {};
+        const itemSocketsTable = {};
 
-                //debug(JSON.stringify(result.characters, null, 2));
-                callback(err);
-              }
-            );
-          },
+        const checklistToLoad = [];
+        const milestoneToLoad = [];
 
-          // complete characters
-          function (callback) {
-            async.eachSeries(
-              result.characters,
-              function (character, callback) {
-                async.series(
-                  [
-                    // complete classes
-                    (callback) => {
-                      Destiny.queryClassById(character.classHash, (err, data) => {
-                        if (data) {
-                          //debug(JSON.stringify(data, null, 2));
-                          character.genderedClassNames = data.genderedClassNames[Destiny.genderType[character.genderType]];
-                        }
-                        callback(err);
-                      }, lang);
 
-                    },
-                    // complete race
-                    (callback) => {
-                      Destiny.queryRaceById(character.raceHash, (err, data) => {
-                        if (data) {
-                          //debug(JSON.stringify(data, null, 2));
-                          character.genderedRaceNames = data.genderedRaceNames[Destiny.genderType[character.genderType]];
-                        }
-                        callback(err);
-                      }, lang);
-
-                    },
-                    // add vendors to character
-                    (callback) => {
-                      Destiny.getVendors(user, character.characterId, function (err, data) {
-                        if (data) {
-                          result.vendors[character.characterId] = data;
-                        }
-                        callback(err);
-                      }, lang)
-
+        async.series([
+            // Add characters
+            function (callback) {
+              async.eachSeries(
+                Object.keys(data.characters.data),
+                function (characterId, callback) {
+                  result.characters.push(data.characters.data[characterId]);
+                  callback();
+                },
+                function (err) {
+                  result.characters.sort(function (c1, c2) {
+                    if (c1.dateLastPlayed > c2.dateLastPlayed) {
+                      return -1;
+                    } else if (c2.dateLastPlayed > c1.dateLastPlayed) {
+                      return 1;
                     }
-                  ],
-                  function (err) {
-                    callback(err);
-                  }
-                );
+                    return 0;
+                  });
 
-              },
-              function (err) {
-                callback(err);
-              }
-            );
+                  //debug(JSON.stringify(result.characters, null, 2));
+                  callback(err);
+                }
+              );
+            },
 
-          },
+            // complete characters
+            function (callback) {
+              async.eachSeries(
+                result.characters,
+                function (character, callback) {
+                  async.series(
+                    [
+                      // complete classes
+                      (callback) => {
+                        Destiny.queryClassById(character.classHash, (err, data) => {
+                          if (data) {
+                            //debug(JSON.stringify(data, null, 2));
+                            character.genderedClassNames = data.genderedClassNames[Destiny.genderType[character.genderType]];
+                          }
+                          callback(err);
+                        }, lang);
 
-          // read the item instance
-          function (callback) {
-            async.eachSeries(
-              Object.keys(data.itemComponents.instances.data),
-              function (instanceId, callback) {
+                      },
+                      // complete race
+                      (callback) => {
+                        Destiny.queryRaceById(character.raceHash, (err, data) => {
+                          if (data) {
+                            //debug(JSON.stringify(data, null, 2));
+                            character.genderedRaceNames = data.genderedRaceNames[Destiny.genderType[character.genderType]];
+                          }
+                          callback(err);
+                        }, lang);
+
+                      },
+                      // add vendors to character
+                      (callback) => {
+                        Destiny.getVendors(user, character.characterId, function (err, data) {
+                          if (data) {
+                            result.vendors[character.characterId] = data;
+                          }
+                          callback(err);
+                        }, lang)
+
+                      }
+                    ],
+                    function (err) {
+                      callback(err);
+                    }
+                  );
+
+                },
+                function (err) {
+                  callback(err);
+                }
+              );
+
+            },
+
+            // read the item instance
+            function (callback) {
+              async.eachSeries(
+                Object.keys(data.itemComponents.instances.data),
+                function (instanceId, callback) {
 //              if (instanceId == "6917529083233657152") {
 //                debug(JSON.stringify(data.itemComponents.instances.data[instanceId], null, 2));
 //              }
-                itemInstancesTable[instanceId] = data.itemComponents.instances.data[instanceId];
-                callback();
-              },
-              function (err) {
-                callback(err);
-              }
-            );
-          },
-          // read the item objective
-          function (callback) {
-            async.eachSeries(
-              Object.keys(data.itemComponents.objectives.data),
-              function (instanceId, callback) {
+                  itemInstancesTable[instanceId] = data.itemComponents.instances.data[instanceId];
+                  callback();
+                },
+                function (err) {
+                  callback(err);
+                }
+              );
+            },
+            // read the item objective
+            function (callback) {
+              async.eachSeries(
+                Object.keys(data.itemComponents.objectives.data),
+                function (instanceId, callback) {
 //              if (instanceId == "6917529083233657152") {
 //                debug(JSON.stringify(data.itemComponents.objectives.data[instanceId], null, 2));
 //              }
-                itemObjectivesTable[instanceId] = data.itemComponents.objectives.data[instanceId];
-                callback();
-              },
-              function (err) {
-                callback(err);
-              }
-            );
-          },
-          // read the item socket
-          function (callback) {
-            async.eachSeries(
-              Object.keys(data.itemComponents.sockets.data),
-              function (instanceId, callback) {
-                itemSocketsTable[instanceId] = data.itemComponents.sockets.data[instanceId];
-                callback();
-              },
-              function (err) {
-                callback(err);
-              }
-            );
-          },
-          // read the checklist for profile
-          function (callback) {
-            async.eachSeries(
-              Object.keys(data.profileProgression.data.checklists),
-              function (checklistId, callback) {
-                const checklist = {
-                  data: data.profileProgression.data.checklists[checklistId],
-                  instanceId: checklistId,
-                  count: 0,
-                  done: 0
-                };
-                async.eachSeries(
-                  Object.keys(checklist.data),
-                  function (checklistItem, callback) {
-                    checklist.count++;
-                    if (checklist.data[checklistItem]) {
-                      checklist.done++;
-                    }
-                    callback();
-                  },
-                  function (err) {
-                    result.checklists.push(checklist);
-                    checklistToLoad.push(checklist);
-                    callback(err);
-                  });
-              },
-              function (err) {
-                //console.log(profileProgressionTable);
-                callback(err);
-              }
-            );
-          },
-          // read the checklist for characters
-          function (callback) {
-            async.eachSeries(
-              result.characters,
-              function (character, callback) {
-                character.checklists = [];
-                async.eachSeries(
-                  Object.keys(data.characterProgressions.data[character.characterId].checklists),
-                  function (checklistId, callback) {
-                    const checklist = {
-                      data: data.characterProgressions.data[character.characterId].checklists[checklistId],
-                      instanceId: checklistId,
-                      count: 0,
-                      done: 0
-                    };
-                    async.eachSeries(
-                      Object.keys(checklist.data),
-                      function (checklistItem, callback) {
-                        checklist.count++;
-                        if (checklist.data[checklistItem]) {
-                          checklist.done++;
+                  itemObjectivesTable[instanceId] = data.itemComponents.objectives.data[instanceId];
+                  callback();
+                },
+                function (err) {
+                  callback(err);
+                }
+              );
+            },
+            // read the item socket
+            function (callback) {
+              async.eachSeries(
+                Object.keys(data.itemComponents.sockets.data),
+                function (instanceId, callback) {
+                  itemSocketsTable[instanceId] = data.itemComponents.sockets.data[instanceId];
+                  callback();
+                },
+                function (err) {
+                  callback(err);
+                }
+              );
+            },
+            // read catalysts
+            function (callback) {
+              let src = [].concat(
+                Object.keys(data.profileInventory.data.items).map(key => data.profileInventory.data.items[key]),
+                Object.keys(data.characterEquipment.data).map(key => data.characterEquipment.data[key].items),
+                Object.keys(data.characterInventories.data).map(key => data.characterInventories.data[key].items))
+                          .flat();
+              //debug(src);
+              async.forEachSeries(
+                src,
+                (inventoryItem, callback) => {
+                  //debug(inventoryItem);
+                  Destiny.queryItemById(
+                    inventoryItem.itemHash,
+                    (err, item) => {
+                      //debug(inventoryItem.itemHash);
+                      if (item && (item.itemType === Destiny.itemType.Weapon) && (item.inventory.tierType === Destiny.tierType.Exotic)) {
+                        //debug('\n\n==========================');
+                        //debug(obj.sockets);
+                        //debug(data.profileInventory.data.items[key]);
+                        let instanceItem = itemInstancesTable[inventoryItem.itemInstanceId];
+                        //debug(inventoryItem);
+                        if ((inventoryItem.state & 4) == 4) {
+                          //debug(item.displayProperties.name + " : The catalyst is done");
+                          let catalyst = {
+                            inventoryItem: inventoryItem,
+                            item: item,
+                            description: 'The catalyst is done',
+                            state: Destiny.catalystState.Done
+                          };
+                          result.catalysts.push(catalyst);
+                          return callback();
                         }
-                        callback();
-                      },
-                      function (err) {
-                        character.checklists.push(checklist);
-                        checklistToLoad.push(checklist);
+
+                        let instanceSockets = [];
+                        if (itemSocketsTable[inventoryItem.itemInstanceId]) {
+                          instanceSockets = itemSocketsTable[inventoryItem.itemInstanceId].sockets;
+                        }
+                        if (instanceSockets) {
+                          async.forEachSeries(
+                            instanceSockets,
+                            (socket, callback) => {
+                              //debug(socket);
+                              if (!socket.reusablePlugs) {
+                                return callback();
+                              }
+                              async.forEachSeries(
+                                socket.reusablePlugs,
+                                (plug, callback) => {
+                                  //debug('--> '+plug.plugItemHash);
+                                  Destiny.queryItemById(
+                                    plug.plugItemHash,
+                                    (err, obj) => {
+                                      if (err) {
+                                        return callback(err);
+                                      }
+                                      if (obj.plug.uiPlugLabel === 'masterwork_interactable') {
+                                        //debug(obj.displayProperties.name + '\t rules:' + obj.plug.insertionRules.length + ' canInsert:' + plug.canInsert);
+                                        //debug(plug);
+                                        if (((inventoryItem.state & 4) == 0) && (obj.plug.insertionRules.length == 0) && (plug.canInsert)) {
+                                          //debug(item.displayProperties.name + " : The catalyst has dropped, but needs to be inserted to activate.");
+                                          //debug(obj);
+                                          let catalyst = {
+                                            inventoryItem: inventoryItem,
+                                            item: obj,
+                                            description: 'The catalyst has dropped, but needs to be inserted to activate.',
+                                            state: Destiny.catalystState.Dropped
+                                          };
+                                          result.catalysts.push(catalyst);
+
+                                          callback();
+                                        } else if (((inventoryItem.state & 4) == 0) && (obj.plug.insertionRules.length == 1) && (!plug.canInsert)) {
+                                          //debug(item.displayProperties.name + " : The catalyst must be completed.");
+
+                                          let catalyst = {
+                                            inventoryItem: inventoryItem,
+                                            item: obj,
+                                            description: 'The catalyst must be completed.',
+                                            state: Destiny.catalystState.ToBeCompleted,
+                                            objectives: []
+                                          };
+                                          result.catalysts.push(catalyst);
+
+                                          // debug(obj.plug);
+                                          //debug(obj.displayProperties.description);
+                                          // debug(plug);
+                                          async.forEachSeries(
+                                            plug.plugObjectives,
+                                            (objective, callback) => {
+                                              Destiny.queryObjectiveById(
+                                                objective.objectiveHash,
+                                                (err, obj) => {
+                                                  //debug('\t' + obj.progressDescription + ' (' + objective.progress + '/' + objective.completionValue + ')');
+                                                  objective.item = obj;
+                                                  catalyst.objectives.push(objective);
+
+                                                  // add objective to list
+                                                  Object.keys(data.characters.data).forEach(characterId => {
+                                                    const key = characterId + catalyst.inventoryItem.itemInstanceId + objective.objectiveHash;
+                                                    // debug(key+' => '+objective.progress);
+                                                    result.objectives[key] = objective.progress;
+                                                  });
+
+
+                                                  callback();
+                                                },
+                                                lang
+                                              )
+                                            },
+                                            (err) => {
+                                              callback(err);
+                                            }
+                                          )
+                                        } else {
+                                          callback();
+                                        }
+                                      } else {
+                                        callback();
+                                      }
+                                    },
+                                    lang
+                                  )
+                                },
+                                (err) => {
+                                  callback(err);
+                                });
+                            },
+                            (err) => {
+                              callback(err);
+                            });
+                        } else {
+                          callback(err);
+                        }
+                      } else {
                         callback(err);
-                      });
-
-                  },
-                  function (err) {
-                    callback(err);
+                      }
+                    },
+                    lang
+                  )
+                },
+                (err) => {
+                  if (err) {
+                    error(err);
                   }
-                )
-              },
-              function (err) {
-                //console.log(profileProgressionTable);
-                callback(err);
-              }
-            );
-          },
-          // read the milestone for characters
-          function (callback) {
-            async.eachSeries(
-              result.characters,
-              function (character, callback) {
-                character.milestones = [];
-                async.eachSeries(
-                  Object.keys(data.characterProgressions.data[character.characterId].milestones),
-                  function (milestoneId, callback) {
-                    const milestone = {
-                      data: data.characterProgressions.data[character.characterId].milestones[milestoneId],
-                      instanceId: milestoneId,
-                      characterId: character.characterId,
-                      objectives: [],
-                      rewards: []
-                    };
-                    milestone.data = data.characterProgressions.data[character.characterId].milestones[milestoneId];
-                    milestone.instanceId = milestoneId;
+                  callback(err);
+                }
+              )
+              ;
+            },
 
-                    async.waterfall([
-                        function (callback) {
-                          // Read the objectives
-                          milestone.objectives = [];
-                          async.eachSeries(
-                            milestone.data.activities,
-                            function (activity, callback) {
-                              async.eachSeries(
-                                activity.challenges,
-                                function (challenge, callback) {
-                                  let found = false;
-                                  milestone.objectives.forEach(obj => {
-                                    if (obj.objectiveHash === challenge.objective.objectiveHash) {
-                                      found = true;
-                                    }
-                                  });
-                                  if (!found) {
-                                    milestone.objectives.push(challenge.objective);
-                                  }
-                                  callback();
-                                },
-                                function (err) {
-                                  callback(err);
-                                });
-                            },
-                            function (err) {
-                              callback(err);
-                            });
+// read the checklist for profile
+            function (callback) {
+              async.eachSeries(
+                Object.keys(data.profileProgression.data.checklists),
+                function (checklistId, callback) {
+                  const checklist = {
+                    data: data.profileProgression.data.checklists[checklistId],
+                    instanceId: checklistId,
+                    count: 0,
+                    done: 0
+                  };
+                  async.eachSeries(
+                    Object.keys(checklist.data),
+                    function (checklistItem, callback) {
+                      checklist.count++;
+                      if (checklist.data[checklistItem]) {
+                        checklist.done++;
+                      }
+                      callback();
+                    },
+                    function (err) {
+                      result.checklists.push(checklist);
+                      checklistToLoad.push(checklist);
+                      callback(err);
+                    });
+                },
+                function (err) {
+                  //console.log(profileProgressionTable);
+                  callback(err);
+                }
+              );
+            },
+
+// read the checklist for characters
+            function (callback) {
+              async.eachSeries(
+                result.characters,
+                function (character, callback) {
+                  character.checklists = [];
+                  async.eachSeries(
+                    Object.keys(data.characterProgressions.data[character.characterId].checklists),
+                    function (checklistId, callback) {
+                      const checklist = {
+                        data: data.characterProgressions.data[character.characterId].checklists[checklistId],
+                        instanceId: checklistId,
+                        count: 0,
+                        done: 0
+                      };
+                      async.eachSeries(
+                        Object.keys(checklist.data),
+                        function (checklistItem, callback) {
+                          checklist.count++;
+                          if (checklist.data[checklistItem]) {
+                            checklist.done++;
+                          }
+                          callback();
                         },
-                        function (callback) {
-                          // Read the objectives (from quests)
-                          async.eachSeries(
-                            milestone.data.availableQuests,
-                            function (quest, callback) {
-                              async.eachSeries(
-                                quest.status.stepObjectives,
-                                function (challenge, callback) {
-                                  let found = false;
-                                  milestone.objectives.forEach(obj => {
-                                    if (obj.objectiveHash === challenge.objectiveHash) {
-                                      found = true;
+                        function (err) {
+                          character.checklists.push(checklist);
+                          checklistToLoad.push(checklist);
+                          callback(err);
+                        });
+
+                    },
+                    function (err) {
+                      callback(err);
+                    }
+                  )
+                },
+                function (err) {
+                  //console.log(profileProgressionTable);
+                  callback(err);
+                }
+              );
+            },
+
+// read the milestone for characters
+            function (callback) {
+              async.eachSeries(
+                result.characters,
+                function (character, callback) {
+                  character.milestones = [];
+                  async.eachSeries(
+                    Object.keys(data.characterProgressions.data[character.characterId].milestones),
+                    function (milestoneId, callback) {
+                      const milestone = {
+                        data: data.characterProgressions.data[character.characterId].milestones[milestoneId],
+                        instanceId: milestoneId,
+                        characterId: character.characterId,
+                        objectives: [],
+                        rewards: []
+                      };
+                      milestone.data = data.characterProgressions.data[character.characterId].milestones[milestoneId];
+                      milestone.instanceId = milestoneId;
+
+                      async.waterfall([
+                          function (callback) {
+                            // Read the objectives
+                            milestone.objectives = [];
+                            async.eachSeries(
+                              milestone.data.activities,
+                              function (activity, callback) {
+                                async.eachSeries(
+                                  activity.challenges,
+                                  function (challenge, callback) {
+                                    let found = false;
+                                    milestone.objectives.forEach(obj => {
+                                      if (obj.objectiveHash === challenge.objective.objectiveHash) {
+                                        found = true;
+                                      }
+                                    });
+                                    if (!found) {
+                                      milestone.objectives.push(challenge.objective);
                                     }
+                                    callback();
+                                  },
+                                  function (err) {
+                                    callback(err);
                                   });
-                                  if (!found) {
-                                    milestone.objectives.push(challenge);
-                                  }
-                                  callback();
-                                },
-                                function (err) {
-                                  callback(err);
-                                });
-                            },
-                            function (err) {
-                              callback(err);
-                            });
-                        },
-                        function (callback) {
-                          // Read the rewards
-                          milestone.rewards = [];
-                          async.eachSeries(
-                            milestone.data.rewards,
-                            function (rewardCategory, callback) {
-                              async.eachSeries(
-                                rewardCategory.entries,
-                                function (reward, callback) {
-                                  reward.rewardCategoryHash = rewardCategory.rewardCategoryHash;
-                                  reward.itemHash = reward.rewardEntryHash;
-                                  milestone.rewards.push(reward);
+                              },
+                              function (err) {
+                                callback(err);
+                              });
+                          },
+                          function (callback) {
+                            // Read the objectives (from quests)
+                            async.eachSeries(
+                              milestone.data.availableQuests,
+                              function (quest, callback) {
+                                async.eachSeries(
+                                  quest.status.stepObjectives,
+                                  function (challenge, callback) {
+                                    let found = false;
+                                    milestone.objectives.forEach(obj => {
+                                      if (obj.objectiveHash === challenge.objectiveHash) {
+                                        found = true;
+                                      }
+                                    });
+                                    if (!found) {
+                                      milestone.objectives.push(challenge);
+                                    }
+                                    callback();
+                                  },
+                                  function (err) {
+                                    callback(err);
+                                  });
+                              },
+                              function (err) {
+                                callback(err);
+                              });
+                          },
+                          function (callback) {
+                            // Read the rewards
+                            milestone.rewards = [];
+                            async.eachSeries(
+                              milestone.data.rewards,
+                              function (rewardCategory, callback) {
+                                async.eachSeries(
+                                  rewardCategory.entries,
+                                  function (reward, callback) {
+                                    reward.rewardCategoryHash = rewardCategory.rewardCategoryHash;
+                                    reward.itemHash = reward.rewardEntryHash;
+                                    milestone.rewards.push(reward);
+                                    //debug(JSON.stringify(reward, null, 2));
+                                    callback();
+                                  },
+                                  function (err) {
+                                    callback(err);
+                                  });
+                              },
+                              function (err) {
+                                callback(err);
+                              });
+                          },
+                          function (callback) {
+                            // Add rewards on missing one
+                            if ((milestone.data.milestoneHash === Destiny.MILESTONE_FLASH_POINT) ||
+                              (milestone.data.milestoneHash === Destiny.MILESTONE_GUARDIAN_OF_ALL) ||
+                              (milestone.data.milestoneHash === Destiny.MILESTONE_IRON_BANNER)) {
+                              if (milestone.rewards.length == 0) {
+                                let reward = {
+                                  earned: false,
+                                  itemHash: Destiny.CHALLENGE_SOURCED_REWARD,
+                                  items: [],
+                                  redeemed: false,
+                                  rewardCategoryHash: Destiny.CHALLENGE_SOURCED_REWARD,
+                                  rewardEntryHash: Destiny.CHALLENGE_SOURCED_REWARD,
+                                  quantity: 1,
+                                  displayProperties: {}
+                                };
+                                milestone.rewards.push(reward);
+
+                                Destiny.queryItemById(Destiny.POWERFUL_GEAR, (err, data) => {
+                                  reward.displayProperties = data.displayProperties;
                                   //debug(JSON.stringify(reward, null, 2));
                                   callback();
-                                },
-                                function (err) {
-                                  callback(err);
-                                });
-                            },
-                            function (err) {
-                              callback(err);
-                            });
-                        },
-                        function (callback) {
-                          // Add rewards on missing one
-                          if ((milestone.data.milestoneHash === Destiny.MILESTONE_FLASH_POINT) ||
-                            (milestone.data.milestoneHash === Destiny.MILESTONE_GUARDIAN_OF_ALL) ||
-                            (milestone.data.milestoneHash === Destiny.MILESTONE_IRON_BANNER)) {
-                            if (milestone.rewards.length == 0) {
-                              let reward = {
-                                earned: false,
-                                itemHash: Destiny.CHALLENGE_SOURCED_REWARD,
-                                items: [],
-                                redeemed: false,
-                                rewardCategoryHash: Destiny.CHALLENGE_SOURCED_REWARD,
-                                rewardEntryHash: Destiny.CHALLENGE_SOURCED_REWARD,
-                                quantity: 1,
-                                displayProperties: {}
-                              };
-                              milestone.rewards.push(reward);
+                                }, lang);
 
-                              Destiny.queryItemById(Destiny.POWERFUL_GEAR, (err, data) => {
-                                reward.displayProperties = data.displayProperties;
-                                //debug(JSON.stringify(reward, null, 2));
+                              } else {
                                 callback();
-                              }, lang);
-
+                              }
                             } else {
                               callback();
                             }
-                          } else {
-                            callback();
-                          }
-                        },
-                        function (callback) {
-                          //debug(milestone); // "536115997"
-                          // Read the rewards from quests
-                          if (milestone.data.milestoneHash) {
+                          },
+                          function (callback) {
+                            //debug(milestone); // "536115997"
+                            // Read the rewards from quests
+                            if (milestone.data.milestoneHash) {
 
-                            Destiny.queryMilestoneById(milestone.data.milestoneHash, (err, milestoneDef) => {
-                              if (milestoneDef.quests) {
-                                async.eachSeries(
-                                  Object.keys(milestoneDef.quests),
-                                  function (questItemHash, callback) {
-                                    if (!milestoneDef.quests[questItemHash].questRewards) {
-                                      return callback()
+                              Destiny.queryMilestoneById(milestone.data.milestoneHash, (err, milestoneDef) => {
+                                if (milestoneDef.quests) {
+                                  async.eachSeries(
+                                    Object.keys(milestoneDef.quests),
+                                    function (questItemHash, callback) {
+                                      if (!milestoneDef.quests[questItemHash].questRewards) {
+                                        return callback()
+                                      }
+                                      //debug(milestoneDef.displayProperties.description);
+                                      milestone.rewards.push(milestoneDef.quests[questItemHash].questRewards.items[0]);
+                                      Destiny.queryItemById(milestoneDef.quests[questItemHash].questRewards.items[0].itemHash, (err, data) => {
+                                        //debug(data.displayProperties);
+                                        milestoneDef.quests[questItemHash].questRewards.items[0].displayProperties = data.displayProperties;
+                                        callback();
+                                      }, lang)
+
+                                    },
+                                    function (err) {
+                                      //debug(JSON.stringify(milestone.rewards, null, 2));
+                                      callback(err);
                                     }
-                                    //debug(milestoneDef.displayProperties.description);
-                                    milestone.rewards.push(milestoneDef.quests[questItemHash].questRewards.items[0]);
-                                    Destiny.queryItemById(milestoneDef.quests[questItemHash].questRewards.items[0].itemHash, (err, data) => {
-                                      //debug(data.displayProperties);
-                                      milestoneDef.quests[questItemHash].questRewards.items[0].displayProperties = data.displayProperties;
-                                      callback();
-                                    }, lang)
-
-                                  },
-                                  function (err) {
-                                    //debug(JSON.stringify(milestone.rewards, null, 2));
-                                    callback(err);
-                                  }
-                                )
-                              } else {
-                                callback(err);
-                              }
-                            }, lang)
-                          } else {
-                            callback(err);
+                                  )
+                                } else {
+                                  callback(err);
+                                }
+                              }, lang)
+                            } else {
+                              callback(err);
+                            }
                           }
-                        }
-                      ],
-                      function (err) {
-                        //if (milestoneId === '3603098564') {
-                        //debug(milestone);
-                        //}
-                        character.milestones.push(milestone);
-                        milestoneToLoad.push(milestone);
-                        callback(err);
-                      });
+                        ],
+                        function (err) {
+                          //if (milestoneId === '3603098564') {
+                          //debug(milestone);
+                          //}
+                          character.milestones.push(milestone);
+                          milestoneToLoad.push(milestone);
+                          callback(err);
+                        });
 
 
-                  },
-                  function (err) {
-                    callback(err);
-                  }
-                )
-              },
-              function (err) {
-                //console.log(profileProgressionTable);
-                callback(err);
-              }
-            );
-          },
-          // Fill the checklist from manifest
-          function (callback) {
-            async.eachSeries(
-              checklistToLoad,
-              function (checklist, callback) {
-                if (checklist.instanceId) {
-                  Destiny.queryChecklistById(checklist.instanceId, function (err, definition) {
-                    if (err) return callback(err);
-                    checklist.definition = definition;
-                    checklist.checklistName = definition.displayProperties.name;
-                    if (!checklist.checklistName) {
-                      //debug.error("Empty definition name");
-                      //debug.warn(JSON.stringify(definition, null, 2));
-                      checklist.checklistName = "Unknown name";
+                    },
+                    function (err) {
+                      callback(err);
                     }
+                  )
+                },
+                function (err) {
+                  //console.log(profileProgressionTable);
+                  callback(err);
+                }
+              );
+            },
+
+// Fill the checklist from manifest
+            function (callback) {
+              async.eachSeries(
+                checklistToLoad,
+                function (checklist, callback) {
+                  if (checklist.instanceId) {
+                    Destiny.queryChecklistById(checklist.instanceId, function (err, definition) {
+                      if (err) return callback(err);
+                      checklist.definition = definition;
+                      checklist.checklistName = definition.displayProperties.name;
+                      if (!checklist.checklistName) {
+                        //debug.error("Empty definition name");
+                        //debug.warn(JSON.stringify(definition, null, 2));
+                        checklist.checklistName = "Unknown name";
+                      }
+                      callback(null);
+                    }, lang)
+                  } else {
+                    error("Empty checklist definition");
+                    //error(JSON.stringify(checklist.instanceId, null, 2));
                     callback(null);
-                  }, lang)
-                } else {
-                  error("Empty checklist definition");
-                  //error(JSON.stringify(checklist.instanceId, null, 2));
-                  callback(null);
-                }
-              },
-              function (err) {
-                callback(err);
-              }
-            );
-          },
-          // Fill the milestone from manifest
-          function (callback) {
-            async.eachSeries(
-              milestoneToLoad,
-              function (milestone, callback) {
-                if (milestone.instanceId) {
-                  Destiny.queryMilestoneById(milestone.instanceId, function (err, definition) {
-                    if (err) return callback(err);
-                    milestone.definition = definition;
-                    milestone.milestoneName = definition.displayProperties.name;
-                    milestone.icon = definition.displayProperties.icon;
-                    milestone.description = definition.displayProperties.description;
-
-                    // if no name, unknown one
-                    if (!milestone.milestoneName) {
-                      //debug.error("Empty definition name");
-                      //debug.warn(JSON.stringify(definition, null, 2));
-                      milestone.milestoneName = "Unknown name";
-                    }
-
-                    // if no icon, search elsewhere
-                    if (!milestone.icon && definition.quests) {
-                      Object.keys(definition.quests).forEach(q => {
-                        if (definition.quests[q].displayProperties.icon) {
-                          milestone.icon = definition.quests[q].displayProperties.icon;
-                        }
-                      })
-                    }
-
-                    async.waterfall([
-                        function (callback) {
-                          // filling the rewards with definition
-                          if (milestone.definition.rewards) {
-                            //(JSON.stringify(milestone.definition.rewards, null, 2));
-                            async.eachSeries(
-                              milestone.rewards,
-                              function (reward, callback) {
-                                //debug.warn(JSON.stringify(reward, null, 2));
-                                //debug.warn(JSON.stringify(milestone.definition.rewards[reward.rewardCategoryHash].rewardEntries[reward.rewardEntryHash], null, 2));
-                                reward.definition = milestone.definition.rewards[reward.rewardCategoryHash].rewardEntries[reward.rewardEntryHash];
-
-                                reward.items = [];
-                                async.eachSeries(
-                                  reward.definition.items,
-                                  function (item, callback) {
-                                    Destiny.queryItemById(item.itemHash, function (err, definition) {
-                                      if (err) return callback(err);
-                                      item.definition = definition;
-                                      item.itemName = definition.displayProperties.name;
-                                      item.icon = definition.displayProperties.icon;
-                                      if (!item.itemName) {
-                                        item.itemName = "Unknown name";
-                                      }
-                                      callback(null);
-                                    }, lang);
-                                  },
-                                  function (err) {
-                                    callback(err);
-                                  }
-                                );
-                              },
-                              function (err) {
-                                callback(err);
-                              }
-                            );
-                          } else {
-                            callback();
-                          }
-                        },
-                        function (callback) {
-                          // filling the objectives with definition
-                          if (milestone.objectives) {
-                            //(JSON.stringify(milestone.objectives, null, 2));
-                            async.eachSeries(
-                              milestone.objectives,
-                              function (objective, callback) {
-                                const key = milestone.characterId + milestone.instanceId + objective.objectiveHash;
-                                // debug(key+' => '+objective.progress);
-                                result.objectives[key] = objective.progress;
-
-                                Destiny.queryObjectiveById(objective.objectiveHash, function (err, definition) {
-                                  if (err) return callback(err);
-                                  objective.definition = definition;
-                                  objective.itemName = definition.progressDescription;
-                                  objective.icon = definition.displayProperties.icon;
-                                  if (!objective.itemName) {
-                                    objective.itemName = "Unknown name";
-                                  }
-                                  callback(null);
-                                }, lang);
-                              },
-                              function (err) {
-                                callback(err);
-                              }
-                            );
-                          } else {
-                            callback();
-                          }
-
-                        }
-                      ],
-                      (err) => {
-                        //if (milestone.data && milestone.data.activities && (milestone.data.activities[0].challenges.length > 1)) {
-                        //  debug(milestone.milestoneName+" "+milestone.instanceId);
-                        //  debug(milestone.data.activities);
-                        //}
-
-                        //if (milestone.instanceId === '3427325023') {
-                        // debug(milestone);
-                        //}
-
-                        callback(err);
-                      });
-                  }, lang)
-                } else {
-                  error("Empty milestone definition");
-                  error(JSON.stringify(milestone.instanceId, null, 2));
-                  callback(null);
-                }
-              },
-              function (err) {
-                callback(err);
-              }
-            );
-          },
-
-          // build item listStats from the  profile inventories
-          function (callback) {
-            itemsToLoad = data.profileInventory.data.items;
-
-            // add items from the  characters inventories
-            async.eachSeries(
-              Object.keys(data.characterInventories.data),
-              function (characterId, callback) {
-                async.eachSeries(
-                  data.characterInventories.data[characterId].items,
-                  function (item, callback) {
-                    item.characterId = characterId;
-                    itemsToLoad.push(item);
-                    callback();
-                  },
-                  function (err) {
-                    callback(err);
                   }
-                );
-              },
-              function (err) {
-                callback(err);
-              }
-            )
-          },
-          // build item listStats from the  profile inventories
-          function (callback) {
-            async.eachSeries(
-              Object.keys(data.characterEquipment.data),
-              function (characterId, callback) {
-                async.eachSeries(
-                  data.characterEquipment.data[characterId].items,
-                  function (item, callback) {
-                    item.characterId = characterId;
-                    itemsToLoad.push(item);
-                    callback();
-                  }
-                );
-                callback();
-              },
-              function (err) {
-                callback(err);
-              }
-            )
-          },
-          // Fill the items
-          function (callback) {
-            async.eachSeries(
-              itemsToLoad,
-              function (item, callback) {
-                async.waterfall([
-                    // Add item info
-                    function (callback) {
-                      if (item.itemHash) {
-                        Destiny.queryItemById(item.itemHash, function (err, definition) {
-                          if (err) return callback(err);
-                          item.item = definition;
-                          item.itemName = definition.displayProperties.name;
-                          if (!item.itemName) {
-                            //debug.error("Empty definition name");
-                            //debug.warn(JSON.stringify(definition, null, 2));
-                            item.itemName = "Unknown name";
+                },
+                function (err) {
+                  callback(err);
+                }
+              );
+            },
+
+// Fill the milestone from manifest
+            function (callback) {
+              async.eachSeries(
+                milestoneToLoad,
+                function (milestone, callback) {
+                  if (milestone.instanceId) {
+                    Destiny.queryMilestoneById(milestone.instanceId, function (err, definition) {
+                      if (err) return callback(err);
+                      milestone.definition = definition;
+                      milestone.milestoneName = definition.displayProperties.name;
+                      milestone.icon = definition.displayProperties.icon;
+                      milestone.description = definition.displayProperties.description;
+
+                      // if no name, unknown one
+                      if (!milestone.milestoneName) {
+                        //debug.error("Empty definition name");
+                        //debug.warn(JSON.stringify(definition, null, 2));
+                        milestone.milestoneName = "Unknown name";
+                      }
+
+                      // if no icon, search elsewhere
+                      if (!milestone.icon && definition.quests) {
+                        Object.keys(definition.quests).forEach(q => {
+                          if (definition.quests[q].displayProperties.icon) {
+                            milestone.icon = definition.quests[q].displayProperties.icon;
                           }
+                        })
+                      }
+
+                      async.waterfall([
+                          function (callback) {
+                            // filling the rewards with definition
+                            if (milestone.definition.rewards) {
+                              //(JSON.stringify(milestone.definition.rewards, null, 2));
+                              async.eachSeries(
+                                milestone.rewards,
+                                function (reward, callback) {
+                                  //debug.warn(JSON.stringify(reward, null, 2));
+                                  //debug.warn(JSON.stringify(milestone.definition.rewards[reward.rewardCategoryHash].rewardEntries[reward.rewardEntryHash], null, 2));
+                                  reward.definition = milestone.definition.rewards[reward.rewardCategoryHash].rewardEntries[reward.rewardEntryHash];
+
+                                  reward.items = [];
+                                  async.eachSeries(
+                                    reward.definition.items,
+                                    function (item, callback) {
+                                      Destiny.queryItemById(item.itemHash, function (err, definition) {
+                                        if (err) return callback(err);
+                                        item.definition = definition;
+                                        item.itemName = definition.displayProperties.name;
+                                        item.icon = definition.displayProperties.icon;
+                                        if (!item.itemName) {
+                                          item.itemName = "Unknown name";
+                                        }
+                                        callback(null);
+                                      }, lang);
+                                    },
+                                    function (err) {
+                                      callback(err);
+                                    }
+                                  );
+                                },
+                                function (err) {
+                                  callback(err);
+                                }
+                              );
+                            } else {
+                              callback();
+                            }
+                          },
+                          function (callback) {
+                            // filling the objectives with definition
+                            if (milestone.objectives) {
+                              //(JSON.stringify(milestone.objectives, null, 2));
+                              async.eachSeries(
+                                milestone.objectives,
+                                function (objective, callback) {
+                                  const key = milestone.characterId + milestone.instanceId + objective.objectiveHash;
+                                  // debug(key+' => '+objective.progress);
+                                  result.objectives[key] = objective.progress;
+
+                                  Destiny.queryObjectiveById(objective.objectiveHash, function (err, definition) {
+                                    if (err) return callback(err);
+                                    objective.definition = definition;
+                                    objective.itemName = definition.progressDescription;
+                                    objective.icon = definition.displayProperties.icon;
+                                    if (!objective.itemName) {
+                                      objective.itemName = "Unknown name";
+                                    }
+                                    callback(null);
+                                  }, lang);
+                                },
+                                function (err) {
+                                  callback(err);
+                                }
+                              );
+                            } else {
+                              callback();
+                            }
+
+                          }
+                        ],
+                        (err) => {
+                          //if (milestone.data && milestone.data.activities && (milestone.data.activities[0].challenges.length > 1)) {
+                          //  debug(milestone.milestoneName+" "+milestone.instanceId);
+                          //  debug(milestone.data.activities);
+                          //}
+
+                          //if (milestone.instanceId === '3427325023') {
+                          // debug(milestone);
+                          //}
+
+                          callback(err);
+                        });
+                    }, lang)
+                  } else {
+                    error("Empty milestone definition");
+                    error(JSON.stringify(milestone.instanceId, null, 2));
+                    callback(null);
+                  }
+                },
+                function (err) {
+                  callback(err);
+                }
+              );
+            },
+
+// build item listStats from the  profile inventories
+            function (callback) {
+              itemsToLoad = data.profileInventory.data.items;
+
+              // add items from the  characters inventories
+              async.eachSeries(
+                Object.keys(data.characterInventories.data),
+                function (characterId, callback) {
+                  async.eachSeries(
+                    data.characterInventories.data[characterId].items,
+                    function (item, callback) {
+                      item.characterId = characterId;
+                      itemsToLoad.push(item);
+                      callback();
+                    },
+                    function (err) {
+                      callback(err);
+                    }
+                  );
+                },
+                function (err) {
+                  callback(err);
+                }
+              )
+            },
+
+// build item listStats from the  profile inventories
+            function (callback) {
+              async.eachSeries(
+                Object.keys(data.characterEquipment.data),
+                function (characterId, callback) {
+                  async.eachSeries(
+                    data.characterEquipment.data[characterId].items,
+                    function (item, callback) {
+                      item.characterId = characterId;
+                      itemsToLoad.push(item);
+                      callback();
+                    }
+                  );
+                  callback();
+                },
+                function (err) {
+                  callback(err);
+                }
+              )
+            },
+
+// Fill the items
+            function (callback) {
+              async.eachSeries(
+                itemsToLoad,
+                function (item, callback) {
+                  async.waterfall([
+                      // Add item info
+                      function (callback) {
+                        if (item.itemHash) {
+                          Destiny.queryItemById(item.itemHash, function (err, definition) {
+                            if (err) return callback(err);
+                            item.item = definition;
+                            item.itemName = definition.displayProperties.name;
+                            if (!item.itemName) {
+                              //debug.error("Empty definition name");
+                              //debug.warn(JSON.stringify(definition, null, 2));
+                              item.itemName = "Unknown name";
+                            }
+                            callback(null, item);
+                          }, lang)
+                        } else {
+                          error("Empty definition");
+                          //error(JSON.stringify(item, null, 2));
                           callback(null, item);
-                        }, lang)
-                      } else {
-                        error("Empty definition");
-                        //error(JSON.stringify(item, null, 2));
-                        callback(null, item);
-                      }
-                    },
-                    // Remove item of the wrong class
-                    function (item, callback) {
-                      //debug(JSON.stringify(item.item.itemTypeDisplayName, null, 2));
-                      //debug(JSON.stringify(result.characters[0].classType, null, 2));
-                      //if (item.bucketHash == Destiny.pursuitsBucket.hash) {
-                      //debug(JSON.stringify(item, null, 2));
-                      //}
-                      // class corresponding to unknown (all)
-                      if (item.item.classType == 3) {
-                        callback(null, item);
-                      } else if (item.item.classType == result.characters[0].classType) {
-                        // class corresponding to the character
-                        callback(null, item);
-                        //} else if (item.bucketHash == pursuitsBucket.hash) {
-                        //  // pursuit (bounties, ...)
-                        //  callback(null, item);
-                      } else {
-                        //debug(JSON.stringify(item.item, null, 2));
-                        //debug(JSON.stringify(item.item.displayProperties.name+" removed"));
-                        callback(null, null);
-                      }
-                    },
-                    // Add item instance info
-                    function (item, callback) {
-                      if (!item) {
-                        return callback(null, null);
-                      }
-                      //debug(JSON.stringify(item, null, 2));
-                      if (item.itemInstanceId) {
-                        if (itemInstancesTable[item.itemInstanceId]) {
-                          item.instance = itemInstancesTable[item.itemInstanceId];
                         }
-                        if (itemObjectivesTable[item.itemInstanceId]) {
-                          item.objective = itemObjectivesTable[item.itemInstanceId];
-                        }
-                      } else {
-                        //debug.error("No item instance id");
+                      },
+                      // Remove item of the wrong class
+                      function (item, callback) {
+                        //debug(JSON.stringify(item.item.itemTypeDisplayName, null, 2));
+                        //debug(JSON.stringify(result.characters[0].classType, null, 2));
+                        //if (item.bucketHash == Destiny.pursuitsBucket.hash) {
                         //debug(JSON.stringify(item, null, 2));
-                      }
-                      callback(null, item);
-                    },
-                    // Add item socket info
-                    function (item, callback) {
-                      if (!item) {
-                        return callback(null, null);
-                      }
-                      //debug(JSON.stringify(item, null, 2));
-                      item.lightLevelBonus = 0;
-                      if (item.itemInstanceId) {
-                        if (itemSocketsTable[item.itemInstanceId]) {
-                          item.sockets = itemSocketsTable[item.itemInstanceId].sockets;
-                          //debug(JSON.stringify(item.sockets, null, 2));
-                          // search for mod into sockets
-                          async.eachSeries(
-                            item.sockets,
-                            function (socket, callback) {
-                              if (socket.plugHash && socket.isEnabled) {
-                                Destiny.queryItemById(socket.plugHash, function (err, plug) {
-                                  // is it a mod
-                                  if (err) {
-                                    return callback(err, item);
-                                  }
-                                  if (plug.itemType == 19) {
-                                    //debug(JSON.stringify(plug, null, 2));
-                                    plug.investmentStats.forEach(function (stat) {
-                                      if ((stat.statTypeHash == 1480404414) || (stat.statTypeHash == 3897883278)) {
-                                        //debug(JSON.stringify(plug, null, 2));
-                                        socket.plug = plug;
-                                        item.lightLevelBonus += stat.value;
-                                      }
-                                    })
-                                  }
-                                  return callback(null, item);
+                        //}
+                        // class corresponding to unknown (all)
+                        if (item.item.classType == 3) {
+                          callback(null, item);
+                        } else if (item.item.classType == result.characters[0].classType) {
+                          // class corresponding to the character
+                          callback(null, item);
+                          //} else if (item.bucketHash == pursuitsBucket.hash) {
+                          //  // pursuit (bounties, ...)
+                          //  callback(null, item);
+                        } else {
+                          //debug(JSON.stringify(item.item, null, 2));
+                          //debug(JSON.stringify(item.item.displayProperties.name+" removed"));
+                          callback(null, null);
+                        }
+                      },
+                      // Add item instance info
+                      function (item, callback) {
+                        if (!item) {
+                          return callback(null, null);
+                        }
+                        //debug(JSON.stringify(item, null, 2));
+                        if (item.itemInstanceId) {
+                          if (itemInstancesTable[item.itemInstanceId]) {
+                            item.instance = itemInstancesTable[item.itemInstanceId];
+                          }
+                          if (itemObjectivesTable[item.itemInstanceId]) {
+                            item.objective = itemObjectivesTable[item.itemInstanceId];
+                          }
+                        } else {
+                          //debug.error("No item instance id");
+                          //debug(JSON.stringify(item, null, 2));
+                        }
+                        callback(null, item);
+                      },
+                      // Add item socket info
+                      function (item, callback) {
+                        if (!item) {
+                          return callback(null, null);
+                        }
+                        //debug(JSON.stringify(item, null, 2));
+                        item.lightLevelBonus = 0;
+                        if (item.itemInstanceId) {
+                          if (itemSocketsTable[item.itemInstanceId]) {
+                            item.sockets = itemSocketsTable[item.itemInstanceId].sockets;
+                            //debug(JSON.stringify(item.sockets, null, 2));
+                            // search for mod into sockets
+                            async.eachSeries(
+                              item.sockets,
+                              function (socket, callback) {
+                                if (socket.plugHash && socket.isEnabled) {
+                                  Destiny.queryItemById(socket.plugHash, function (err, plug) {
+                                    // is it a mod
+                                    if (err) {
+                                      return callback(err, item);
+                                    }
+                                    if (plug.itemType == 19) {
+                                      //debug(JSON.stringify(plug, null, 2));
+                                      plug.investmentStats.forEach(function (stat) {
+                                        if ((stat.statTypeHash == 1480404414) || (stat.statTypeHash == 3897883278)) {
+                                          //debug(JSON.stringify(plug, null, 2));
+                                          socket.plug = plug;
+                                          item.lightLevelBonus += stat.value;
+                                        }
+                                      })
+                                    }
+                                    return callback(null, item);
 
-                                }, lang);
-                              } else {
-                                return callback(null, item);
+                                  }, lang);
+                                } else {
+                                  return callback(null, item);
+                                }
+                              },
+                              function (err) {
+                                return callback(err, item);
                               }
+                            );
+
+                          } else {
+                            //debug.error("Item Socket not found");
+                            //debug.warn(JSON.stringify(item, null, 2));
+                            callback(null, item);
+                          }
+                        } else {
+                          //debug.error("No item instance id");
+                          //debug(JSON.stringify(item, null, 2));
+                          callback(null, item);
+                        }
+                      },
+                      // Add current bucket data
+                      function (item, callback) {
+                        if (!item) {
+                          return callback(null, null);
+                        }
+                        //debug(JSON.stringify(item, null, 2));
+                        if (item.bucketHash) {
+                          Destiny.queryBucketById(item.bucketHash, function (err, bucket) {
+                            if (err) return callback(err, item);
+                            item.bucket = bucket;
+                            item.bucketName = bucket.displayProperties.name;
+                            if (!item.bucketName) {
+                              //debug.error("Empty bucket name");
+                              //debug.error(JSON.stringify(bucket, null, 2));
+                              //debug.error(JSON.stringify(item, null, 2));
+                              item.bucketName = item.bucketHash;
+                            }
+                            callback(null, item);
+                          }, lang)
+                        } else {
+                          error("Empty bucket");
+                          //error(JSON.stringify(item, null, 2));
+                          callback(null, item);
+                        }
+                      },
+                      // Add target bucket data
+                      function (item, callback) {
+                        if (!item) {
+                          return callback(null, null);
+                        }
+                        //debug(JSON.stringify(item, null, 2));
+                        if (item.item.inventory.bucketTypeHash) {
+                          Destiny.queryBucketById(item.item.inventory.bucketTypeHash, function (err, bucket) {
+                            if (err) return callback(err, item);
+                            item.bucketTarget = bucket;
+                            item.bucketNameTarget = bucket.displayProperties.name;
+                            if (!item.bucketNameTarget) {
+                              //debug.error("Empty bucket name");
+                              //debug.error(JSON.stringify(bucket, null, 2));
+                              //debug.error(JSON.stringify(item, null, 2));
+                              item.bucketNameTarget = item.item.inventory.bucketTypeHash;
+                            }
+                            callback(null, item);
+                          }, lang)
+                        } else {
+                          error("Empty bucket");
+                          //error(JSON.stringify(item, null, 2));
+                          callback(null, item);
+                        }
+                      },
+                      // Add value/rewards values
+                      function (item, callback) {
+                        if (!item) {
+                          return callback(null, null);
+                        }
+                        //debug(JSON.stringify(item, null, 2));
+                        if (item.item.value && item.item.value.itemValue) {
+                          async.eachSeries(
+                            item.item.value.itemValue,
+                            function (value, callback) {
+                              Destiny.queryItemById(value.itemHash, function (err, itemValue) {
+                                value.item = itemValue;
+                                callback();
+                              }, lang)
                             },
                             function (err) {
-                              return callback(err, item);
+                              callback(err, item);
                             }
                           );
-
                         } else {
-                          //debug.error("Item Socket not found");
-                          //debug.warn(JSON.stringify(item, null, 2));
                           callback(null, item);
                         }
-                      } else {
-                        //debug.error("No item instance id");
-                        //debug(JSON.stringify(item, null, 2));
-                        callback(null, item);
-                      }
-                    },
-                    // Add current bucket data
-                    function (item, callback) {
-                      if (!item) {
-                        return callback(null, null);
-                      }
-                      //debug(JSON.stringify(item, null, 2));
-                      if (item.bucketHash) {
-                        Destiny.queryBucketById(item.bucketHash, function (err, bucket) {
-                          if (err) return callback(err, item);
-                          item.bucket = bucket;
-                          item.bucketName = bucket.displayProperties.name;
-                          if (!item.bucketName) {
-                            //debug.error("Empty bucket name");
-                            //debug.error(JSON.stringify(bucket, null, 2));
-                            //debug.error(JSON.stringify(item, null, 2));
-                            item.bucketName = item.bucketHash;
-                          }
-                          callback(null, item);
-                        }, lang)
-                      } else {
-                        error("Empty bucket");
-                        //error(JSON.stringify(item, null, 2));
-                        callback(null, item);
-                      }
-                    },
-                    // Add target bucket data
-                    function (item, callback) {
-                      if (!item) {
-                        return callback(null, null);
-                      }
-                      //debug(JSON.stringify(item, null, 2));
-                      if (item.item.inventory.bucketTypeHash) {
-                        Destiny.queryBucketById(item.item.inventory.bucketTypeHash, function (err, bucket) {
-                          if (err) return callback(err, item);
-                          item.bucketTarget = bucket;
-                          item.bucketNameTarget = bucket.displayProperties.name;
-                          if (!item.bucketNameTarget) {
-                            //debug.error("Empty bucket name");
-                            //debug.error(JSON.stringify(bucket, null, 2));
-                            //debug.error(JSON.stringify(item, null, 2));
-                            item.bucketNameTarget = item.item.inventory.bucketTypeHash;
-                          }
-                          callback(null, item);
-                        }, lang)
-                      } else {
-                        error("Empty bucket");
-                        //error(JSON.stringify(item, null, 2));
-                        callback(null, item);
-                      }
-                    },
-                    // Add value/rewards values
-                    function (item, callback) {
-                      if (!item) {
-                        return callback(null, null);
-                      }
-                      //debug(JSON.stringify(item, null, 2));
-                      if (item.item.value && item.item.value.itemValue) {
-                        async.eachSeries(
-                          item.item.value.itemValue,
-                          function (value, callback) {
-                            Destiny.queryItemById(value.itemHash, function (err, itemValue) {
-                              value.item = itemValue;
-                              callback();
-                            }, lang)
-                          },
-                          function (err) {
-                            callback(err, item);
-                          }
-                        );
-                      } else {
-                        callback(null, item);
-                      }
-                    },
-                    // Add objectives values
-                    function (item, callback) {
-                      if (!item) {
-                        return callback(null, null);
-                      }
-                      //debug(JSON.stringify(item, null, 2));
-                      if (item.objective && item.objective.objectives) {
-                        async.eachSeries(
-                          item.objective.objectives,
-                          function (objective, callback) {
-                            const key = (item.characterId || user.bungieNetUser.membershipId) + item.itemInstanceId + objective.objectiveHash;
-                            // debug(key+' -> '+objective.progress);
-                            result.objectives[key] = objective.progress;
-
-                            // if (objective.objectiveHash == 3521931022) {
-                            //   debug(item);
-                            // }
-
-                            Destiny.queryObjectiveById(objective.objectiveHash, function (err, itemValue) {
-                              objective.item = itemValue;
-                              callback();
-                            }, lang)
-                          },
-                          function (err) {
-                            callback(err, item);
-                          }
-                        );
-                      } else {
-                        callback(null, item);
-                      }
-                    },
-                    // Clean the item (to have only needed data)
-                    function (item, callback) {
-                      if (!item) {
-                        return callback(null, null);
-                      }
-                      //if (item.bucketHash == pursuitsBucket.hash) {
-                      //debug(JSON.stringify(item, null, 2));
-                      //}
-                      //debug(item.bucketName+" : "+item.itemName);
-                      //debug(JSON.stringify(item.instance, null, 2));
-                      // ignore items with too high level
-                      const itemLevel = (item.instance ? item.instance.equipRequiredLevel : null);
-                      //debug(result.characters[0].baseCharacterLevel+" "+itemLevel);
-                      if (itemLevel && result.characters[0].baseCharacterLevel + 1 < itemLevel) {
-                        //debug(JSON.stringify(item.item.displayProperties.name+" removed"));
-                        return callback(null, null);
-                      }
-                      // ignore items equipped on other characters
-                      //if (item.instance && item.instance.isEquipped && (item.characterId != result.characters[0].characterId)) {
-                      //  return callback(null, null);
-                      //}
-                      // ignore items not transferable
-                      //if (item.transferStatus == 2) {
-                      //  return callback(null, null);
-                      //}
-                      //if ((item.item.displayProperties.name == "AUriel's Gift") || (item.item.displayProperties.name == "Rat King's Crew")) {
-                      //if (item.bucketHash == Destiny.pursuitsBucket.hash) {
-                      //debug(JSON.stringify(item, null, 2));
-                      //}
-                      try {
-                        const newItem = {
-                          "bucket": item.bucket,
-                          "bucketName": item.bucketName,
-                          "bucketNameTarget": item.bucketNameTarget,
-                          "itemInstanceId": (item.itemInstanceId ? item.itemInstanceId : null),
-                          "damageType": (item.instance ? item.instance.damageType : null),
-                          "isEquipped": (item.instance ? item.instance.isEquipped : null),
-                          "equipRequiredLevel": (item.instance ? item.instance.equipRequiredLevel : null),
-                          "lightLevel": (item.instance ? item.instance.itemLevel * 10 + item.instance.quality : null),
-                          "lockable": item.lockable,
-                          "state": item.state,
-                          "transferStatus": item.transferStatus,
-                          "itemType": item.item.itemType,
-                          "classType": item.classType,
-                          "location": item.location,
-                          "name": item.item.displayProperties.name,
-                          "description": item.item.displayProperties.description,
-                          "itemTypeDisplayName": (item.item.itemTypeDisplayName ? item.item.itemTypeDisplayName : (item.bucket.displayProperties.name ? item.bucket.displayProperties.name : "Unknown")),
-                          "itemTypeAndTierDisplayName": item.item.itemTypeAndTierDisplayName,
-                          "infusionCategoryName": (item.item.quality ? item.item.quality.infusionCategoryName : null),
-                          "characterId": item.characterId,
-                          "itemHash": item.itemHash,
-                          "tierType": item.item.inventory.tierType,
-                          "lightLevelBonus": item.lightLevelBonus,
-                          "expirationDate": item.expirationDate,
-                          "rewards": [],
-                          'icon': item.item.displayProperties.icon,
-                          'objectives': []
-                        };
-
-
-                        //if (item.item.displayProperties.name == "Weekly Crucible Challenge") {
-                        //debug(JSON.stringify(item, null, 2));
-                        //  //newItem['temp'] = item;
-                        //}
-
-
-                        if (item.item.value && item.item.value.itemValue) {
-                          //debug(item.bucketName+" : "+item.item.displayProperties.name);
-                          //debug(JSON.stringify(item.bucketName, null, 2));
-                          item.item.value.itemValue.forEach(function (it) {
-                            if (it.itemHash) {
-                              const newReward = {
-                                itemHash: it.itemHash,
-                                quantity: it.quantity,
-                                name: it.item.displayProperties.name,
-                                icon: it.item.displayProperties.icon
-                              };
-                              newItem.rewards.push(newReward);
-                              //console.log(it);
-                            }
-                          })
+                      },
+                      // Add objectives values
+                      function (item, callback) {
+                        if (!item) {
+                          return callback(null, null);
                         }
-
+                        //debug(JSON.stringify(item, null, 2));
                         if (item.objective && item.objective.objectives) {
-                          newItem.objectives = item.objective.objectives;
-                          //debug(item.objective.objectives);
+                          async.eachSeries(
+                            item.objective.objectives,
+                            function (objective, callback) {
+                              const key = (item.characterId || user.bungieNetUser.membershipId) + item.itemInstanceId + objective.objectiveHash;
+                              // debug(key+' -> '+objective.progress);
+                              result.objectives[key] = objective.progress;
+
+                              // if (objective.objectiveHash == 3521931022) {
+                              //   debug(item);
+                              // }
+
+                              Destiny.queryObjectiveById(objective.objectiveHash, function (err, itemValue) {
+                                objective.item = itemValue;
+                                callback();
+                              }, lang)
+                            },
+                            function (err) {
+                              callback(err, item);
+                            }
+                          );
+                        } else {
+                          callback(null, item);
                         }
-
-
-                        //if (!newItem.itemTypeDisplayName) {
+                      },
+                      // Clean the item (to have only needed data)
+                      function (item, callback) {
+                        if (!item) {
+                          return callback(null, null);
+                        }
+                        //if (item.bucketHash == pursuitsBucket.hash) {
                         //debug(JSON.stringify(item, null, 2));
                         //}
+                        //debug(item.bucketName+" : "+item.itemName);
+                        //debug(JSON.stringify(item.instance, null, 2));
+                        // ignore items with too high level
+                        const itemLevel = (item.instance ? item.instance.equipRequiredLevel : null);
+                        //debug(result.characters[0].baseCharacterLevel+" "+itemLevel);
+                        if (itemLevel && result.characters[0].baseCharacterLevel + 1 < itemLevel) {
+                          //debug(JSON.stringify(item.item.displayProperties.name+" removed"));
+                          return callback(null, null);
+                        }
+                        // ignore items equipped on other characters
+                        //if (item.instance && item.instance.isEquipped && (item.characterId != result.characters[0].characterId)) {
+                        //  return callback(null, null);
+                        //}
+                        // ignore items not transferable
+                        //if (item.transferStatus == 2) {
+                        //  return callback(null, null);
+                        //}
+                        //if ((item.item.displayProperties.name == "AUriel's Gift") || (item.item.displayProperties.name == "Rat King's Crew")) {
+                        //if (item.bucketHash == Destiny.pursuitsBucket.hash) {
+                        //debug(JSON.stringify(item, null, 2));
+                        //}
+                        try {
+                          const newItem = {
+                            "bucket": item.bucket,
+                            "bucketName": item.bucketName,
+                            "bucketNameTarget": item.bucketNameTarget,
+                            "itemInstanceId": (item.itemInstanceId ? item.itemInstanceId : null),
+                            "damageType": (item.instance ? item.instance.damageType : null),
+                            "isEquipped": (item.instance ? item.instance.isEquipped : null),
+                            "equipRequiredLevel": (item.instance ? item.instance.equipRequiredLevel : null),
+                            "lightLevel": (item.instance ? item.instance.itemLevel * 10 + item.instance.quality : null),
+                            "lockable": item.lockable,
+                            "state": item.state,
+                            "transferStatus": item.transferStatus,
+                            "itemType": item.item.itemType,
+                            "classType": item.classType,
+                            "location": item.location,
+                            "name": item.item.displayProperties.name,
+                            "description": item.item.displayProperties.description,
+                            "itemTypeDisplayName": (item.item.itemTypeDisplayName ? item.item.itemTypeDisplayName : (item.bucket.displayProperties.name ? item.bucket.displayProperties.name : "Unknown")),
+                            "itemTypeAndTierDisplayName": item.item.itemTypeAndTierDisplayName,
+                            "infusionCategoryName": (item.item.quality ? item.item.quality.infusionCategoryName : null),
+                            "characterId": item.characterId,
+                            "itemHash": item.itemHash,
+                            "tierType": item.item.inventory.tierType,
+                            "lightLevelBonus": item.lightLevelBonus,
+                            "expirationDate": item.expirationDate,
+                            "rewards": [],
+                            'icon': item.item.displayProperties.icon,
+                            'objectives': []
+                          };
 
-                        callback(null, newItem);
-                      } catch (e) {
-                        error(e);
-                        //error(JSON.stringify(item, null, 2));
-                        callback(null);
-                      }
-                    }
 
-                  ],
-                  function (err, item) {
-                    if (item) {
-                      // We classify by bucketNameTarget and itemTypeDisplayName
-                      if (!result.items[item.bucket.hash]) {
-                        result.items[item.bucket.hash] = {};
-                      }
-                      if (!result.items[item.bucket.hash][item.itemTypeDisplayName]) {
-                        result.items[item.bucket.hash][item.itemTypeDisplayName] = [];
-                      }
-                      //debug(item.bucketName+" : "+item.bucketNameTarget+" : "+item.name+" - "+item.itemTypeDisplayName);
-                      result.items[item.bucket.hash][item.itemTypeDisplayName].push(item);
-                    }
+                          //if (item.item.displayProperties.name == "Weekly Crucible Challenge") {
+                          //debug(JSON.stringify(item, null, 2));
+                          //  //newItem['temp'] = item;
+                          //}
 
-                    async.setImmediate(function () {
-                      callback(err, result);
+
+                          if (item.item.value && item.item.value.itemValue) {
+                            //debug(item.bucketName+" : "+item.item.displayProperties.name);
+                            //debug(JSON.stringify(item.bucketName, null, 2));
+                            item.item.value.itemValue.forEach(function (it) {
+                              if (it.itemHash) {
+                                const newReward = {
+                                  itemHash: it.itemHash,
+                                  quantity: it.quantity,
+                                  name: it.item.displayProperties.name,
+                                  icon: it.item.displayProperties.icon
+                                };
+                                newItem.rewards.push(newReward);
+                                //console.log(it);
+                              }
+                            })
+                          }
+
+                          if (item.objective && item.objective.objectives) {
+                            newItem.objectives = item.objective.objectives;
+                            //debug(item.objective.objectives);
+                          }
+
+
+                          //if (!newItem.itemTypeDisplayName) {
+                          //debug(JSON.stringify(item, null, 2));
+                          //}
+
+                          callback(null, newItem);
+                        } catch (e) {
+                          error(e);
+                          //error(JSON.stringify(item, null, 2));
+                          callback(null);
+                        }
+                      }
+
+                    ],
+                    function (err, item) {
+                      if (item) {
+                        // We classify by bucketNameTarget and itemTypeDisplayName
+                        if (!result.items[item.bucket.hash]) {
+                          result.items[item.bucket.hash] = {};
+                        }
+                        if (!result.items[item.bucket.hash][item.itemTypeDisplayName]) {
+                          result.items[item.bucket.hash][item.itemTypeDisplayName] = [];
+                        }
+                        //debug(item.bucketName+" : "+item.bucketNameTarget+" : "+item.name+" - "+item.itemTypeDisplayName);
+                        result.items[item.bucket.hash][item.itemTypeDisplayName].push(item);
+                      }
+
+                      async.setImmediate(function () {
+                        callback(err, result);
+                      });
                     });
-                  });
 
-              },
-              function (err) {
-                callback(err, result);
-              }
-            )
-          }
-        ],
-        function (err) {
-          callback(err, result)
+                },
+                function (err) {
+                  callback(err, result);
+                }
+              )
+            }
+          ],
+
+          function (err) {
+            callback(err, result)
         });
 
 
@@ -1886,7 +2102,7 @@ export class Destiny {
     });
   }
 
-  //noinspection JSUnusedGlobalSymbols
+//noinspection JSUnusedGlobalSymbols
   public static lockItem (user, item, characterId, state, callback) {
     //debug("lockItem");
 
@@ -2299,7 +2515,7 @@ export class Destiny {
 
   };
 
-  private static bucketHashCache: { [lang: string]: object } = {};
+  private static bucketHashCache: {[lang: string]: object} = {};
 
 // get bucket definition
   private static queryBucketByName = function (bucketName, callback, lang: string) {
@@ -2337,7 +2553,7 @@ export class Destiny {
     }
 
   };
-  private static bucketHashCacheByName: { [lang: string]: object } = {};
+  private static bucketHashCacheByName: {[lang: string]: object} = {};
 
 // get item definition
   private static queryItemById (itemHash, callback, lang: string) {
@@ -2378,7 +2594,7 @@ export class Destiny {
 
   };
 
-  private static itemHashCacheById: { [lang: string]: object } = {};
+  private static itemHashCacheById: {[lang: string]: object} = {};
 
   private static queryItemByName (itemName, callback, lang: string) {
     if (!Destiny.itemHashCacheByName[Config.getLang(lang)]) {
@@ -2495,7 +2711,7 @@ export class Destiny {
   private static milestoneHashCacheById: { [lang: string]: object } = {};
 
 // get objective definition
-  //noinspection JSUnusedLocalSymbols
+//noinspection JSUnusedLocalSymbols
   private static queryObjectiveById (objectiveHash, callback, lang: string) {
     if (!Destiny.objectiveHashCacheById[Config.getLang(lang)]) {
       Destiny.objectiveHashCacheById[Config.getLang(lang)] = {};
@@ -2571,7 +2787,7 @@ export class Destiny {
 
   private static vendorHashCacheById: { [lang: string]: object } = {};
 
-  // get class definition
+// get class definition
   private static queryClassById (classHash, callback, lang: string) {
     if (!Destiny.classHashCacheById[Config.getLang(lang)]) {
       Destiny.classHashCacheById[Config.getLang(lang)] = {};
@@ -2609,7 +2825,7 @@ export class Destiny {
 
   private static classHashCacheById: { [lang: string]: object } = {};
 
-  // get race definition
+// get race definition
   private static queryRaceById (raceHash, callback, lang: string) {
     if (!Destiny.raceHashCacheById[Config.getLang(lang)]) {
       Destiny.raceHashCacheById[Config.getLang(lang)] = {};
@@ -2647,7 +2863,45 @@ export class Destiny {
 
   private static raceHashCacheById: { [lang: string]: object } = {};
 
-  //noinspection JSUnusedLocalSymbols
+// get plugSet definition
+  private static queryPlugSetById (plugSetHash, callback, lang: string) {
+    if (!Destiny.plugSetHashCacheById[Config.getLang(lang)]) {
+      Destiny.plugSetHashCacheById[Config.getLang(lang)] = {};
+      try {
+        Destiny.initManifestDb((err) => {
+          if (err) {
+            return callback(err);
+          }
+          Destiny.manifestDb[Config.getLang(lang)].serialize(function () {
+            const query = "SELECT * FROM DestinyPlugSetDefinition";
+            Destiny.manifestDb[Config.getLang(lang)].each(query, function (err, row) {
+              if (err) throw err;
+
+              //debug(JSON.stringify(row, null, 2));
+              const data = JSON.parse(row.json);
+              //debug(JSON.stringify(data, null, 2));
+              Destiny.plugSetHashCacheById[Config.getLang(lang)][data.hash] = data;
+            }, function (err, cpt) {
+              debug(cpt + " PlugSet definitions read");
+              //debug(JSON.stringify(PlugSetHash, null, 2));
+              callback(null, Destiny.plugSetHashCacheById[Config.getLang(lang)][plugSetHash]);
+            });
+          });
+        }, Config.getLang(lang));
+
+      } catch (e) {
+        callback(e);
+      }
+
+    } else {
+      callback(null, Destiny.plugSetHashCacheById[Config.getLang(lang)][plugSetHash]);
+    }
+
+  };
+
+  private static plugSetHashCacheById: { [lang: string]: object } = {};
+
+//noinspection JSUnusedLocalSymbols
   public static checkConf (conf, callback, lang: string) {
     const messages = [];
 
@@ -2691,7 +2945,7 @@ export class Destiny {
       options.headers['Authorization'] = "Bearer " + accessToken
     }
 
-    //debug(JSON.stringify(options, null, 2));
+//debug(JSON.stringify(options, null, 2));
 
     const req = https.request(options, function (res) {
       //debug("statusCode: ", res.statusCode);
