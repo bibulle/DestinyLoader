@@ -6,11 +6,26 @@ export class Checklist {
   characters: Character[];
   times: { [id: string]: ObjectiveTimeSummed };
   currentTimes: ObjectiveTime[];
-  vendors: {
+  vendors: {};
+  catalysts: Catalyst[];
 
+}
+
+export class Catalyst {
+  inventoryItem: {
+    itemName: string;
+    itemInstanceId: string;
   };
-
-
+  item: {
+    displayProperties: {
+      name: string;
+      icon: string;
+      description: string;
+    };
+  };
+  description: string;
+  state: catalystState;
+  objectives: Objective[];
 }
 
 export class Character {
@@ -80,7 +95,23 @@ export class Pursuit {
   objectives: Objective[];
   vendorName: string;
   saleDescription: string;
+  type: PursuitType;
 }
+
+// export class PursuitType {
+//  static milestone = 0;
+//  static sale = 1;
+//  static pursuit = 2;
+// }
+
+export enum PursuitType {
+  MILESTONE, SALE, PURSUIT, CATALYST
+}
+
+export enum catalystState {
+  UNKNOWN, DONE, DROPPED, TO_BE_COMPLETED
+}
+
 
 export class Reward {
   name: string;
@@ -160,9 +191,10 @@ export class Reward {
       case 3899548068: // Vanguard Tactician Token
       case 3196288028: // Boon of the Crucible
       case 1: // Nessus Rewards
-      case 1: // Titan Rewards
+      case 3696608133: // Titan Rewards
       case 1317670974: // EDZ Rewards
       case 2109561326: // Eververse Bounty Note
+      case 3792590697: // Confectionery Heart
         return 3;
       case 1022552290: // Legendary Shards
         return 1;

@@ -36,5 +36,7 @@
 	"months": "months",
 	"T": "T",
 	"H": "H",
-	"W": "W"
+	"W": "W",
+	"catalyst": "{{name}} Catalyst",
+	"catalyst.dropped": "The catalyst has dropped, but needs to be inserted to activate."
 }

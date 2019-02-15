@@ -36,6 +36,8 @@
 	"months": "mois",
 	"T": "T",
 	"H": "C",
-	"W": "A"
+	"W": "A",
+	"catalyst": "Catalyseur de {{name}}",
+	"catalyst.dropped": "Le catalyseur a droppé, mais doit être inséré pour être activé."
 
 }
