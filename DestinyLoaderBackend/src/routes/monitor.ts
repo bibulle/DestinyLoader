@@ -212,7 +212,7 @@ function monitorRouter (passport): Router {
                 error(JSON.stringify(err, null, 2));
                 response.send({error: err});
               } else {
-                response.send(JSON.stringify(doc, null, 2));
+                response.send(JSON.stringify(_.pick(doc, ['showOnlyPowerfulGear', 'language', 'selectedPursuits', 'user'], null, 2)));
               }
             });
 

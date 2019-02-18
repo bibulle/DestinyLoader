@@ -99,10 +99,14 @@ export class HeaderService {
 
     this._loadConfigFromBackend()
         .then(config => {
-          this.config = config;
-          console.log(this.config);
-          this._setLanguageFromConfig();
-          this.configSubject.next(this.config);
+          if (!config.language && !config.selectedPursuits) {
+            this._saveConfig();
+          } else {
+            this.config = config;
+            console.log(this.config);
+            this._setLanguageFromConfig();
+            this.configSubject.next(this.config);
+          }
         })
         .catch((err) => {
           console.log(err);
