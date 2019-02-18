@@ -270,26 +270,22 @@ export class DestinyDb {
   };
 
   public static insertConf (user, data, callback) {
-    const doc = {
-      _id: user.bungieNetUser.displayName,
-      user: user.bungieNetUser.displayName,
-      chosen: data.chosen,
-      mode: data.mode,
-    };
+    data._id = user.bungieNetUser.displayName;
+    data.user = user.bungieNetUser.displayName;
     this._initDb(function (err) {
       if (err) {
         return callback(err);
       }
-      DestinyDb._colConfigurations.insertOne(doc)
+      DestinyDb._colConfigurations.insertOne(data)
                .then(function (data) {
                  callback(null, data);
                })
                .catch(function (err) {
                  //console.log(err);
                  if (err.code == 11000) {
-                   DestinyDb._colConfigurations.update({_id: doc._id}, doc)
+                   DestinyDb._colConfigurations.update({_id: data._id}, data)
                             .then(function () {
-                              callback(null, doc);
+                              callback(null, data);
                             })
                             .catch(function (err) {
                               console.log(err);

@@ -20,8 +20,8 @@ export class ChecklistService {
   private static _refreshIsRunning = false;
   private readonly currentChecklistSubject: BehaviorSubject<Checklist>;
 
-  private checklistUrl = environment.serverUrl + 'monitorstuff/api';
-  private runningUrl = environment.serverUrl + 'monitorstuff/running';
+  private checklistUrl = environment.serverUrl + 'monitorStuff/api';
+  private runningUrl = environment.serverUrl + 'monitorStuff/running';
 
   private language = '';
 

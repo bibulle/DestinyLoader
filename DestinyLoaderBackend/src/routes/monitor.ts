@@ -1,4 +1,5 @@
 import { Router, Response, Request, NextFunction } from "express";
+import * as _ from "lodash";
 
 const async = require('async');
 const https = require('https');
@@ -49,7 +50,7 @@ function monitorRouter (passport): Router {
         // route for getting monitorStuff data
         // ====================================
         .get((request: Request, response: Response, next: NextFunction) => {
-          debug("GET /api "+request.query.lang);
+          debug("GET /api " + request.query.lang);
 
           //debug(request.query.lang);
           let lang = request.query.lang;
@@ -151,52 +152,71 @@ function monitorRouter (passport): Router {
 
   router.route('/value')
         // ====================================
-        // route for setting user values (important stuff, state, ...)
+        // route for getting user choices (important stuff, state, ...)
         // ====================================
-        .post((request: Request, response: Response) => {
+        .get((request: Request, response: Response, next: NextFunction) => {
+          debug("GET /value ");
+
+          passport.authenticate('jwt-check', {session: false}, (err, user): any => {
+            if (err) {
+              return next(err);
+            }
+
+            if (!user) {
+              const msg = 'Unauthorized';
+              return response.status(401).send({status: 401, message: msg});
+            }
+
+            // Read the configuration (choice of the user)
+            DestinyDb.readConf(user, function (err, conf) {
+              if (err) {
+                response.status(500).send(err);
+                //data.messages.push("ERROR : "+err);
+                //return response.send(JSON.stringify({messages: err}, null, 2));
+              } else {
+                let result = {
+                  data: _.pick(conf, ['showOnlyPowerfulGear', 'language', 'selectedPursuits', 'user']),
+                  refreshedToken: user.refreshedToken
+                };
+                response.send(JSON.stringify(result, null, 2));
+                debug("GET /value done");
+              }
+            });
+
+          })(request, response, next);
+        });
+
+  router.route('/value')
+        // ====================================
+        // route for setting user choices (important stuff, state, ...)
+        // ====================================
+        .post((request: Request, response: Response, next: NextFunction) => {
           debug("POST /value");
 
-          //logger.info(JSON.stringify(request.body, null, 2));
-          DestinyDb.readConf(request.session.user, function (err, doc) {
+          passport.authenticate('jwt-check', {session: false}, (err, user): any => {
+            if (err) {
+              return next(err);
+            }
+
+            if (!user) {
+              const msg = 'Unauthorized';
+              return response.status(401).send({status: 401, message: msg});
+            }
+
+            let conf = request.body.data;
+            //debug(conf);
+
+
+            DestinyDb.insertConf(user, conf, function (err, doc) {
               if (err) {
                 error(JSON.stringify(err, null, 2));
-                return response.send({error: err});
+                response.send({error: err});
+              } else {
+                response.send(JSON.stringify(doc, null, 2));
               }
+            });
 
-              if (!doc) {
-                doc = {};
-              }
-              if (doc) {
-                if (request.body.conf && request.body.conf.chosen) {
-                  try {
-                    doc.chosen = JSON.parse(request.body.conf.chosen);
-                  } catch (e) {
-                    return response.send({error: "Not json format"});
-                  }
-                }
-                if (request.body.conf && request.body.conf.mode) {
-                  doc.mode = request.body.conf.mode;
-                }
-              }
-              if (!doc.chosen) {
-                doc.chosen = ["Nameless Midnight", "The Old Fashioned", "Better Devils", "Uriel's Gift"];
-              }
-              if (!doc.mode) {
-                doc.mode = "do-nothing";
-              }
-
-              DestinyDb.insertConf(request.session.user, doc, function (err, doc) {
-                if (err) {
-                  error(JSON.stringify(err, null, 2));
-                  response.send({error: err});
-                } else {
-                  doc.chosen = JSON.stringify(doc.chosen, null, 2);
-                  response.send(JSON.stringify(doc, null, 2));
-                }
-              });
-
-            }
-          )
+          })(request, response, next);
         });
 
   router.route('/running')
@@ -252,10 +272,10 @@ function monitorRouter (passport): Router {
               const objTime: ObjectiveTime = objective.runningTimeObjective;
               objTime.finished = true;
               objTime.timeEnd = new Date();
-              objTime.countEnd =  objective.progress;
+              objTime.countEnd = objective.progress;
 
 
-             //debug(objTime);
+              //debug(objTime);
 
               //noinspection JSUnusedLocalSymbols
               DestinyDb.insertTime(user.bungieNetUser.membershipId, objTime, (err, objTime) => {
