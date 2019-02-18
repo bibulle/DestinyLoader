@@ -38,6 +38,19 @@
 	"H": "C",
 	"W": "A",
 	"catalyst": "Catalyseur de {{name}}",
-	"catalyst.dropped": "Le catalyseur a droppé, mais doit être inséré pour être activé."
-
+	"catalyst.dropped": "Le catalyseur a droppé, mais doit être inséré pour être activé.",
+	"visibleItems": "Items visible",
+	"label.powerful_gear": "Équipements puissants",
+	"label.special_weapon": "Armes légendaires",
+	"label.legendary_gear": "Équipements légendaires, Engrammes lumineux, ...",
+	"label.important_consumable": "Matrices d'amélioration ,Bénédictions transcendantes, ...",
+	"label.tokens": "Jetons de l'Épreuve, EXP du clan, ...",
+	"label.resources": "Lumens, Rameaux baryoniques, ...",
+	"label.milestone": "Milestones",
+	"label.quest_step": "Étapes de Quête",
+	"label.catalyst": "Catalysts",
+	"label.vendor_bounty": "Contrats disponibles",
+	"label.owned_bounty": "Contrats possédés",
+	"label.forge": "Forges",
+	"label.pursuit": "Poursuites"
 }

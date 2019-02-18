@@ -38,5 +38,19 @@
 	"H": "H",
 	"W": "W",
 	"catalyst": "{{name}} Catalyst",
-	"catalyst.dropped": "The catalyst has dropped, but needs to be inserted to activate."
+	"catalyst.dropped": "The catalyst has dropped, but needs to be inserted to activate.",
+	"visibleItems": "Visible items",
+	"label.powerful_gear": "Powerful gears",
+	"label.special_weapon": "Legendary weapons",
+	"label.legendary_gear": "Legendary gears, Luminous engrams, ...",
+	"label.important_consumable": "Enhance core ,transcendent blessing, ...",
+	"label.tokens": "Crucible tokens, clan XP, ...",
+	"label.resources": "Glimmer, Baryon bough, ...",
+	"label.milestone": "Milestones",
+	"label.quest_step": "Quest steps",
+	"label.catalyst": "Catalysts",
+	"label.vendor_bounty": "Vendor bounties",
+	"label.owned_bounty": "Owned bounties",
+	"label.forge": "Forges",
+	"label.pursuit": "Pursuits"
 }

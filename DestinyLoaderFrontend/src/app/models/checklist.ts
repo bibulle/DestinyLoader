@@ -1,3 +1,4 @@
+/* tslint:disable:member-ordering */
 export class Checklist {
 
   items: {
@@ -83,6 +84,7 @@ export class Character {
 export class Pursuit {
   itemInstanceId: string;
   //noinspection JSUnusedGlobalSymbols
+  itemType: number;
   itemTypeDisplayName: string;
   name: string;
   //noinspection JSUnusedGlobalSymbols
@@ -96,6 +98,16 @@ export class Pursuit {
   vendorName: string;
   saleDescription: string;
   type: PursuitType;
+
+  static ITEM_TYPE_QUEST_STEP = 12;
+  static ITEM_TYPE_QUEST_STEP_COMPLETE = 13; // ?
+  static ITEM_TYPE_QUEST_STEP_DUMMY = 20; // ?
+  static ITEM_TYPE_BOUNTY = 26;
+
+  static ITEM_TYPE_MILESTONE = -10;
+  static ITEM_TYPE_VENDOR = -11;
+  static ITEM_TYPE_CATALYST = -12;
+
 }
 
 // export class PursuitType {
@@ -111,6 +123,7 @@ export enum PursuitType {
 export enum catalystState {
   UNKNOWN, DONE, DROPPED, TO_BE_COMPLETED
 }
+
 
 
 export class Reward {
@@ -182,7 +195,7 @@ export class Reward {
       case 580961571: // Loaded Question
       case 792755504: // Nightshade
       case 324382200: // Breakneck
-        return 5;
+        return Reward.VALUE_SPECIAL_WEAPON;
       case 3782248531: // Modulus Report
       case 183980811: // Crucible Token
       case 1873857625: // Iron Banner Token
@@ -195,9 +208,8 @@ export class Reward {
       case 1317670974: // EDZ Rewards
       case 2109561326: // Eververse Bounty Note
       case 3792590697: // Confectionery Heart
-        return 3;
+        return Reward.VALUE_TOKENS;
       case 1022552290: // Legendary Shards
-        return 1;
       case 592227263: // Baryon Bough
       case 2014411539: // Alkane Dust
       case 950899352: // Dusklight Shard
@@ -209,20 +221,21 @@ export class Reward {
       case 3085039018: // Glimmer
       case 3159615086: // Glimmer
       case 49145143: // Simulation Seed
-        return 0;
+        return Reward.VALUE_RESOURCE;
       default:
         console.log('reward "' + r.itemHash + '" not found (' + r.name + ')');
         // console.log(r);
-        return 5;
+        return Reward.VALUE_UNKNOWN;
     }
   }
 
-// tslint:disable-next-line:member-ordering
   static VALUE_POWER_GEAR = 100;
-// tslint:disable-next-line:member-ordering
   static VALUE_LEGENDARY_GEAR = 50;
-// tslint:disable-next-line:member-ordering
   static VALUE_IMPORTANT_CONSUMABLE = 10;
+  static VALUE_SPECIAL_WEAPON = 5;
+  static VALUE_TOKENS = 3;
+  static VALUE_RESOURCE = 0;
+  static VALUE_UNKNOWN = 4;
 }
 
 export class Objective {
