@@ -28,6 +28,10 @@ export class NavbarComponent implements OnInit, OnDestroy {
   private _currentConfigSubscription: Subscription;
 
 
+  visibleRewardsKeys = Object.keys(this.config.visible.rewards);
+  visibleTypeKeys = Object.keys(this.config.visible.types);
+
+
   constructor (private _router: Router,
                private _userService: UserService,
                private _headerService: HeaderService) {
@@ -88,7 +92,8 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
     this._currentConfigSubscription = this._headerService.configObservable().subscribe(
       rel => {
-        this.config = rel;
+        this.config = {...this.config, ...rel};
+        console.log(this.config);
       });
   }
 
@@ -107,6 +112,13 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
   toggleShowOnlyPowerfulGear () {
     this._headerService.toggleShowOnlyPowerfulGear();
+  }
+
+  saveConfig (event) {
+    event.stopPropagation();
+    setTimeout(() => {
+      this._headerService.saveConfig(this.config);
+    });
   }
 
   logout () {

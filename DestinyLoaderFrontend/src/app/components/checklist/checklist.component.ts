@@ -98,6 +98,7 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
               // else create the object
               const newMilestone: Pursuit = {
                 itemInstanceId: milestone.instanceId,
+                itemType: Pursuit.ITEM_TYPE_MILESTONE,
                 itemTypeDisplayName: 'Milestone',
                 description: milestone.description,
                 name: milestone.milestoneName,
@@ -199,6 +200,7 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
                               // console.log(key + ' ' + vendor.name + ' : ' + sale.name + ' (' + sale.itemTypeDisplayName + ')');
                               const newSale: Pursuit = {
                                 itemInstanceId: sale.hash,
+                                itemType: Pursuit.ITEM_TYPE_VENDOR,
                                 itemTypeDisplayName: 'Vendor',
                                 description: sale.displaySource,
                                 vendorName: vendor.name,
@@ -263,6 +265,7 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
                   if ((catalyst.state === catalystState.DROPPED) || (catalyst.state === catalystState.TO_BE_COMPLETED)) {
                     const newCatalyst: Pursuit = {
                       itemInstanceId: catalyst.inventoryItem.itemInstanceId,
+                      itemType: Pursuit.ITEM_TYPE_CATALYST,
                       itemTypeDisplayName: 'Catalyst',
                       description: catalyst.item.displayProperties.description,
                       name: catalyst.inventoryItem.itemName,
@@ -595,7 +598,107 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
     if (!pursuit) {
       return false;
     }
-    return this.pursuitIsSelected(pursuit, character) || !this.config.showOnlyPowerfulGear || (pursuit.maxRewardLevel >= Reward.VALUE_POWER_GEAR);
+
+    if (this.pursuitIsSelected(pursuit, character)) {
+      return true;
+    }
+
+    let ret = false;
+
+    let checkedRewards = true;
+    pursuit.rewards.forEach(reward => {
+      const val = Reward.getRewardValue(reward);
+      switch (val) {
+        case Reward.VALUE_POWER_GEAR:
+          checkedRewards = true;
+          ret = ret || this.config.visible.rewards.powerful_gear;
+          break;
+        case Reward.VALUE_LEGENDARY_GEAR:
+          checkedRewards = true;
+          ret = ret || this.config.visible.rewards.legendary_gear;
+          break;
+        case Reward.VALUE_IMPORTANT_CONSUMABLE:
+          checkedRewards = true;
+          ret = ret || this.config.visible.rewards.important_consumable;
+          break;
+        case Reward.VALUE_SPECIAL_WEAPON:
+          checkedRewards = true;
+          ret = ret || this.config.visible.rewards.special_weapon;
+          break;
+        case Reward.VALUE_TOKENS:
+          checkedRewards = true;
+          ret = ret || this.config.visible.rewards.tokens;
+          break;
+        case Reward.VALUE_RESOURCE:
+          checkedRewards = true;
+          ret = ret || this.config.visible.rewards.resources;
+          break;
+        case Reward.VALUE_UNKNOWN:
+        default:
+          break;
+      }
+    });
+
+    if (!checkedRewards && (pursuit.rewards.length > 0)) {
+      console.log('Not checked rewards');
+      console.log(pursuit);
+    }
+
+    let checkedType = ret;
+    if (!ret) {
+      switch (pursuit.itemType) {
+        case Pursuit.ITEM_TYPE_MILESTONE:
+          checkedType = true;
+          ret = ret || this.config.visible.types.milestone;
+          break;
+        case Pursuit.ITEM_TYPE_QUEST_STEP: // 'Quest Step'
+        case Pursuit.ITEM_TYPE_QUEST_STEP_COMPLETE: // 'Quest Step' complete ?
+        case Pursuit.ITEM_TYPE_QUEST_STEP_DUMMY: // 'Quest Step'
+          checkedType = true;
+          ret = ret || this.config.visible.types.quest_step;
+          break;
+        case Pursuit.ITEM_TYPE_CATALYST:
+          checkedType = true;
+          ret = ret || this.config.visible.types.catalyst;
+          break;
+        case Pursuit.ITEM_TYPE_VENDOR:
+          checkedType = true;
+          ret = ret || this.config.visible.types.vendor_bounty;
+          break;
+        case Pursuit.ITEM_TYPE_BOUNTY: // 'Queen's Bounty', 'Eververse Bounty', 'Scrapper Bounty', 'Daily Bounty', 'Weekly Bounty', 'Gambit Bounty', 'Weekly Drifter Bounty'
+          checkedType = true;
+          ret = ret || this.config.visible.types.owned_bounty;
+          break;
+        case 0:
+          switch (pursuit.itemTypeDisplayName) {
+            case 'Forge Vessel':
+            case 'Réceptacle de forge':
+            case 'Key Mold':
+            case 'Moule de clé':
+              checkedType = true;
+              ret = ret || this.config.visible.types.forge;
+              break;
+            case 'Pursuits':
+            case 'Poursuites':
+              checkedType = true;
+              ret = ret || this.config.visible.types.pursuit;
+              break;
+            case 'Weekly Drifter Bounty':
+            case 'Contrats de la semaine du Vagabond':
+              checkedType = true;
+              ret = ret || this.config.visible.types.owned_bounty;
+              break;
+          }
+      }
+    }
+
+    if (!checkedType) {
+      console.log('not checked : ' + pursuit.itemType + ' ' + pursuit.itemTypeDisplayName);
+      console.log(pursuit);
+    }
+
+
+    return ret;
   }
 
   pursuitHasRunningObjectives (pursuit: Pursuit) {
@@ -613,3 +716,4 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
     return objective.runningTimeObjective && !objective.runningTimeObjective.finished;
   }
 }
+

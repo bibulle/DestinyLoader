@@ -13,7 +13,7 @@ export class HeaderService {
 
   private readonly reloadingSubject: BehaviorSubject<boolean>;
 
-  config: Config = new Config();
+  config: Config;
   private configSubject: BehaviorSubject<Config>;
 
 // tslint:disable-next-line:member-ordering
@@ -50,7 +50,7 @@ export class HeaderService {
 
   toggleShowOnlyPowerfulGear () {
     this.config.showOnlyPowerfulGear = !this.config.showOnlyPowerfulGear;
-    this._saveConfig();
+    this.saveConfig(this.config);
   }
 
   changeLanguage (language: string) {
@@ -59,7 +59,7 @@ export class HeaderService {
     // console.log(this.config.language);
     this._translate.use(this.config.language);
 
-    this._saveConfig();
+    this.saveConfig(this.config);
   }
 
   toggleSelectedPursuit (key) {
@@ -73,11 +73,12 @@ export class HeaderService {
     } else {
       this.config.selectedPursuits.push(key);
     }
-    this._saveConfig();
+    this.saveConfig(this.config);
   }
 
 
-  private _saveConfig () {
+  saveConfig (config) {
+    this.config = config;
     this.configSubject.next(this.config);
     HeaderService._saveConfigToLocalStorage(this.config);
     this._saveConfigToBackend(this.config)
@@ -88,7 +89,9 @@ export class HeaderService {
 
   private _loadConfig () {
     if (!this.config || !this.configSubject) {
-      this.config = HeaderService._loadConfigFromLocalStorage();
+      this.config = new Config();
+      this.config = {...this.config, ...HeaderService._loadConfigFromLocalStorage()};
+      this.config.visible = {...new Config().visible, ...this.config.visible};
       this._setLanguageFromConfig();
       if (!this.configSubject) {
         this.configSubject = new BehaviorSubject<Config>(this.config);
@@ -100,10 +103,12 @@ export class HeaderService {
     this._loadConfigFromBackend()
         .then(config => {
           if (!config.language && !config.selectedPursuits) {
-            this._saveConfig();
+            this.saveConfig(config);
           } else {
-            this.config = config;
-            console.log(this.config);
+            this.config = new Config();
+            this.config = {...this.config, ...config};
+            this.config.visible = {...new Config().visible, ...this.config.visible};
+            // console.log(this.config);
             this._setLanguageFromConfig();
             this.configSubject.next(this.config);
           }

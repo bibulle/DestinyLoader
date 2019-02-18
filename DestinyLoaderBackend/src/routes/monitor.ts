@@ -175,7 +175,7 @@ function monitorRouter (passport): Router {
                 //return response.send(JSON.stringify({messages: err}, null, 2));
               } else {
                 let result = {
-                  data: _.pick(conf, ['showOnlyPowerfulGear', 'language', 'selectedPursuits', 'user']),
+                  data: _.pick(conf, ['showOnlyPowerfulGear', 'language', 'selectedPursuits', 'user', 'visible']),
                   refreshedToken: user.refreshedToken
                 };
                 response.send(JSON.stringify(result, null, 2));
