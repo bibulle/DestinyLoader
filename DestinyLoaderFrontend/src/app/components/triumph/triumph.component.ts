@@ -3,6 +3,7 @@ import { Subscription } from 'rxjs';
 import { StatsService } from '../../services/stats.service';
 import { Character } from '../../models/character';
 import { GraphTypeKey } from '../../models/graph';
+import { HeaderService } from '../../services/header.service';
 
 @Component({
   selector: 'app-triumph',
@@ -16,11 +17,13 @@ export class TriumphComponent implements OnInit, OnDestroy {
 
   private _currentStatsSubscription: Subscription;
 
-  constructor (private _statsService: StatsService) {
+  constructor (private _headerService: HeaderService,
+               private _statsService: StatsService) {
   }
 
   ngOnInit () {
 
+    this._headerService.setSearchShown(false);
 
     this._currentStatsSubscription = this._statsService.currentStatsObservable().subscribe(
       characters => {

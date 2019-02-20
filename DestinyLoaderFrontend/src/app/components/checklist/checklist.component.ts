@@ -23,6 +23,11 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
   config: Config = new Config();
   private _currentConfigSubscription: Subscription;
 
+  search = '';
+  foundList: number[] = [];
+  searchTimout: number;
+  private _currentSearchSubscription: Subscription;
+
   constructor (private _checklistService: ChecklistService,
                private _translateService: TranslateService,
                private _headerService: HeaderService,
@@ -30,6 +35,10 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
   }
 
   private static PURSUIT_HASH = '1345459588';
+
+  private SEARCH_MIN_LENGTH = 3;
+
+  private PURSUIT_KEY_MULTIPLIER = 1000000000;
 
   ngOnInit () {
 
@@ -347,7 +356,8 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
         }
         // console.log(this.config.selectedPursuits);
 
-        console.log(checklist);
+        // console.log(checklist);
+        this.foundList = [];
         ChecklistComponent.updateObject(checklist, this.checklist);
         console.log(this.checklist);
 
@@ -368,6 +378,45 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
         });
 
       });
+
+    this._headerService.setSearchShown(true);
+    this._currentSearchSubscription = this._headerService.searchObservable().subscribe(
+      search => {
+        if (this.search !== search.searchText) {
+          this.foundList = [];
+        }
+
+        this.search = search.searchText;
+
+        if (search.searchText.length >= this.SEARCH_MIN_LENGTH) {
+          if (this.searchTimout) {
+            clearTimeout(this.searchTimout);
+          }
+          this.searchTimout = setTimeout(() => {
+            this.searchTimout = undefined;
+            if (this.foundList.length !== 0) {
+              const key = this.foundList[search.foundCurrent % this.foundList.length];
+
+              const charNum = Math.floor(key / this.PURSUIT_KEY_MULTIPLIER);
+              const pursuitNum = key - charNum * this.PURSUIT_KEY_MULTIPLIER;
+
+              let el = document.getElementById('character-' + charNum);
+              if (pursuitNum > 0) {
+                el = document.getElementById('pursuit-' + charNum + '-' + (pursuitNum - 1));
+              }
+
+              if (el) {
+                el.scrollIntoView({behavior: 'smooth'});
+              } else {
+                console.log('not found el : ' + charNum + '-' + pursuitNum);
+                console.log(search);
+              }
+            }
+          }, 100);
+        }
+
+      }
+    );
 
     // refresh the running times
     this.refreshRunningTimes();
@@ -437,6 +486,9 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
     }
     if (this._currentConfigSubscription) {
       this._currentConfigSubscription.unsubscribe();
+    }
+    if (this._currentSearchSubscription) {
+      this._currentSearchSubscription.unsubscribe();
     }
   }
 
@@ -675,6 +727,8 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
             case 'Réceptacle de forge':
             case 'Key Mold':
             case 'Moule de clé':
+            case 'Rare Bounty':
+            case 'Contrat spécial':
               checkedType = true;
               ret = ret || this.config.visible.types.forge;
               break;
@@ -714,6 +768,24 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
 
   objectivesIsRunning (objective) {
     return objective.runningTimeObjective && !objective.runningTimeObjective.finished;
+  }
+
+  highlight (string, charNum, pursuitNum): string {
+    if (!this.search || (this.search.length < this.SEARCH_MIN_LENGTH)) {
+      return string;
+    }
+    return string.replace(new RegExp(this.search, 'gi'), match => {
+      const key = charNum * this.PURSUIT_KEY_MULTIPLIER + pursuitNum;
+      if (this.foundList.indexOf(key) === -1) {
+        this.foundList.push(key);
+        this.foundList.sort((n1, n2) => {
+          return n1 - n2;
+        });
+        // console.log('this.foundList.length ' + this.foundList.length);
+        this._headerService.setSearchFoundCount(this.foundList.length);
+      }
+      return '<span class="highlight-text">' + match + '</span>';
+    });
   }
 }
 

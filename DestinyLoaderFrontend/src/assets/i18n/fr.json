@@ -52,5 +52,6 @@
 	"label.vendor_bounty": "Contrats disponibles",
 	"label.owned_bounty": "Contrats possédés",
 	"label.forge": "Forges",
-	"label.pursuit": "Poursuites"
+	"label.pursuit": "Poursuites",
+	"label.search": "Rechercher"
 }

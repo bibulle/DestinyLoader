@@ -288,6 +288,11 @@
 
 
   }
+
+  ::ng-deep .highlight-text {
+    background-color: #ffff8d;
+    color: #303030;
+  }
 }
 
 @media (max-width: 700px) {

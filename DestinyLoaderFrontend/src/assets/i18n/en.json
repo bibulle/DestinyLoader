@@ -52,5 +52,6 @@
 	"label.vendor_bounty": "Vendor bounties",
 	"label.owned_bounty": "Owned bounties",
 	"label.forge": "Forges",
-	"label.pursuit": "Pursuits"
+	"label.pursuit": "Pursuits",
+	"label.search": "Search"
 }

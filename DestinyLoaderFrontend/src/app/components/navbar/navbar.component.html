@@ -26,26 +26,36 @@
     </nav>
   </div>
   <div class="docs-header-right">
-    <div class="docs-navbar-hide-small not-reloading" *ngIf="!reloading"></div>
-    <mat-spinner class="docs-navbar-hide-small reloading" diameter="20" *ngIf="reloading"></mat-spinner>
-    <div class="docs-navbar-hide-small connected-user" *ngIf="user['bungieNetUser']">
-      <img
-          src="{{'https://www.bungie.net'+user['bungieNetUser'].profilePicturePath}}"
-          alt="{{user['bungieNetUser'].displayName}}"> {{user['bungieNetUser'].displayName}}
+    <div class="user">
+      <div class="docs-navbar-hide-small not-reloading" *ngIf="!reloading"></div>
+      <mat-spinner class="docs-navbar-hide-small reloading" diameter="20" *ngIf="reloading"></mat-spinner>
+      <div class="docs-navbar-hide-small connected-user" *ngIf="user['bungieNetUser']">
+        <img
+            src="{{'https://www.bungie.net'+user['bungieNetUser'].profilePicturePath}}"
+            alt="{{user['bungieNetUser'].displayName}}"> {{user['bungieNetUser'].displayName}}
+      </div>
+      <button mat-icon-button [matMenuTriggerFor]="menu">
+        <mat-icon>settings</mat-icon>
+      </button>
+    </div>
+    <div class="search" *ngIf="search.shown">
+      <mat-form-field appearance="legacy">
+        <input matInput placeholder="{{ 'label.search' | translate }}" [(ngModel)]="searchTextfield"
+               (ngModelChange)="searchText()" (keyup.enter)="searchNext()">
+        <mat-hint *ngIf="search.foundCount > 0" align="start">{{search.foundCurrent % search.foundCount + 1}}/{{search.foundCount}}</mat-hint>
+        <mat-icon matSuffix (click)="searchNext()">search</mat-icon>
+      </mat-form-field>
     </div>
 
-    <button mat-icon-button [matMenuTriggerFor]="menu">
-      <mat-icon>settings</mat-icon>
-    </button>
     <mat-menu #menu="matMenu">
       <button mat-menu-item [matMenuTriggerFor]="visibleItems">
         <mat-icon>visibility</mat-icon>
         {{'visibleItems'|translate}}
       </button>
       <!--<button mat-menu-item (click)="toggleShowOnlyPowerfulGear()">-->
-        <!--<mat-icon>trending_up</mat-icon>-->
-        <!--<span *ngIf="config.showOnlyPowerfulGear">{{'power_gear_only'|translate}}</span>-->
-        <!--<span *ngIf="!config.showOnlyPowerfulGear">{{'power_gear_not_only'|translate}}</span>-->
+      <!--<mat-icon>trending_up</mat-icon>-->
+      <!--<span *ngIf="config.showOnlyPowerfulGear">{{'power_gear_only'|translate}}</span>-->
+      <!--<span *ngIf="!config.showOnlyPowerfulGear">{{'power_gear_not_only'|translate}}</span>-->
       <!--</button>-->
       <button mat-menu-item *ngIf="user.bungieNetUser" (click)="logout()">
         <mat-icon>lock_open</mat-icon>
@@ -63,18 +73,19 @@
     </mat-menu>
     <mat-menu #visibleItems="matMenu">
       <button mat-menu-item *ngFor="let key of visibleRewardsKeys">
-        <mat-checkbox class="objective-checkbox" readonly (click)="saveConfig($event)" [(ngModel)]="config.visible.rewards[key]">
-          <span>{{'label.'+key | translate}}</span>
+        <mat-checkbox class="objective-checkbox" readonly (click)="saveConfig($event)"
+                      [(ngModel)]="config.visible.rewards[key]">
+          <span>{{'label.' + key | translate}}</span>
         </mat-checkbox>
       </button>
       <mat-divider></mat-divider>
       <button mat-menu-item *ngFor="let key of visibleTypeKeys">
-        <mat-checkbox class="objective-checkbox" readonly (click)="saveConfig($event)" [(ngModel)]="config.visible.types[key]">
-          <span>{{'label.'+key | translate}}</span>
+        <mat-checkbox class="objective-checkbox" readonly (click)="saveConfig($event)"
+                      [(ngModel)]="config.visible.types[key]">
+          <span>{{'label.' + key | translate}}</span>
         </mat-checkbox>
       </button>
 
     </mat-menu>
   </div>
 </div>
-

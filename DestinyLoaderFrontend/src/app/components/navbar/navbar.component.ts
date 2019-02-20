@@ -2,7 +2,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { NavigationEnd, Router } from '@angular/router';
 import { UserService } from '../../services/user.service';
 import { HeaderService } from '../../services/header.service';
-import { Config } from '../../models/config';
+import { Config, Search } from '../../models/config';
 import { Subscription } from 'rxjs';
 import { User } from '../../models/user';
 
@@ -23,6 +23,9 @@ export class NavbarComponent implements OnInit, OnDestroy {
   reloading = false;
   private _currentReloadingSubscription: Subscription;
 
+  search = new Search();
+  searchTextfield = '';
+  private _currentSearchSubscription: Subscription;
 
   config: Config = new Config();
   private _currentConfigSubscription: Subscription;
@@ -47,6 +50,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
       }
     });
+
 
   }
 
@@ -95,6 +99,14 @@ export class NavbarComponent implements OnInit, OnDestroy {
         this.config = {...this.config, ...rel};
         console.log(this.config);
       });
+
+    this._currentSearchSubscription = this._headerService.searchObservable()
+                                          .subscribe(search => {
+                                            // console.log(search);
+                                            this.search = search;
+                                            this.searchTextfield = this.search.searchText;
+                                          });
+
   }
 
   ngOnDestroy (): void {
@@ -106,6 +118,9 @@ export class NavbarComponent implements OnInit, OnDestroy {
     }
     if (this._currentConfigSubscription) {
       this._currentConfigSubscription.unsubscribe();
+    }
+    if (this._currentSearchSubscription) {
+      this._currentSearchSubscription.unsubscribe();
     }
   }
 
@@ -129,6 +144,13 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
   toggleLang (lang: string) {
     this._headerService.changeLanguage(lang);
+  }
+
+  searchText () {
+    this._headerService.setSearch(this.searchTextfield);
+  }
+  searchNext () {
+    this._headerService.setSearchNext();
   }
 
 }
