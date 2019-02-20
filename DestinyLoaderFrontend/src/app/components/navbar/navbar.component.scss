@@ -12,6 +12,20 @@
     display: flex;
     align-items: center;
     margin-right: 1em;
+    flex-direction: row;
+
+    .user {
+      display: flex;
+      align-items: center;
+      flex-direction: row;
+    }
+    .search {
+      //position: absolute;
+      //right: 1em;
+      //margin-top: -1em;
+      font-size: 0.8em;
+    }
+
   }
 }
 .docs-navbar-header {
@@ -91,6 +105,10 @@
   .docs-navbar-header .title, .link-text, .flex-spacer {
     display: none;
   }
+
+  .docs-header .docs-header-right {
+    flex-direction: column;
+  }
   //.docs-navbar-hide-small {
   //  display: none;
   //}
@@ -111,3 +129,4 @@
 .mat-menu-item {
   font-size: 0.8em;
 }
+

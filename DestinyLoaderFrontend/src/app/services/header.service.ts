@@ -1,7 +1,7 @@
 /* tslint:disable:member-ordering */
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
-import { Config } from '../models/config';
+import { Config, Search } from '../models/config';
 import { TranslateService } from '@ngx-translate/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../environments/environment';
@@ -11,6 +11,7 @@ import { environment } from '../../environments/environment';
 })
 export class HeaderService {
 
+  private readonly searchSubject: BehaviorSubject<Search>;
   private readonly reloadingSubject: BehaviorSubject<boolean>;
 
   config: Config;
@@ -24,9 +25,50 @@ export class HeaderService {
   constructor (private httpClient: HttpClient,
                private _translate: TranslateService) {
 
+    this.searchSubject = new BehaviorSubject<Search>(new Search());
     this.reloadingSubject = new BehaviorSubject<boolean>(false);
 
     this._loadConfig();
+  }
+
+  // Search management
+  searchObservable (): Observable<Search> {
+    return this.searchSubject;
+  }
+  setSearch(search: string) {
+    // console.log(search + ' - ' + this.searchSubject.getValue().searchText);
+    if (search !== this.searchSubject.getValue().searchText) {
+      this.searchSubject.next({
+        shown: this.searchSubject.getValue().shown,
+        searchText: search,
+        foundCount: 0,
+        foundCurrent: 0
+      });
+    }
+  }
+  setSearchNext() {
+    this.searchSubject.next({
+      shown: this.searchSubject.getValue().shown,
+      searchText: this.searchSubject.getValue().searchText,
+      foundCount: this.searchSubject.getValue().foundCount,
+      foundCurrent: this.searchSubject.getValue().foundCurrent + 1
+    });
+  }
+  setSearchFoundCount(count) {
+    this.searchSubject.next({
+      shown: this.searchSubject.getValue().shown,
+      searchText: this.searchSubject.getValue().searchText,
+      foundCount: count,
+      foundCurrent: this.searchSubject.getValue().foundCurrent
+    });
+  }
+  setSearchShown(shown: boolean) {
+    this.searchSubject.next({
+      shown: shown,
+      searchText: (shown ? this.searchSubject.getValue().searchText : ''),
+      foundCount: (shown ? this.searchSubject.getValue().foundCount : 0),
+      foundCurrent: (shown ? this.searchSubject.getValue().foundCurrent : 0)
+    });
   }
 
   // Reloading management
@@ -54,6 +96,7 @@ export class HeaderService {
   }
 
   changeLanguage (language: string) {
+    // this.setSearch('');
     this.config.language = language;
 
     // console.log(this.config.language);

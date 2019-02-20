@@ -24,3 +24,15 @@ export class Config {
     }
   };
 }
+
+export class Search {
+  shown = false;
+  searchText = '';
+//  action: SearchAction = SearchAction.FIRST;
+  foundCount = 0;
+  foundCurrent = 0;
+}
+
+export enum SearchAction {
+  FIRST, NEXT
+}
