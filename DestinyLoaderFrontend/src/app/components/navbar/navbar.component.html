@@ -41,9 +41,9 @@
     <div class="search" *ngIf="search.shown">
       <mat-form-field appearance="legacy">
         <input matInput placeholder="{{ 'label.search' | translate }}" [(ngModel)]="searchTextfield"
-               (ngModelChange)="searchText()" (keyup.enter)="searchNext()">
+               (ngModelChange)="searchText()" (keyup.enter)="searchNext($event)">
         <mat-hint *ngIf="search.foundCount > 0" align="start">{{search.foundCurrent % search.foundCount + 1}}/{{search.foundCount}}</mat-hint>
-        <mat-icon matSuffix (click)="searchNext()">search</mat-icon>
+        <mat-icon matSuffix (click)="searchNext($event)">search</mat-icon>
       </mat-form-field>
     </div>
 

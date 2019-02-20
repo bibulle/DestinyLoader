@@ -149,7 +149,8 @@ export class NavbarComponent implements OnInit, OnDestroy {
   searchText () {
     this._headerService.setSearch(this.searchTextfield);
   }
-  searchNext () {
+  searchNext (event: any) {
+    event.stopPropagation();
     this._headerService.setSearchNext();
   }
 
