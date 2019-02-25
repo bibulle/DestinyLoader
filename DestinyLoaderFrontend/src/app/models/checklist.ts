@@ -9,6 +9,7 @@ export class Checklist {
   currentTimes: ObjectiveTime[];
   vendors: {};
   catalysts: Catalyst[];
+  triumphs: Triumph[];
 
 }
 
@@ -27,6 +28,24 @@ export class Catalyst {
   description: string;
   state: catalystState;
   objectives: Objective[];
+}
+
+export class Triumph {
+  hash: string;
+  item: {
+    presentationInfo: {
+      parentPresentationNodeHashes: []
+    };
+    displayProperties: {
+      name: string;
+      icon: string;
+      description: string;
+    };
+  };
+  state: number;
+  objectives: Objective[];
+  scoreValue: number;
+  parentIcon: string;
 }
 
 export class Character {
@@ -107,6 +126,8 @@ export class Pursuit {
   static ITEM_TYPE_MILESTONE = -10;
   static ITEM_TYPE_VENDOR = -11;
   static ITEM_TYPE_CATALYST = -12;
+  static ITEM_TYPE_TRIUMPH = -13;
+  static ITEM_TYPE_TRIUMPH_REDEEMABLE = -14;
 
 }
 
@@ -117,13 +138,12 @@ export class Pursuit {
 // }
 
 export enum PursuitType {
-  MILESTONE, SALE, PURSUIT, CATALYST
+  MILESTONE, SALE, PURSUIT, CATALYST, TRIUMPH, TRIUMPH_REDEEMABLE
 }
 
 export enum catalystState {
   UNKNOWN, DONE, DROPPED, TO_BE_COMPLETED
 }
-
 
 
 export class Reward {
@@ -257,6 +277,17 @@ export class Objective {
         result = o.timeTillFinished;
       }
     });
+    return result;
+  }
+
+  static getPercentageTillFinished (objectives: Objective[]): number {
+
+    let result = 0;
+    objectives.forEach(o => {
+      result += Math.min(o.progress, Math.max(1, o.completionValue)) / Math.max(1, o.completionValue);
+    });
+    result = result / Math.max(1, objectives.length);
+
     return result;
   }
 

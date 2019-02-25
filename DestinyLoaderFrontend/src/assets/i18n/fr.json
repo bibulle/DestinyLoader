@@ -53,5 +53,7 @@
 	"label.owned_bounty": "Contrats possédés",
 	"label.forge": "Forges",
 	"label.pursuit": "Poursuites",
-	"label.search": "Rechercher"
+	"label.search": "Rechercher",
+	"label.triumphRedeemable": "Triomphes terminés",
+	"points": "points"
 }

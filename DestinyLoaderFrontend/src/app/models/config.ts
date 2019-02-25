@@ -20,7 +20,9 @@ export class Config {
       vendor_bounty: true,
       owned_bounty: true,
       forge: true,
-      pursuit: true
+      pursuit: true,
+      triumph: false,
+      triumphRedeemable: false
     }
   };
 }

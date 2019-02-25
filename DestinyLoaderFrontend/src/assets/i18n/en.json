@@ -53,5 +53,7 @@
 	"label.owned_bounty": "Owned bounties",
 	"label.forge": "Forges",
 	"label.pursuit": "Pursuits",
-	"label.search": "Search"
+	"label.search": "Search",
+	"label.triumphRedeemable": "Finished triumphs",
+	"points": "points"
 }
