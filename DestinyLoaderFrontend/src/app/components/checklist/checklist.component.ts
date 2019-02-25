@@ -1,4 +1,4 @@
-/* tslint:disable:member-ordering */
+/* tslint:disable:member-ordering no-bitwise */
 import { AfterViewChecked, Component, ElementRef, HostListener, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { ChecklistService } from '../../services/checklist.service';
@@ -173,6 +173,161 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
               char.pursuits.push(newMilestone);
             });
 
+            // add catalyst and triumph (to the first character)
+            if (charIndex === 1) {
+              checklist.catalysts.forEach(
+                catalyst => {
+                  if ((catalyst.state === catalystState.DROPPED) || (catalyst.state === catalystState.TO_BE_COMPLETED)) {
+                    const newCatalyst: Pursuit = {
+                      itemInstanceId: catalyst.inventoryItem.itemInstanceId,
+                      itemType: Pursuit.ITEM_TYPE_CATALYST,
+                      itemTypeDisplayName: 'Catalyst',
+                      description: catalyst.item.displayProperties.description,
+                      name: catalyst.inventoryItem.itemName,
+                      icon: catalyst.item.displayProperties.icon,
+                      expirationDate: undefined,
+                      rewards: [],
+                      maxRewardLevel: -2,
+                      objectives: [],
+                      vendorName: undefined,
+                      saleDescription: undefined,
+                      type: PursuitType.CATALYST
+                    };
+
+                    this._translateService
+                        .get('catalyst', {name: catalyst.inventoryItem.itemName})
+                        .subscribe(res => {
+                          newCatalyst.name = res;
+                        });
+
+                    // change description on dropped catalyst
+                    if (catalyst.state === catalystState.DROPPED) {
+                      this._translateService
+                          .get('catalyst.dropped')
+                          .subscribe(res => {
+                            newCatalyst.description = res;
+                          });
+                    }
+
+
+                    listOfPursuitsKey.push(ChecklistComponent.getPursuitKey(newCatalyst, char));
+                    char.pursuits.push(newCatalyst);
+
+                    // add well formed objectives
+                    if (catalyst.objectives) {
+                      // console.log(newCatalyst.itemInstanceId+" "+newCatalyst.name);
+                      catalyst.objectives.forEach(objective => {
+                        const newObjective: Objective = {
+                          objectiveHash: objective.objectiveHash,
+                          completionValue: objective.completionValue,
+                          complete: objective.complete,
+                          progress: objective.progress,
+                          item: objective.item,
+                          timeTillFinished: Number.MAX_SAFE_INTEGER
+                        };
+                        newCatalyst.objectives.push(newObjective);
+
+
+                        // add running objective
+                        if (currentTimeObjective[char.characterId] &&
+                          currentTimeObjective[char.characterId][objective.objectiveHash] &&
+                          currentTimeObjective[char.characterId][objective.objectiveHash].pursuitId === newCatalyst.itemInstanceId) {
+                          newObjective.runningTimeObjective = currentTimeObjective[char.characterId][objective.objectiveHash];
+                          newObjective.runningTimeObjective.timeStart = new Date(newObjective.runningTimeObjective.timeStart);
+                          newObjective.runningTimeObjective.timeRunning = (new Date().getTime() - newObjective.runningTimeObjective.timeStart.getTime());
+
+                        }
+
+                      });
+                    }
+
+                    // console.log(catalyst);
+                  }
+                }
+              );
+              checklist.triumphs.forEach(
+                triumph => {
+
+                  // if it's a root item (badges), do nothing (they cannot be redeemed)
+                  if ((triumph.state === 0) && (triumph.item.presentationInfo.parentPresentationNodeHashes.length === 0)) {
+                    return;
+                  }
+
+                  // If not already redeemed, add it
+                  if ((triumph.state & 1) === 0) {
+                    const newTriumph: Pursuit = {
+                      itemInstanceId: triumph.hash,
+                      itemType: (triumph.state === 0 ? Pursuit.ITEM_TYPE_TRIUMPH_REDEEMABLE : Pursuit.ITEM_TYPE_TRIUMPH),
+                      itemTypeDisplayName: 'Triumph',
+                      description: triumph.item.displayProperties.description,
+                      name: triumph.item.displayProperties.name,
+                      icon: triumph.item.displayProperties.icon,
+                      expirationDate: undefined,
+                      rewards: [],
+                      maxRewardLevel: -2,
+                      objectives: [],
+                      vendorName: undefined,
+                      saleDescription: undefined,
+                      type: (triumph.state === 0 ? PursuitType.TRIUMPH_REDEEMABLE : PursuitType.TRIUMPH)
+                    };
+
+                    listOfPursuitsKey.push(ChecklistComponent.getPursuitKey(newTriumph, char));
+                    char.pursuits.push(newTriumph);
+
+                    // add well formed objectives
+                    if (triumph.objectives) {
+                      // console.log(newCatalyst.itemInstanceId+" "+newCatalyst.name);
+                      triumph.objectives.forEach(objective => {
+                        const newObjective: Objective = {
+                          objectiveHash: objective.objectiveHash,
+                          completionValue: objective.completionValue,
+                          complete: objective.complete,
+                          progress: objective.progress,
+                          item: objective.item,
+                          timeTillFinished: Number.MAX_SAFE_INTEGER
+                        };
+                        newTriumph.objectives.push(newObjective);
+
+
+                        // add running objective
+                        if (currentTimeObjective[char.characterId] &&
+                          currentTimeObjective[char.characterId][objective.objectiveHash] &&
+                          currentTimeObjective[char.characterId][objective.objectiveHash].pursuitId === newTriumph.itemInstanceId) {
+                          newObjective.runningTimeObjective = currentTimeObjective[char.characterId][objective.objectiveHash];
+                          newObjective.runningTimeObjective.timeStart = new Date(newObjective.runningTimeObjective.timeStart);
+                          newObjective.runningTimeObjective.timeRunning = (new Date().getTime() - newObjective.runningTimeObjective.timeStart.getTime());
+
+                        }
+
+
+                      });
+                    }
+
+                    // Add pseudo reward
+                    if (triumph.scoreValue) {
+                      const newReward: Reward = {
+                        name: 'Triumph points',
+                        icon: triumph.parentIcon,
+                        quantity: triumph.scoreValue,
+                        identifier: '',
+                        identifierIcon: '',
+                        redeemed: false,
+                        earned: false,
+                        objectivesSize: 0,
+                        itemHash: 0
+                      };
+
+
+                      newTriumph.rewards.push(newReward);
+
+                    }
+
+
+                    // console.log(catalyst);
+                  }
+                });
+            }
+
             // add objectives time (and running one)
             char.pursuits.forEach(pursuit => {
               pursuit.objectives.forEach(objective => {
@@ -266,80 +421,6 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
                 }
               }
             );
-
-            // add catalyst (to the first character)
-            if (charIndex === 1) {
-              checklist.catalysts.forEach(
-                catalyst => {
-                  if ((catalyst.state === catalystState.DROPPED) || (catalyst.state === catalystState.TO_BE_COMPLETED)) {
-                    const newCatalyst: Pursuit = {
-                      itemInstanceId: catalyst.inventoryItem.itemInstanceId,
-                      itemType: Pursuit.ITEM_TYPE_CATALYST,
-                      itemTypeDisplayName: 'Catalyst',
-                      description: catalyst.item.displayProperties.description,
-                      name: catalyst.inventoryItem.itemName,
-                      icon: catalyst.item.displayProperties.icon,
-                      expirationDate: undefined,
-                      rewards: [],
-                      maxRewardLevel: -2,
-                      objectives: [],
-                      vendorName: undefined,
-                      saleDescription: undefined,
-                      type: PursuitType.CATALYST
-                    };
-
-                    this._translateService
-                        .get('catalyst', {name: catalyst.inventoryItem.itemName})
-                        .subscribe(res => {
-                          newCatalyst.name = res;
-                        });
-
-                    // change description on dropped catalyst
-                    if (catalyst.state === catalystState.DROPPED) {
-                      this._translateService
-                          .get('catalyst.dropped')
-                          .subscribe(res => {
-                            newCatalyst.description = res;
-                          });
-                    }
-
-
-                    listOfPursuitsKey.push(ChecklistComponent.getPursuitKey(newCatalyst, char));
-                    char.pursuits.push(newCatalyst);
-
-                    // add well formed objectives
-                    if (catalyst.objectives) {
-                      // console.log(newCatalyst.itemInstanceId+" "+newCatalyst.name);
-                      catalyst.objectives.forEach(objective => {
-                        const newObjective: Objective = {
-                          objectiveHash: objective.objectiveHash,
-                          completionValue: objective.completionValue,
-                          complete: objective.complete,
-                          progress: objective.progress,
-                          item: objective.item,
-                          timeTillFinished: Number.MAX_SAFE_INTEGER
-                        };
-                        newCatalyst.objectives.push(newObjective);
-
-
-                        // add running objective
-                        if (currentTimeObjective[char.characterId] &&
-                          currentTimeObjective[char.characterId][objective.objectiveHash] &&
-                          currentTimeObjective[char.characterId][objective.objectiveHash].pursuitId === newCatalyst.itemInstanceId) {
-                          newObjective.runningTimeObjective = currentTimeObjective[char.characterId][objective.objectiveHash];
-                          newObjective.runningTimeObjective.timeStart = new Date(newObjective.runningTimeObjective.timeStart);
-                          newObjective.runningTimeObjective.timeRunning = (new Date().getTime() - newObjective.runningTimeObjective.timeStart.getTime());
-
-                        }
-
-                      });
-                    }
-
-                    // console.log(catalyst);
-                  }
-                }
-              );
-            }
 
             // sort pursuit
             this.sortPursuits(char);
@@ -438,7 +519,7 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
   }
 
   sortPursuits (char) {
-    char.pursuits.sort((p1, p2) => {
+    char.pursuits.sort((p1: Pursuit, p2: Pursuit) => {
       {
         let selectedCompare = 0;
         if (this.pursuitIsSelected(p1, char)) {
@@ -456,6 +537,7 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
           catalystCompare++;
         }
 
+
         const r1 = Reward.getMaxReward(p1.rewards);
         p1.maxRewardLevel = Reward.getRewardValue(r1);
         const r2 = Reward.getMaxReward(p2.rewards);
@@ -463,6 +545,12 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
 
         const t1 = Objective.getMaxTimeTillFinished(p1.objectives);
         const t2 = Objective.getMaxTimeTillFinished(p2.objectives);
+
+        let triumphCompare = 0;
+        if ((p1.type === PursuitType.TRIUMPH) && (p2.type === PursuitType.TRIUMPH)) {
+          triumphCompare = triumphCompare + (t1 / Math.max(1, +(p1.rewards.length > 0 ? p1.rewards[0].quantity : 0)));
+          triumphCompare = triumphCompare - (t2 / Math.max(1, +(p2.rewards.length > 0 ? p2.rewards[0].quantity : 0)));
+        }
 
         const rewardsCompared = Reward.compareRewards(r1, r2);
 
@@ -472,6 +560,10 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
           return catalystCompare;
         } else if (rewardsCompared !== 0) {
           return rewardsCompared;
+        } else if (triumphCompare !== 0) {
+          return triumphCompare;
+        } else if (t1 === t2) {
+          return p2.name.localeCompare(p1.name);
         } else {
           // let's compare on objective times
           return t1 - t2;
@@ -713,6 +805,14 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
           checkedType = true;
           ret = ret || this.config.visible.types.catalyst;
           break;
+        case Pursuit.ITEM_TYPE_TRIUMPH:
+          checkedType = true;
+          ret = ret || this.config.visible.types.triumph;
+          break;
+        case Pursuit.ITEM_TYPE_TRIUMPH_REDEEMABLE:
+          checkedType = true;
+          ret = ret || this.config.visible.types.triumphRedeemable;
+          break;
         case Pursuit.ITEM_TYPE_VENDOR:
           checkedType = true;
           ret = ret || this.config.visible.types.vendor_bounty;
@@ -768,6 +868,10 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
 
   objectivesIsRunning (objective) {
     return objective.runningTimeObjective && !objective.runningTimeObjective.finished;
+  }
+
+  getObjectiveProgress (objective) {
+    return 100 * Math.min(1.0, objective.progress / objective.completionValue);
   }
 
   highlight (string, charNum, pursuitNum): string {

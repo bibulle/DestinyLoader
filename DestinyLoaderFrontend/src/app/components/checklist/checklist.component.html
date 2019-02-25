@@ -65,7 +65,7 @@
                  src="https://www.bungie.net{{reward.identifierIcon}}" title="{{reward.identifier}}"
                  alt="{{reward.identifier}}">
           </span>
-          <span><span [innerHTML]="highlight(reward.name, charNum, pursuitNum)"></span> {{reward.quantity < 2 ? '' : '+' + reward.quantity}}</span>
+          <span><span [innerHTML]="highlight(reward.name, charNum, pursuitNum)"></span>&nbsp;<span>{{reward.quantity < 2 ? '' : '+' + reward.quantity}}</span></span>
         </div>
       </mat-card-subtitle>
       <div *ngIf="pursuit.objectives">
@@ -74,7 +74,7 @@
           <mat-checkbox class="objective-checkbox"
                         [ngClass]="{'objective-checkbox-border': (objective.completionValue >= 1)}" readonly
                         [ngModel]="objective.complete">
-            <div class="objective-progressbar" [style.width]="(100*objective.progress/objective.completionValue)+'%'">
+            <div class="objective-progressbar" [style.width]="getObjectiveProgress(objective)+'%'">
               &nbsp;
             </div>
             <span class="objective-description"><span [innerHTML]="highlight(objective.item.progressDescription, charNum, pursuitNum)"></span>

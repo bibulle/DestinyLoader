@@ -128,7 +128,7 @@ export class ChecklistService {
       // .map((res: Response) => res.json().data as Book[])
           .subscribe(
             (data: Object) => {
-              // console.log(data);
+              console.log(data);
 
               // is the token refreshed ?
               if (data['refreshedToken']) {
