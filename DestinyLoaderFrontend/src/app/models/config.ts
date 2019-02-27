@@ -10,6 +10,7 @@ export class Config {
       legendary_gear: true,
       special_weapon: true,
       important_consumable: true,
+      triumphs: false,
       tokens: true,
       resources: true
     },

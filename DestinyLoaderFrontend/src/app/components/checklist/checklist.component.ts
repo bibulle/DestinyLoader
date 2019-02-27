@@ -49,6 +49,7 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
         const listOfPursuitsKey = [];
 
         checklist = checklist as Checklist;
+
         // If we have things to show
         if (checklist && checklist.items && checklist.items[ChecklistComponent.PURSUIT_HASH] && checklist.characters && checklist.times && checklist.currentTimes) {
 
@@ -313,8 +314,8 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
                         identifierIcon: '',
                         redeemed: false,
                         earned: false,
-                        objectivesSize: 0,
-                        itemHash: 0
+                        objectivesSize: newTriumph.objectives.length,
+                        itemHash: Reward.TRIUMPH_POINT_PSEUDO_HASH
                       };
 
 
@@ -768,6 +769,10 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
         case Reward.VALUE_SPECIAL_WEAPON:
           checkedRewards = true;
           ret = ret || this.config.visible.rewards.special_weapon;
+          break;
+        case Reward.VALUE_TRIUMPH:
+          checkedRewards = true;
+          ret = ret || this.config.visible.rewards.triumphs;
           break;
         case Reward.VALUE_TOKENS:
           checkedRewards = true;

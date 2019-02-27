@@ -198,6 +198,8 @@ export class Reward {
       case 964120289: // Powerful Gear
       case 3789021730: // Powerful Gear
       case 1478801436: // Powerful Gear
+      case 305996677: // Powerful Gear
+      case 2043403989: // Powerful Gear
         return Reward.VALUE_POWER_GEAR;
       case 2646629159: // Luminous Engram
       case 2127149322: // Legendary Gear
@@ -223,12 +225,14 @@ export class Reward {
       case 372496383: // Infamy Rank Points
       case 3899548068: // Vanguard Tactician Token
       case 3196288028: // Boon of the Crucible
-      case 1: // Nessus Rewards
+      case 3922324861: // Nessus Rewards
       case 3696608133: // Titan Rewards
       case 1317670974: // EDZ Rewards
       case 2109561326: // Eververse Bounty Note
       case 3792590697: // Confectionery Heart
         return Reward.VALUE_TOKENS;
+      case Reward.TRIUMPH_POINT_PSEUDO_HASH: // Triumph points
+        return Reward.VALUE_TRIUMPH;
       case 1022552290: // Legendary Shards
       case 592227263: // Baryon Bough
       case 2014411539: // Alkane Dust
@@ -249,13 +253,16 @@ export class Reward {
     }
   }
 
+  static TRIUMPH_POINT_PSEUDO_HASH = -999999;
+
   static VALUE_POWER_GEAR = 100;
   static VALUE_LEGENDARY_GEAR = 50;
   static VALUE_IMPORTANT_CONSUMABLE = 10;
-  static VALUE_SPECIAL_WEAPON = 5;
+  static VALUE_SPECIAL_WEAPON = 6;
+  static VALUE_UNKNOWN = 5;
+  static VALUE_TRIUMPH = 4;
   static VALUE_TOKENS = 3;
   static VALUE_RESOURCE = 0;
-  static VALUE_UNKNOWN = 4;
 }
 
 export class Objective {
