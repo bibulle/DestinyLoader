@@ -50,9 +50,9 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
 
         checklist = checklist as Checklist;
 
-        if (checklist.characters) {
-          checklist.characters = [checklist.characters[0]];
-        }
+//        if (checklist.characters) {
+//          checklist.characters = [checklist.characters[0]];
+//        }
 
         // If we have things to show
         if (checklist && checklist.items && checklist.items[ChecklistComponent.PURSUIT_HASH] && checklist.characters && checklist.times && checklist.currentTimes) {
