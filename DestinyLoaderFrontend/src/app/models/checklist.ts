@@ -167,15 +167,7 @@ export class Reward {
   }
 
   static compareRewards (r1: Reward, r2: Reward): number {
-    let ret = Reward.getRewardValue(r2) - Reward.getRewardValue(r1);
-
-    if ((ret === 0) && (r1 != null)) {
-      if (r1.name > r2.name) {
-        ret = 1;
-      } else if (r1.name < r2.name) {
-        ret = -1;
-      }
-    }
+    const ret = Reward.getRewardValue(r2) - Reward.getRewardValue(r1);
 
     return ret;
   }
