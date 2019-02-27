@@ -16,7 +16,7 @@
       //display: flex;
       flex-wrap: wrap;
       align-content: flex-start;
-      align-items: stretch;
+      align-items: center;
 
       .character-card-sticky, .character-card {
         background-color: #303030;
@@ -96,6 +96,10 @@
 
       .character-card-sticky2 {
         z-index: 25;
+      }
+
+      .not-visible {
+        display: none;
       }
 
       @-webkit-keyframes glowing {

@@ -36,7 +36,7 @@
       <!--</div>-->
     </mat-card>
     <div *ngFor="let pursuit of character.pursuits; let pursuitNum = index"
-         [ngClass]="{'glow': (pursuitHasRunningObjectives(pursuit))}" [attr.id]="'pursuit-'+charNum+'-'+pursuitNum">
+         [ngClass]="{'glow': (pursuitHasRunningObjectives(pursuit)), 'not-visible': (!pursuitShouldBeDisplayed(pursuit, character))}" [attr.id]="'pursuit-'+charNum+'-'+pursuitNum">
     <mat-card class="pursuit-item" *ngIf="pursuitShouldBeDisplayed(pursuit, character)" title="{{pursuit.description}}"
               (click)="toggleSelectedPursuit(pursuit, character, $event)"
               [ngClass]="{'selected': (pursuitIsSelected(pursuit, character))}">
