@@ -50,8 +50,8 @@
     "typescript": "^3.2.1"
   },
   "commit": {
-    "number": 226,
-    "hash": "9efa255eaf1beaf924173aa7f8cd3f4e5989e291"
+    "number": 227,
+    "hash": "d597d5376004f214a992a6bd54bb4272c28d0cc4"
   },
   "husky": {
     "hooks": {
