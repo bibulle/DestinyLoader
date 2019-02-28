@@ -11,7 +11,7 @@ const session = require('express-session');
 const MongoDBStore = require('connect-mongodb-session')(session);
 const flash = require('connect-flash');
 
-// const debug = require('debug')('server:debug:app');
+const debug = require('debug')('server:debug:app');
 // const error = require('debug')('server:error:app');
 
 import { defaultRouter } from "./routes";
@@ -32,6 +32,8 @@ let store = new MongoDBStore({
 store.on('error', function(error) {
   error("Err : " + error);
 });
+
+debug(Config.package_name + ' - ' +Config.package_version + ' (' + Config.package_commit_number + ' ' + Config.package_commit_hash + ')');
 
 //--------------
 // init webApp

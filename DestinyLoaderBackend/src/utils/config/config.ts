@@ -5,6 +5,11 @@ const error = require('debug')('server:error:config');
 const fs = require('fs');
 
 export class Config {
+  public static package_name = "";
+  public static package_version = "";
+  public static package_commit_number = "";
+  public static package_commit_hash = "";
+
   public static mongoUrl = "";
   public static dbPath = "";
 
@@ -34,7 +39,11 @@ export class Config {
   private static node_env = process.env.NODE_ENV || 'development';
 
   static initialize () {
-    // debug(Config.CLAN_MEMBER_LIST);
+
+    Config.package_name = process.env.npm_package_name;
+    Config.package_version = process.env.npm_package_version;
+    Config.package_commit_number = process.env.npm_package_commit_number;
+    Config.package_commit_hash = process.env.npm_package_commit_hash;
 
     // Check the user env
     if (!fs.existsSync(__dirname + "/env-myown.json")) {
