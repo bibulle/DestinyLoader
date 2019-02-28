@@ -1,6 +1,6 @@
 {
   "name": "destiny-loader",
-  "version": "0.0.9",
+  "version": "0.0.10",
   "private": true,
   "scripts": {
     "start": "node ./src/bin/www",
@@ -55,7 +55,7 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "npm --no-git-tag-version version patch ; git --version ; cd .. ; git add  DestinyLoaderBackend/package.json"
+      "pre-commit": "npm --no-git-tag-version version patch ; cd .. ; git add  DestinyLoaderBackend/package.json ; git add  DestinyLoaderBackend/package-lock.json"
     }
   }
 }
