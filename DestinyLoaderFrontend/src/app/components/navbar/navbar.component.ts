@@ -38,7 +38,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
   version = environment.version;
   commit = environment.commit;
   private _currentVersionSubscription: Subscription;
-  private updateNeeded = false;
+  updateNeeded = false;
 
 
   constructor (private _router: Router,
