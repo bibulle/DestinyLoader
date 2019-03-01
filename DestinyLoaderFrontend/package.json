@@ -1,6 +1,6 @@
 {
   "name": "destiny-front-end",
-  "version": "0.0.12",
+  "version": "0.0.13",
   "license": "MIT",
   "scripts": {
     "ng": "ng",
@@ -70,7 +70,7 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "npm --no-git-tag-version version patch ; cd .. ; git add  DestinyLoaderFrontend/package.json ; git add  DestinyLoaderFrontend/package-lock.json"
+      "pre-commit": "cd ../DestinyLoaderBackend ; npm --no-git-tag-version version patch ; cd ../DestinyLoaderFrontend ; npm --no-git-tag-version version patch ; cd .. ; git add  DestinyLoaderBackend/package*.json  DestinyLoaderFrontend/package*.json"
     }
   }
 }
