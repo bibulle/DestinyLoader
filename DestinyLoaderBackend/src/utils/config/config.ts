@@ -20,8 +20,8 @@ export class Config {
   public static defaultLanguage = 'en';
   public static languages = ['en', 'fr'];
 
-  public static crontab = "";
-  public static crontabGrimoire = "";
+  public static cronjob = "";
+  public static cronjobGrimoire = "";
 
   public static startingDate = "2017/10/17 00:00:00";
 
@@ -44,16 +44,15 @@ export class Config {
 
   static initialize () {
 
-    console.log('initialize');
-    console.log('----------');
-    console.log(process.env);
-    Config.package_name = process.env.npm_package_name;
-    Config.package_version = process.env.npm_package_version;
+    const packageJson = require('../../../package.json');
+
+    Config.package_name = packageJson.name;
+    Config.package_version = packageJson.version;
     Config.package_commit = {
-      "number": +process.env.npm_package_commit_number,
-      "hash": process.env.npm_package_commit_hash,
-      "shortHash": process.env.npm_package_commit_shorthash,
-      "timestamp": process.env.npm_package_commit_timestamp
+      "number": +packageJson.commit.number,
+      "hash": packageJson.commit.hash,
+      "shortHash": packageJson.commit.shorthash,
+      "timestamp": packageJson.commit.timestamp
     };
 
     // Check the user env
@@ -66,9 +65,9 @@ export class Config {
     // read it
     const env = require('./env-myown.json');
 
-    for (const attrname in env[Config.node_env]) {
+    for (const attrName in env[Config.node_env]) {
       //noinspection JSUnfilteredForInLoop
-      Config[attrname] = env[Config.node_env][attrname];
+      Config[attrName] = env[Config.node_env][attrName];
     }
 
     // do some init

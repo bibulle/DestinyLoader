@@ -9,7 +9,7 @@ const async = require('async');
 const CronJob = require('cron').CronJob;
 
 
-const CRON_TAB_MINE_GRIMOIRE = Config.crontabGrimoire;
+const CRON_TAB_MINE_GRIMOIRE = Config.cronjobGrimoire;
 debug("CronTab grimoire : '" + CRON_TAB_MINE_GRIMOIRE + "'");
 
 //========================================================================

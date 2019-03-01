@@ -5,14 +5,14 @@ import {Config} from "../utils/config/config";
 
 const debug = require('debug')('server:debug:dataMiner');
 const error = require('debug')('server:error:dataMiner');
-const sprintf = require('sprintf-js').sprintf;
+const sprintF = require('sprintf-js').sprintf;
 const async = require('async');
 const CronJob = require('cron').CronJob;
 const fs = require('fs');
 
 
-const CRON_TAB_MINE_DESTINY = Config.crontab;
-// const CRON_TAB_MINE_GRIMOIRE = Config.crontabGrimoire;
+const CRON_TAB_MINE_DESTINY = Config.cronjob;
+// const CRON_TAB_MINE_GRIMOIRE = Config.cronjobGrimoire;
 debug("CronTab          : '" + CRON_TAB_MINE_DESTINY + "'");
 //logger.info("CronTab grimoire : '" + CRON_TAB_MINE_GRIMOIRE + "'");
 
@@ -24,7 +24,6 @@ let mineDestiny = function () {
             function (callback) {
                 if (Config.clanId > 0) {
                   Destiny.getClan(Config.clanId, function(err, data) {
-                    //logger.info("retour du clan");
                     //logger.info(JSON.stringify(err, null, 2));
                     //logger.info(JSON.stringify(accounts, null, 2));
                     if (err) {
@@ -41,7 +40,6 @@ let mineDestiny = function () {
                   } )
                 } else {
                   Destiny.getGroup(Config.accountsClan, function(err, data) {
-                    //logger.info("retour du group");
                     //logger.info(JSON.stringify(err, null, 2));
                     //logger.info(JSON.stringify(data, null, 2));
                     if (err) {
@@ -75,7 +73,7 @@ let mineDestiny = function () {
                             async.eachSeries(data,
                                 function (character, callback) {
                                   //logger.info(character.userId+" / " + character.class + " light:" + character.light + " level:"+character.baseCharacterLevel+" minutes:"+character.minutesPlayedTotal);
-                                  debug(sprintf('%-20s %s -> light:%3d, level:%2d, minutes:%5d, triumph:%6d', character.userId, character.class, character.light, character.baseCharacterLevel, character.minutesPlayedTotal, character.triumphScore));
+                                  debug(sprintF('%-20s %s -> light:%3d, level:%2d, minutes:%5d, triumph:%6d', character.userId, character.class, character.light, character.baseCharacterLevel, character.minutesPlayedTotal, character.triumphScore));
                                   //logger.info(JSON.stringify(character, null, 2));
 
                                   DestinyDb.insertStats(character, function (err) {
