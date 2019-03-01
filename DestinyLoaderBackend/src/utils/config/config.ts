@@ -44,6 +44,9 @@ export class Config {
 
   static initialize () {
 
+    console.log('initialize');
+    console.log('----------');
+    console.log(process.env);
     Config.package_name = process.env.npm_package_name;
     Config.package_version = process.env.npm_package_version;
     Config.package_commit = {
