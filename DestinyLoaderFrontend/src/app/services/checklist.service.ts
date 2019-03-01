@@ -135,6 +135,9 @@ export class ChecklistService {
                 UserService.tokenSetter(data['refreshedToken']);
                 this._userService.checkAuthent();
               }
+              if (data['version']) {
+                this._headerService.checkVersion(data['version']);
+              }
               ChecklistService.checklists = data['data'];
 
               this._headerService.stopReloading();

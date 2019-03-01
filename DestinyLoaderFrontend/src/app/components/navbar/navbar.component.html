@@ -2,7 +2,7 @@
   <div class="docs-header-left">
     <nav class="docs-navbar-header">
       <a mat-button class="docs-button title" routerLink="/" attr.aria-label="{{'title' | translate}}">
-        <span>{{'title' | translate}}</span>
+        <span>{{'title' | translate}}</span><span class="version" matTooltip="commit : {{commit.shorthash}} ({{commit.timestamp * 1000 | date}})">{{version}}</span>
       </a>
       <a mat-button class="docs-navbar-hide-small docs-button" color="{{ link.selected ? 'primary' : 'none'}}"
          *ngFor="let link of linksLeft"
@@ -26,6 +26,7 @@
     </nav>
   </div>
   <div class="docs-header-right">
+    <span class="version-small" matTooltip="commit : {{commit.shorthash}} ({{commit.timestamp * 1000 | date}})">{{version}}</span>
     <div class="user">
       <div class="docs-navbar-hide-small not-reloading" *ngIf="!reloading"></div>
       <mat-spinner class="docs-navbar-hide-small reloading" diameter="20" *ngIf="reloading"></mat-spinner>
@@ -36,6 +37,9 @@
       </div>
       <button mat-icon-button [matMenuTriggerFor]="menu">
         <mat-icon>settings</mat-icon>
+      </button>
+      <button mat-icon-button *ngIf="updateNeeded" (click)="update()" matTooltip="{{'update-needed' | translate}}" color="primary">
+        <mat-icon>cloud_upload</mat-icon>
       </button>
     </div>
     <div class="search" *ngIf="search.shown">
@@ -48,7 +52,7 @@
     </div>
 
     <mat-menu #menu="matMenu">
-      <button mat-menu-item [matMenuTriggerFor]="visibleItems">
+      <button mat-menu-item [matMenuTriggerFor]="visibleItems" *ngIf="user.bungieNetUser">
         <mat-icon>visibility</mat-icon>
         {{'visibleItems'|translate}}
       </button>

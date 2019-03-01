@@ -192,6 +192,7 @@ export class Reward {
       case 1478801436: // Powerful Gear
       case 305996677: // Powerful Gear
       case 2043403989: // Powerful Gear
+      case 248695599: // Powerful Gear
         return Reward.VALUE_POWER_GEAR;
       case 2646629159: // Luminous Engram
       case 2127149322: // Legendary Gear

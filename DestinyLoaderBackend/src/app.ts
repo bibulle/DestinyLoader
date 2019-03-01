@@ -33,7 +33,7 @@ store.on('error', function(error) {
   error("Err : " + error);
 });
 
-debug(Config.package_name + ' - ' +Config.package_version + ' (' + Config.package_commit_number + ' ' + Config.package_commit_hash + ')');
+debug(Config.package_name + ' - ' +Config.package_version + ' (' + Config.package_commit.number + ' ' + Config.package_commit.hash + ')');
 
 //--------------
 // init webApp

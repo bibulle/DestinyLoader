@@ -5,6 +5,8 @@ import { Config, Search } from '../models/config';
 import { TranslateService } from '@ngx-translate/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../environments/environment';
+import { NotificationService } from './notification.service';
+import { UserService } from './user.service';
 
 @Injectable({
   providedIn: 'root'
@@ -13,6 +15,7 @@ export class HeaderService {
 
   private readonly searchSubject: BehaviorSubject<Search>;
   private readonly reloadingSubject: BehaviorSubject<boolean>;
+  private readonly versionSubject: BehaviorSubject<boolean>;
 
   config: Config;
   private configSubject: BehaviorSubject<Config>;
@@ -23,10 +26,13 @@ export class HeaderService {
   private configUrl = environment.serverUrl + 'monitorStuff/value';
 
   constructor (private httpClient: HttpClient,
-               private _translate: TranslateService) {
+               private _translateService: TranslateService,
+               private _notificationService: NotificationService,
+               private _userService: UserService) {
 
     this.searchSubject = new BehaviorSubject<Search>(new Search());
     this.reloadingSubject = new BehaviorSubject<boolean>(false);
+    this.versionSubject = new BehaviorSubject<boolean>(false);
 
     this._loadConfig();
   }
@@ -100,7 +106,7 @@ export class HeaderService {
     this.config.language = language;
 
     // console.log(this.config.language);
-    this._translate.use(this.config.language);
+    this._translateService.use(this.config.language);
 
     this.saveConfig(this.config);
   }
@@ -163,9 +169,9 @@ export class HeaderService {
 
   private _setLanguageFromConfig () {
     if (!this.config.language) {
-      this.config.language = this._translate.getBrowserLang();
+      this.config.language = this._translateService.getBrowserLang();
     }
-    this._translate.use(this.config.language);
+    this._translateService.use(this.config.language);
   }
 
   private static _saveConfigToLocalStorage (config: Config) {
@@ -210,6 +216,13 @@ export class HeaderService {
             (data: Object) => {
 
               console.log(data);
+              if (data['refreshedToken']) {
+                UserService.tokenSetter(data['refreshedToken']);
+                this._userService.checkAuthent();
+              }
+              if (data['version']) {
+                this.checkVersion(data['version']);
+              }
               resolve(data['data'] as Config);
             },
             err => {
@@ -219,4 +232,22 @@ export class HeaderService {
     });
   }
 
+  // Version management
+  versionObservable (): Observable<boolean> {
+    return this.versionSubject;
+  }
+  checkVersion (versionBackend: any) {
+    if (versionBackend && (versionBackend.commit.hash !== environment.commit.hash)) {
+      console.log('should be update : \'' + versionBackend.commit.hash + '\' !== \'' + environment.commit.hash + '\'');
+      if (this.versionSubject.getValue() === false) {
+        this._translateService.get('update-needed')
+            .subscribe((text => {
+              this._notificationService.warn(text);
+            }));
+      }
+      this.versionSubject.next(true);
+    } else {
+      this.versionSubject.next(false);
+    }
+  }
 }

@@ -6,6 +6,7 @@ import { catalystState, Character, Checklist, Objective, ObjectiveTime, Pursuit,
 import { Config } from '../../models/config';
 import { HeaderService } from '../../services/header.service';
 import { TranslateService } from '@ngx-translate/core';
+import Timer = NodeJS.Timer;
 
 @Component({
   selector: 'app-checklist',
@@ -25,7 +26,7 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
 
   search = '';
   foundList: number[] = [];
-  searchTimout: number;
+  searchTimout: Timer;
   private _currentSearchSubscription: Subscription;
 
   constructor (private _checklistService: ChecklistService,

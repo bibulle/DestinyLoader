@@ -135,7 +135,11 @@ function monitorRouter (passport): Router {
                 } else {
                   let result = {
                     data: data,
-                    refreshedToken: user.refreshedToken
+                    refreshedToken: user.refreshedToken,
+                    version: {
+                      version: Config.package_version,
+                      commit: Config.package_commit
+                    }
                   };
                   response.send(JSON.stringify(result, null, 2));
                   debug("GET /api done");
@@ -176,7 +180,11 @@ function monitorRouter (passport): Router {
               } else {
                 let result = {
                   data: _.pick(conf, ['showOnlyPowerfulGear', 'language', 'selectedPursuits', 'user', 'visible']),
-                  refreshedToken: user.refreshedToken
+                  refreshedToken: user.refreshedToken,
+                  version: {
+                    version: Config.package_version,
+                    commit: Config.package_commit
+                  }
                 };
                 response.send(JSON.stringify(result, null, 2));
                 debug("GET /value done");

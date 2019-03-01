@@ -6,4 +6,6 @@
 export const environment = {
   production: false,
   serverUrl: 'http://localhost:4001/',
+  version: require('../../package.json').version,
+  commit: require('../../package.json').commit
 };

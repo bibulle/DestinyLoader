@@ -40,7 +40,11 @@ function api1Router (passport): Router {
               //noinspection JSIgnoredPromiseFromCall
               let result = {
                 data: resultCache,
-                refreshedToken: (user ? user.refreshedToken : null)
+                refreshedToken: (user ? user.refreshedToken : null),
+                version: {
+                  version: Config.package_version,
+                  commit: Config.package_commit
+                }
               };
               response.send(JSON.stringify(result, null, 2));
               debug("GET / done");

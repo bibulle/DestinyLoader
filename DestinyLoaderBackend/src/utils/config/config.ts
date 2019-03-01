@@ -7,8 +7,12 @@ const fs = require('fs');
 export class Config {
   public static package_name = "";
   public static package_version = "";
-  public static package_commit_number = "";
-  public static package_commit_hash = "";
+  public static package_commit = {
+    "number": 0,
+    "hash": "",
+    "shortHash": "",
+    "timestamp": ""
+  };
 
   public static mongoUrl = "";
   public static dbPath = "";
@@ -42,8 +46,12 @@ export class Config {
 
     Config.package_name = process.env.npm_package_name;
     Config.package_version = process.env.npm_package_version;
-    Config.package_commit_number = process.env.npm_package_commit_number;
-    Config.package_commit_hash = process.env.npm_package_commit_hash;
+    Config.package_commit = {
+      "number": +process.env.npm_package_commit_number,
+      "hash": process.env.npm_package_commit_hash,
+      "shortHash": process.env.npm_package_commit_shorthash,
+      "timestamp": process.env.npm_package_commit_timestamp
+    };
 
     // Check the user env
     if (!fs.existsSync(__dirname + "/env-myown.json")) {

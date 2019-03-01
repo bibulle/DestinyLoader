@@ -5,6 +5,7 @@ import { HeaderService } from '../../services/header.service';
 import { Config, Search } from '../../models/config';
 import { Subscription } from 'rxjs';
 import { User } from '../../models/user';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-navbar',
@@ -33,6 +34,11 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
   visibleRewardsKeys = Object.keys(this.config.visible.rewards);
   visibleTypeKeys = Object.keys(this.config.visible.types);
+
+  version = environment.version;
+  commit = environment.commit;
+  private _currentVersionSubscription: Subscription;
+  private updateNeeded = false;
 
 
   constructor (private _router: Router,
@@ -107,6 +113,11 @@ export class NavbarComponent implements OnInit, OnDestroy {
                                             this.searchTextfield = this.search.searchText;
                                           });
 
+    this._currentVersionSubscription = this._headerService.versionObservable().subscribe(
+      rel => {
+        this.updateNeeded = rel;
+      });
+
   }
 
   ngOnDestroy (): void {
@@ -120,6 +131,9 @@ export class NavbarComponent implements OnInit, OnDestroy {
       this._currentConfigSubscription.unsubscribe();
     }
     if (this._currentSearchSubscription) {
+      this._currentSearchSubscription.unsubscribe();
+    }
+    if (this._currentVersionSubscription) {
       this._currentSearchSubscription.unsubscribe();
     }
   }
@@ -149,9 +163,14 @@ export class NavbarComponent implements OnInit, OnDestroy {
   searchText () {
     this._headerService.setSearch(this.searchTextfield);
   }
+
   searchNext (event: any) {
     event.stopPropagation();
     this._headerService.setSearchNext();
+  }
+
+  update() {
+    location.reload();
   }
 
 }

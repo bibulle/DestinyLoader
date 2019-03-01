@@ -68,6 +68,8 @@ typings/
 # usen own env (with secrets !!)
 env-myown.json
 API*.json
+asuppr.json
 
 # data directory
 /data
+

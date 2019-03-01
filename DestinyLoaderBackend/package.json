@@ -7,7 +7,7 @@
     "devel-www": "tsc -p ./src && concurrently \"tsc -w -p ./src\" \"DEBUG=server:* nodemon --ignore ./data/ ./src/bin/www.js\"",
     "devel-dataminer": "tsc -p ./src && concurrently \"tsc -w -p ./src\" \"DEBUG=server:* nodemon --ignore ./data/ ./src/bin/dataminer.js\" ",
     "devel-test": "tsc -p ./src && concurrently \"tsc -w -p ./src\" \"DEBUG=server:* nodemon --ignore ./data/ ./src/bin/test.js\" ",
-    "preinstall": "json -I -f package.json -e \"this.commit.number=`git log master --pretty=oneline | wc -l | bc`; this.commit.hash='`git log --pretty=format:'%H' -n 1`'\""
+    "preinstall": "json -I -f package.json -e \"this.commit.number=`git log master --pretty=oneline | wc -l | bc`; this.commit.hash='`git log --pretty=format:'%H' -n 1`'; this.commit.shorthash='`git log --pretty=format:'%h' -n 1`'; this.commit.timestamp='`git log --pretty=format:'%at' -n 1`'\""
   },
   "dependencies": {
     "@types/mongodb": "^3.1.18",
@@ -50,8 +50,10 @@
     "typescript": "^3.2.1"
   },
   "commit": {
-    "number": 227,
-    "hash": "d597d5376004f214a992a6bd54bb4272c28d0cc4"
+    "number": 230,
+    "hash": "708733f7c463c907cbd543154fd84f689469bb30",
+    "shorthash": "708733f",
+    "timestamp": "1551373595"
   },
   "husky": {
     "hooks": {

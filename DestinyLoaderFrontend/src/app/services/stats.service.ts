@@ -87,6 +87,9 @@ export class StatsService {
                 UserService.tokenSetter(data['refreshedToken']);
                 this._userService.checkAuthent();
               }
+              if (data['version']) {
+                this._headerService.checkVersion(data['version']);
+              }
 
               const stats = data['data'] as Stats[];
 

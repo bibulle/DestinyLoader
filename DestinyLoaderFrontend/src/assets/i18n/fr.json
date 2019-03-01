@@ -56,5 +56,6 @@
 	"label.pursuit": "Poursuites",
 	"label.search": "Rechercher",
 	"label.triumphRedeemable": "Triomphes terminés",
-	"points": "points"
+	"points": "points",
+	"update-needed": "Une mise à jour est disponible. Vous pouvez actualiser votre page."
 }
