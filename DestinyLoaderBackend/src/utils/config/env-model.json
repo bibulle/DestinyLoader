@@ -12,7 +12,8 @@
     ],
     "destinyAPIKey": "your destiny API key",
     "oAuthClientId": "you destiny api client id",
-    "oAuthClientSecret": "you destiny api client secret"
+    "oAuthClientSecret": "you destiny api client secret",
+    "admin": [ "Admin user name"]
 
 },
   "production": {
@@ -28,6 +29,7 @@
     ],
     "destinyAPIKey": "your destiny API key",
     "oAuthClientId": "you destiny api client id",
-    "oAuthClientSecret": "you destiny api client secret"
+    "oAuthClientSecret": "you destiny api client secret",
+    "admin": [ "Admin user name"]
   }
 }

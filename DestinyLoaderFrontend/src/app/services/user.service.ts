@@ -162,12 +162,6 @@ export class UserService {
       ret = true;
     }
 
-//    // if it's a new user, refresh it (to complete the token) else recall last complement
-//    if (this.user && this.user.id && (this.user.id !== oldUser.id)) {
-//      //noinspection JSIgnoredPromiseFromCall
-//      this.refreshUser();
-//    }
-
     // console.log(this.user);
 
     if (emitEvent) {
@@ -187,6 +181,9 @@ export class UserService {
 
     return !!(this.user && this.user['bungieNetUser']);
 
+  }
+  isAdminAuthent () {
+    return this.isAuthent() && this.user.isAdmin;
   }
 
 //  /**

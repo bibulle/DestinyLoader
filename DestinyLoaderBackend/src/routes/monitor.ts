@@ -229,6 +229,80 @@ function monitorRouter (passport): Router {
 
   router.route('/running')
         // ====================================
+        // route for getting all running objective
+        // ====================================
+        .get((request: Request, response: Response, next: NextFunction) => {
+          debug("GET /running " + request.query.lang);
+
+          //debug(request.query.lang);
+          let lang = request.query.lang;
+
+          passport.authenticate('jwt-check', {session: false}, (err, user): any => {
+            if (err) {
+              return next(err);
+            }
+
+            if (!user || !user.isAdmin) {
+              const msg = 'Unauthorized';
+              return response.status(401).send({status: 401, message: msg});
+            }
+
+            //debug(user);
+            async.waterfall([
+                // Read the times
+                function (callback) {
+                  DestinyDb.listTimes(function (err, times) {
+                    if (err) {
+                      callback(err);
+                    } else {
+                      //debug(JSON.stringify(times, null, 2));
+                      callback(null, times);
+                    }
+
+                  });
+                },
+                // Add current times for the user
+                function (times, callback) {
+                  const data = {
+                    currentTimes: []
+                  };
+                  data.currentTimes = times;
+
+                  //debug(data.currentTimes);
+                  callback(null, data);
+                }
+              ],
+
+              function (err, data) {
+                //error(err);
+                if (err) {
+                  response.status(500).send(err);
+                  //data.messages.push("ERROR : "+err);
+                  //return response.send(JSON.stringify({messages: err}, null, 2));
+                } else {
+                  let result = {
+                    data: data,
+                    refreshedToken: user.refreshedToken,
+                    version: {
+                      version: Config.package_version,
+                      commit: Config.package_commit
+                    }
+                  };
+                  response.send(JSON.stringify(result, null, 2));
+                  debug("GET /running done");
+                }
+              }
+            )
+            ;
+            //logger.info(JSON.stringify(request.session.user, null, 2));
+            //response.send("Welcome "+request.session.user.bungieNetUser.displayName);
+            //response.send({ user: request.session.user });
+
+          })(request, response, next);
+        });
+
+  router.route('/running')
+        // ====================================
         // route for setting user running objective
         // ====================================
         .post((request: Request, response: Response, next: NextFunction) => {
@@ -248,13 +322,19 @@ function monitorRouter (passport): Router {
             if (request.body.action && request.body.action === 'start') {
 
               const objective = request.body.objective;
+              //debug(objective);
+              //debug(user.bungieNetUser);
 
               //debug(request.body.objective.timeTillFinished);
               const objTime: ObjectiveTime = new ObjectiveTime({
                 bungieNetUser: user.bungieNetUser.membershipId,
+                bungieUserName: user.bungieNetUser.displayName,
                 characterId: request.body.characterId,
+                characterName: request.body.characterName,
                 pursuitId: request.body.pursuitId,
+                pursuitName: request.body.pursuitName,
                 objectiveId: objective.objectiveHash,
+                objectiveProgressDescription: objective.item.progressDescription,
                 finished: false,
                 timeStart: new Date(),
                 countStart: objective.progress,
@@ -274,7 +354,7 @@ function monitorRouter (passport): Router {
                   response.send(JSON.stringify(objective, null, 2));
                 }
               })
-            } else {
+            } else if (request.body.action && request.body.action === 'stop') {
               const objective = request.body.objective;
 
               const objTime: ObjectiveTime = objective.runningTimeObjective;
@@ -297,6 +377,40 @@ function monitorRouter (passport): Router {
                 }
               })
 
+            } else if (request.body.action && request.body.action === 'delete') {
+
+              if (!user.isAdmin) {
+                const msg = 'You must be an admin';
+                response.statusMessage = msg;
+                return response.status(401).send({status: 401, message: msg});
+              }
+
+              if (!request.body.objectiveTime || !request.body.objectiveTime._id) {
+                error("Bad request");
+                error(JSON.stringify(request.body, null, 2));
+                response.status(400).send({error: 'Bad request'});
+              }
+
+              DestinyDb.deleteTime(request.body.objectiveTime._id, (err, obj) => {
+                if (err) {
+                  error(err);
+                  return response.status(500).send({error: err});
+                }
+
+                if (obj.result.n == 0) {
+                  error('nothing deleted '+request.body.objectiveTime._id);
+                  response.statusMessage = 'nothing deleted';
+                  return response.status(500).send({error: 'nothing deleted '});
+                }
+
+                response.send(JSON.stringify(obj, null, 2));
+              });
+
+
+            } else {
+              error("Bad request");
+              error(JSON.stringify(request.body, null, 2));
+              response.status(400).send({error: err});
             }
 
           })(request, response, next);

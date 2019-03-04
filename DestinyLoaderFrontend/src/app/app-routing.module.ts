@@ -7,7 +7,8 @@ import { LightComponent } from './components/light/light.component';
 import { RatioComponent } from './components/ratio/ratio.component';
 import { TriumphComponent } from './components/triumph/triumph.component';
 import { ChecklistComponent } from './components/checklist/checklist.component';
-import { AuthGuard } from './components/authent/auth.guard';
+import { AuthGuard, AuthGuardAdmin } from './components/authent/auth.guard';
+import { ObjectiveTimesComponent } from './components/objective-times/objective-times.component';
 
 const routes: Routes = [
   {
@@ -55,6 +56,19 @@ const routes: Routes = [
       icon: 'fa-clipboard-list',
       iconType: 'fas',
       right: false
+    }
+  },
+  {
+    path: 'objective-times',
+    component: ObjectiveTimesComponent,
+    canActivate: [AuthGuardAdmin],
+    data: {
+      label: 'label.objective-times',
+      menu: true,
+      icon: 'fa-clock',
+      iconType: 'fas',
+      right: false,
+      onlyAdmin: true
     }
   },
   // // Show the 404 page for any routes that don't exist.

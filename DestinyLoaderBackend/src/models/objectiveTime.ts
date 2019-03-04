@@ -3,9 +3,13 @@ export class ObjectiveTime {
   _id: string;
 
   bungieNetUser: string;
+  bungieUserName: string;
   characterId: string;
+  characterName: string;
   pursuitId: string;
+  pursuitName: string;
   objectiveId: string;
+  objectiveProgressDescription: string;
   finished: boolean;
 
   timeStart: Date;
@@ -25,9 +29,13 @@ export class ObjectiveTime {
 
 
     this.bungieNetUser = option['bungieNetUser'] || 'HardCoded';
+    this.bungieUserName = option['bungieUserName'] || '';
     this.characterId = option['characterId'] || 'HardCoded';
+    this.characterName = option['characterName'] || '';
     this.pursuitId = option['pursuitId'] || 'HardCoded';
+    this.pursuitName = option['pursuitName'] || '';
     this.objectiveId = option['objectiveId'] || 'Unknown';
+    this.objectiveProgressDescription = option['objectiveProgressDescription'] || '';
     this.finished = option['finished'] || false;
 
     if (option['timeStart']) {

@@ -114,9 +114,13 @@ export class DestinyDb {
   public static insertTime (bungieNetUser, data, callback) {
     const doc = new ObjectiveTime({
       bungieNetUser: bungieNetUser,
+      bungieUserName: data.bungieUserName,
       characterId: data.characterId,
+      characterName: data.characterName,
       pursuitId: data.pursuitId,
+      pursuitName: data.pursuitName,
       objectiveId: data.objectiveId,
+      objectiveProgressDescription: data.objectiveProgressDescription,
       finished: data.finished,
       timeStart: data.timeStart,
       timeEnd: data.timeEnd,
@@ -124,6 +128,7 @@ export class DestinyDb {
       countEnd: data.countEnd,
       countFinished: data.countFinished
     });
+    //debug(doc);
     this._initDb(function (err) {
       if (err) {
         return callback(err);
@@ -139,6 +144,7 @@ export class DestinyDb {
                  if (err.code == 11000) {
                    DestinyDb._colTimes.update({_id: doc._id}, doc)
                             .then(function () {
+                              //debug(doc);
                               callback(null, doc);
                             })
                             .catch(function (err) {

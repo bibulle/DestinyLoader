@@ -35,3 +35,29 @@ export class AuthGuard implements CanActivate {
 
   }
 }
+
+@Injectable()
+export class AuthGuardAdmin implements CanActivate {
+
+  constructor (private _router: Router,
+               private _userService: UserService) {
+  }
+
+  canActivate (): Promise<boolean> {
+
+
+    // console.log('canActivate AuthGuardAdmin');
+
+    return new Promise<boolean>((resolve, reject) => {
+      if (this._userService.isAdminAuthent()) {
+        // console.log('canActivate true');
+        resolve(true);
+      } else {
+        reject('You are not an administrator');
+      }
+
+
+    });
+
+  }
+}

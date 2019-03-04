@@ -58,6 +58,10 @@ function authenticationRouter (passport) {
                   user['destinyMemberships'] = data.destinyMemberships;
                   user['bungieNetUser'] = data.bungieNetUser;
 
+                  if (user['bungieNetUser'] && user['bungieNetUser']['displayName'] && (Config.admin.indexOf(user['bungieNetUser']['displayName']) >= 0)) {
+                    user['isAdmin'] = true;
+                  }
+
                   request.session.user = user;
                   // debug(user);
 

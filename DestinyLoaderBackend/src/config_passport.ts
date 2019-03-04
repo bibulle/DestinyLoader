@@ -10,34 +10,6 @@ const debug = require('debug')('server:debug:config_passport');
 module.exports = function (passport) {
   debug('init');
 
-//  const oAuth2Strategy = new OAuth2Strategy({
-//      authorizationURL: 'https://www.bungie.net/fr/OAuth/Authorize',
-//      tokenURL: 'https://www.bungie.net/Platform/App/OAuth/token/',
-//      clientID: "21550",
-//      clientSecret: "qg3ZABhmVMXNS2JBisGO5B-tmWmFZUn00.j2Ju2gRH0",
-//      callbackURL: "https://lights.bibulle.fr/monitorStuff/login/callback"
-//    },
-//    function(accessToken, refreshToken, profile, cb) {
-//      debug(accessToken);
-//      debug(refreshToken);
-//      debug(profile);
-//      debug(cb);
-//
-//      return cb(null, profile);
-//    }
-//  );
-//
-//  // =========================================================================
-//  // oAUTH2 (useful ?) =======================================================
-//  // =========================================================================
-//
-//  oAuth2Strategy.userProfile = function (accesstoken, done) {
-//    debug('userProfile');
-//    // choose your own adventure, or use the Strategy's oauth client
-//    Destiny.getCurrentUser(accesstoken, done);
-//  };
-//
-//  passport.use(oAuth2Strategy);
 
   // =========================================================================
   // CHECK JWT ===============================================================

@@ -118,6 +118,7 @@ export class Pursuit {
   saleDescription: string;
   type: PursuitType;
 
+  static ITEM_TYPE_CONSUMABLE = 9;
   static ITEM_TYPE_QUEST_STEP = 12;
   static ITEM_TYPE_QUEST_STEP_COMPLETE = 13; // ?
   static ITEM_TYPE_QUEST_STEP_DUMMY = 20; // ?
@@ -219,6 +220,7 @@ export class Reward {
       case 3899548068: // Vanguard Tactician Token
       case 3196288028: // Boon of the Crucible
       case 3922324861: // Nessus Rewards
+      case 2367373121: // Io Rewards
       case 3696608133: // Titan Rewards
       case 1317670974: // EDZ Rewards
       case 2109561326: // Eververse Bounty Note
@@ -294,12 +296,23 @@ export class Objective {
 }
 
 export class ObjectiveTime {
+  bungieNetUser: string;
+  bungieUserName: string;
   characterId: string;
+  characterName: string;
+  objectiveId: number;
+  objectiveProgressDescription: string;
   pursuitId: string;
+  pursuitName: string;
   finished: boolean;
-  objectiveId: string;
   timeStart: Date;
+  timeEnd: Date;
   timeRunning: number;
+  countStart: number;
+  countEnd: number;
+  countFinished: number;
+  lastVerified: Date;
+
 }
 
 export class ObjectiveTimeSummed {

@@ -90,7 +90,7 @@
           </div>
           <div class="objective-running"
                *ngIf="(pursuit.itemTypeDisplayName != 'Vendor') && !objectivesIsRunning(objective)"
-               (click)="launchObjectiveTime(objective, character.characterId, pursuit.itemInstanceId, $event)">
+               (click)="launchObjectiveTime(objective, character.characterId, character.genderedClassNames, pursuit.itemInstanceId, pursuit.name, $event)">
             <mat-icon>play_arrow</mat-icon>
           </div>
           <div class="objective-running" *ngIf="pursuit.itemTypeDisplayName == 'Vendor'">

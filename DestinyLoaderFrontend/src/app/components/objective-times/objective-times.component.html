@@ -1,0 +1,46 @@
+<div>
+  <div class="title">
+    <div class="empty"></div>
+    <div class="user-name">{{'label.user-name' | translate}}</div>
+    <div class="character-name">{{'label.character-name' | translate}}</div>
+    <div class="pursuit">{{'label.pursuit' | translate}}</div>
+    <div class="objective">{{'label.objective' | translate}}</div>
+    <div class="count-start">{{'label.count-start' | translate}}</div>
+    <div class="count-end">{{'label.count-end' | translate}}</div>
+    <div class="count-finished">{{'label.count-finished' | translate}}</div>
+    <div class="time-start">{{'label.time-start' | translate}}</div>
+    <div class="time-end">{{'label.time-end' | translate}}</div>
+    <div class="time-by-value">{{'label.time-by-value' | translate}}</div>
+    <div class="last-verified">{{'label.last-verified' | translate}}</div>
+    <div class="tools"></div>
+  </div>
+  <div class="objective-time" *ngFor="let objectiveTime of objectiveTimes"
+       [ngClass]="{ 'finished': objectiveTime.finished}">
+    <div class="empty"></div>
+    <div class="user-name" title="{{objectiveTime.bungieNetUser}}"><span>{{objectiveTime.bungieUserName}}</span></div>
+    <div class="character-name" title="{{objectiveTime.characterId}}"><span>{{objectiveTime.characterName}}</span></div>
+    <div class="pursuit" title="{{objectiveTime.pursuitId}}"><span>{{objectiveTime.pursuitName}}</span></div>
+    <div class="objective" title="{{objectiveTime.objectiveId}}">
+      <span>{{objectiveTime.objectiveProgressDescription}}</span></div>
+    <div class="count-start"><span>{{objectiveTime.countStart}}</span></div>
+    <div class="count-end"><span>{{objectiveTime.countEnd}}</span></div>
+    <div class="count-finished"><span>{{objectiveTime.countFinished}}</span>
+      <div class="finished-progressbar"
+           [style.width]="(100 * objectiveTime.countEnd / objectiveTime.countFinished)+'%'">
+        &nbsp;
+      </div>
+    </div>
+    <div class="time-start"><span>{{objectiveTime.timeStart | date:'medium'}}</span></div>
+    <div class="time-end"><span>{{objectiveTime.timeEnd | date:'medium'}}</span></div>
+    <div class="time-by-value" *ngIf="objectiveTime.countEnd == objectiveTime.countStart"></div>
+    <div class="time-by-value" *ngIf="objectiveTime.countEnd != objectiveTime.countStart">
+      <span>{{getTimeByIncrement(objectiveTime) | timeExpiration}}</span>
+    </div>
+    <div class="last-verified"><span>{{objectiveTime.lastVerified | date:'medium'}}</span></div>
+    <div class="tools"><span>
+      <button mat-icon-button (click)="delete(objectiveTime)">
+        <mat-icon>delete</mat-icon>
+      </button>
+    </span></div>
+  </div>
+</div>

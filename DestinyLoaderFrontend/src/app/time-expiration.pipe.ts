@@ -34,8 +34,8 @@ export class TimeExpirationPipe implements PipeTransform {
     // We format the character string to return
     if (delta <= 0) {
       return ``;
-    } else if (delta < 2) {
-      return `${Math.floor(delta)} sec.`;
+    } else if (delta < 1.5) {
+      return `${Math.floor(delta * 100) / 100} sec.`;
     } else if (delta < 60) {
       return `${Math.floor(delta)} sec.`;
     } else if (delta < 60 * 2) {

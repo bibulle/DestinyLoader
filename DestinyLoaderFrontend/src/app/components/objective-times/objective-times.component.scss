@@ -1,0 +1,77 @@
+
+:host {
+  display: flex;
+  flex-direction: column;
+  //height: 100%;
+  color: white;
+
+  > div {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow-y: auto;
+
+    .objective-time, .title {
+      display: flex;
+      flex-direction: row;
+
+      //border-bottom-color: #666666;
+      //border-bottom-style: solid;
+      //border-bottom-width: 1px;
+
+      > div {
+        position: relative;
+        flex: 1 1 10%;
+        text-align: center;
+        padding-top: 0.5em;
+        padding-bottom: 0.5em;
+
+        border-bottom: 1px solid #666666;
+        border-right: 1px solid #2c2c2c;
+        border-left: 1px solid #2c2c2c;
+
+        display: flex;
+
+        > span {
+          flex: 0 1 100%;
+          margin-top: auto;
+          margin-bottom: auto;
+        }
+      }
+      .empty, .tools {
+          border: none;
+      }
+      .tools span {
+        flex: none;
+      }
+
+      .finished-progressbar {
+        background-color: #2e7d32;
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        opacity: 0.1;
+        z-index: 1;
+      }
+
+
+    }
+
+    .title {
+      font-size: 1.2em;
+      line-height: 2em;
+      min-height: 3em;
+    }
+    .objective-time {
+      min-height: 40px;
+    }
+
+    .objective-time.finished {
+      color: #666666
+    }
+
+
+  }
+
+}

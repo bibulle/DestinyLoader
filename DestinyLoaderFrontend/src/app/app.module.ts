@@ -19,10 +19,11 @@ import { RatioComponent } from './components/ratio/ratio.component';
 import { TriumphComponent } from './components/triumph/triumph.component';
 import { NotFoundComponent } from './components/not-found/not-found.component';
 import { ChecklistComponent } from './components/checklist/checklist.component';
-import { AuthGuard } from './components/authent/auth.guard';
+import { AuthGuard, AuthGuardAdmin } from './components/authent/auth.guard';
 import { UserService } from './services/user.service';
 import { JwtModule } from '@auth0/angular-jwt';
 import { TimeExpirationPipe } from './time-expiration.pipe';
+import { ObjectiveTimesComponent } from './components/objective-times/objective-times.component';
 
 export class MyMissingTranslationHandler implements MissingTranslationHandler {
   handle (params: MissingTranslationHandlerParams) {
@@ -44,7 +45,8 @@ registerLocaleData(localeEn, 'en');
     RatioComponent,
     TriumphComponent,
     ChecklistComponent,
-    TimeExpirationPipe
+    TimeExpirationPipe,
+    ObjectiveTimesComponent
   ],
   imports: [
     BrowserModule,
@@ -70,7 +72,8 @@ registerLocaleData(localeEn, 'en');
     })
   ],
   providers: [
-    AuthGuard
+    AuthGuard,
+    AuthGuardAdmin
   ],
   bootstrap: [
     AppComponent

@@ -215,7 +215,7 @@ export class HeaderService {
           .subscribe(
             (data: Object) => {
 
-              console.log(data);
+              // console.log(data);
               if (data['refreshedToken']) {
                 UserService.tokenSetter(data['refreshedToken']);
                 this._userService.checkAuthent();

@@ -37,7 +37,7 @@ export class Config {
 
   public static CLAN_MEMBER_LIST = path.resolve(__dirname+'/../../../data/clanMember.js');
 
-
+  public static admin = [];
 
 
   private static node_env = process.env.NODE_ENV || 'development';

@@ -23,6 +23,7 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
 
   config: Config = new Config();
   private _currentConfigSubscription: Subscription;
+  oldLanguage = '';
 
   search = '';
   foundList: number[] = [];
@@ -455,6 +456,11 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
 
     this._currentConfigSubscription = this._headerService.configObservable().subscribe(
       rel => {
+        if (this.oldLanguage !== rel.language) {
+          this.config = rel;
+          this._checklistService.refreshChecklist(this._checklistService, true);
+          this.oldLanguage = rel.language;
+        }
         this.config = rel;
         // console.log(rel);
 
@@ -673,11 +679,11 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
         });
   }
 
-  launchObjectiveTime (objective: Objective, characterId: string, pursuitId: string, event: any) {
+  launchObjectiveTime (objective: Objective, characterId: string, characterName: string, pursuitId: string, pursuitName: string, event: any) {
     // console.log('launchObjectiveTime');
     event.stopPropagation();
 
-    this._checklistService.startObjective(objective, characterId, pursuitId)
+    this._checklistService.startObjective(objective, characterId, characterName, pursuitId, pursuitName)
         .then(obj => {
 
           if (obj.runningTimeObjective) {
@@ -808,6 +814,7 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
         case Pursuit.ITEM_TYPE_QUEST_STEP: // 'Quest Step'
         case Pursuit.ITEM_TYPE_QUEST_STEP_COMPLETE: // 'Quest Step' complete ?
         case Pursuit.ITEM_TYPE_QUEST_STEP_DUMMY: // 'Quest Step'
+        case Pursuit.ITEM_TYPE_CONSUMABLE: // Consumable (ballistic logs, ...)
           checkedType = true;
           ret = ret || this.config.visible.types.quest_step;
           break;
@@ -857,7 +864,7 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
     }
 
     if (!checkedType) {
-      console.log('not checked : ' + pursuit.itemType + ' ' + pursuit.itemTypeDisplayName);
+      console.log('not checked type : ' + pursuit.itemType + ' ' + pursuit.itemTypeDisplayName);
       console.log(pursuit);
     }
 

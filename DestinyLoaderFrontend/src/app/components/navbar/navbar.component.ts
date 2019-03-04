@@ -62,37 +62,10 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
   ngOnInit () {
 
-    const newLinksLeft: { path: string, label: string, icon: string, iconType: string, selected: boolean }[] = [];
-    const newLinksRight: { path: string, label: string, icon: string, iconType: string, selected: boolean }[] = [];
-
-    this._router.config.forEach(obj => {
-      // console.log(obj);
-      if (!obj.redirectTo && obj.data && obj.data['menu']) {
-        if (obj.data['right']) {
-          newLinksRight.push({
-            path: obj.path,
-            label: obj.data['label'],
-            icon: obj.data['icon'],
-            iconType: obj.data['iconType'],
-            selected: false
-          });
-        } else {
-          newLinksLeft.push({
-            path: obj.path,
-            label: obj.data['label'],
-            icon: obj.data['icon'],
-            iconType: obj.data['iconType'],
-            selected: false
-          });
-        }
-      }
-    });
-    this.linksLeft = newLinksLeft;
-    this.linksRight = newLinksRight;
-
     this._currentUserSubscription = this._userService.userObservable().subscribe(
       user => {
         this.user = user;
+        this.calculateMenus();
       });
 
     this._currentReloadingSubscription = this._headerService.reloadingObservable().subscribe(
@@ -118,6 +91,35 @@ export class NavbarComponent implements OnInit, OnDestroy {
         this.updateNeeded = rel;
       });
 
+  }
+
+  private calculateMenus () {
+    const newLinksLeft: { path: string, label: string, icon: string, iconType: string, selected: boolean }[] = [];
+    const newLinksRight: { path: string, label: string, icon: string, iconType: string, selected: boolean }[] = [];
+    this._router.config.forEach(obj => {
+      // console.log(obj);
+      if (!obj.redirectTo && obj.data && obj.data['menu'] && ((!obj.data['onlyAdmin']) || (this.user.isAdmin))) {
+        if (obj.data['right']) {
+          newLinksRight.push({
+            path: obj.path,
+            label: obj.data['label'],
+            icon: obj.data['icon'],
+            iconType: obj.data['iconType'],
+            selected: false
+          });
+        } else {
+          newLinksLeft.push({
+            path: obj.path,
+            label: obj.data['label'],
+            icon: obj.data['icon'],
+            iconType: obj.data['iconType'],
+            selected: false
+          });
+        }
+      }
+    });
+    this.linksLeft = newLinksLeft;
+    this.linksRight = newLinksRight;
   }
 
   ngOnDestroy (): void {
