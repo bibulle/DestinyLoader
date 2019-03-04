@@ -552,11 +552,11 @@ export class Destiny {
           //     var currentPage = 1;
           //     url = url.replace(/[{]groupId(})/, groupId);
           //     url = url.replace(/[{]currentPage(})/, currentPage);
-          //     debug(JSON.stringify(url, null, 2));
+          //     //debug(JSON.stringify(url, null, 2));
           //
           //     _getFromBungie(url, function (err, data) {
-          //         debug(JSON.stringify(err, null, 2));
-          //         debug(JSON.stringify(data, null, 2));
+          //         //debug(JSON.stringify(err, null, 2));
+          //         //debug(JSON.stringify(data, null, 2));
           //         if (err) {
           //             return callback(err);
           //         }
@@ -653,11 +653,11 @@ export class Destiny {
         //     var currentPage = 1;
         //     url = url.replace(/[{]groupId(})/, groupId);
         //     url = url.replace(/[{]currentPage(})/, currentPage);
-        //     debug(JSON.stringify(url, null, 2));
+        //     //debug(JSON.stringify(url, null, 2));
         //
         //     _getFromBungie(url, function (err, data) {
-        //         debug(JSON.stringify(err, null, 2));
-        //         debug(JSON.stringify(data, null, 2));
+        //         //debug(JSON.stringify(err, null, 2));
+        //         //debug(JSON.stringify(data, null, 2));
         //         if (err) {
         //             return callback(err);
         //         }
@@ -705,15 +705,15 @@ export class Destiny {
       //debug(JSON.stringify(data.profilePlugSets, null, 2));
       //debug(JSON.stringify(data.profileProgression, null, 2));
       //debug(JSON.stringify(data.profileRecords, null, 2));
-//      debug(data.profileRecords.data.score);
-//      debug(data.profileRecords.data.records['87609703']);
-//      Destiny.queryRecordById('87609703', (err, data) => {
-//        debug(data)
-//      }, lang);
-//      debug(data.profileRecords.data.records['245212391']);
-//      Destiny.queryRecordById('245212391', (err, data) => {
-//        debug(data)
-//      }, lang);
+      //debug(data.profileRecords.data.score);
+      //debug(data.profileRecords.data.records['87609703']);
+      //Destiny.queryRecordById('87609703', (err, data) => {
+      //debug(data)
+      //}, lang);
+      //debug(data.profileRecords.data.records['245212391']);
+      //Destiny.queryRecordById('245212391', (err, data) => {
+      //debug(data)
+      //}, lang);
       //debug(JSON.stringify(data.characters, null, 2));
       //debug(JSON.stringify(data.characterInventories, null, 2));
       //debug(JSON.stringify(data.characterProgressions, null, 2));
@@ -830,9 +830,9 @@ export class Destiny {
             async.eachSeries(
               Object.keys(data.itemComponents.instances.data),
               function (instanceId, callback) {
-//              if (instanceId == "6917529083233657152") {
-//                debug(JSON.stringify(data.itemComponents.instances.data[instanceId], null, 2));
-//              }
+                //if (instanceId == "6917529083233657152") {
+                //debug(JSON.stringify(data.itemComponents.instances.data[instanceId], null, 2));
+                //}
                 itemInstancesTable[instanceId] = data.itemComponents.instances.data[instanceId];
                 callback();
               },
@@ -846,9 +846,9 @@ export class Destiny {
             async.eachSeries(
               Object.keys(data.itemComponents.objectives.data),
               function (instanceId, callback) {
-//              if (instanceId == "6917529083233657152") {
-//                debug(JSON.stringify(data.itemComponents.objectives.data[instanceId], null, 2));
-//              }
+                //if (instanceId == "6917529083233657152") {
+                  //debug(JSON.stringify(data.itemComponents.objectives.data[instanceId], null, 2));
+                //}
                 itemObjectivesTable[instanceId] = data.itemComponents.objectives.data[instanceId];
                 callback();
               },
@@ -878,7 +878,7 @@ export class Destiny {
               [].concat.apply([], Object.keys(data.characterInventories.data).map(key => data.characterInventories.data[key].items)));
 
             //src.forEach(v => {
-            //  debug(Array.isArray(v));
+            //debug(Array.isArray(v));
             //})
             async.forEachSeries(
               src,
@@ -956,9 +956,9 @@ export class Destiny {
                                         };
                                         result.catalysts.push(catalyst);
 
-                                        // debug(obj.plug);
+                                        //debug(obj.plug);
                                         //debug(obj.displayProperties.description);
-                                        // debug(plug);
+                                        //debug(plug);
                                         async.forEachSeries(
                                           plug.plugObjectives,
                                           (objective, callback) => {
@@ -972,7 +972,7 @@ export class Destiny {
                                                 // add objective to list
                                                 Object.keys(data.characters.data).forEach(characterId => {
                                                   const key = characterId + catalyst.inventoryItem.itemInstanceId + objective.objectiveHash;
-                                                  // debug(key+' => '+objective.progress);
+                                                  //debug(key+' => '+objective.progress);
                                                   result.objectives[key] = objective.progress;
                                                 });
 
@@ -1032,7 +1032,7 @@ export class Destiny {
                 //debug(triumph);
                 triumph.hash = triumphHash;
                 //if ((triumph.hash == '1842255612') || (triumph.hash == "1082441448")) {
-                //  debug(triumph);
+                //debug(triumph);
                 //}
 
                 async.waterfall([
@@ -1049,7 +1049,7 @@ export class Destiny {
                           }
                           //if ((triumph.hash == '1842255612') || (triumph.hash == "1082441448")) {
                           //if (item.presentationInfo.parentPresentationNodeHashes.length == 0) {
-                          //  debug(item);
+                          //debug(item);
                           //}
 
 
@@ -1514,7 +1514,7 @@ export class Destiny {
                               milestone.objectives,
                               function (objective, callback) {
                                 const key = milestone.characterId + milestone.instanceId + objective.objectiveHash;
-                                // debug(key+' => '+objective.progress);
+                                //debug(key+' => '+objective.progress);
                                 result.objectives[key] = objective.progress;
 
                                 Destiny.queryObjectiveById(objective.objectiveHash, function (err, definition) {
@@ -1540,12 +1540,12 @@ export class Destiny {
                       ],
                       (err) => {
                         //if (milestone.data && milestone.data.activities && (milestone.data.activities[0].challenges.length > 1)) {
-                        //  debug(milestone.milestoneName+" "+milestone.instanceId);
-                        //  debug(milestone.data.activities);
+                        //debug(milestone.milestoneName+" "+milestone.instanceId);
+                        //debug(milestone.data.activities);
                         //}
 
                         //if (milestone.instanceId === '3427325023') {
-                        // debug(milestone);
+                        //debug(milestone);
                         //}
 
                         callback(err);
@@ -1620,14 +1620,23 @@ export class Destiny {
                     function (callback) {
                       if (item.itemHash) {
                         Destiny.queryItemById(item.itemHash, function (err, definition) {
+
                           if (err) return callback(err);
-                          item.item = _.pick(definition, ['displayProperties', 'classType', 'inventory', 'value', 'itemType', 'itemTypeDisplayName', 'itemTypeAndTierDisplayName', 'quality']);
+
+                          item.item = _.pick(definition, ['displayProperties', 'classType', 'inventory', 'value', 'itemType', 'itemTypeDisplayName', 'itemTypeAndTierDisplayName', 'quality', 'objectives.questlineItemHash']);
                           item.itemName = definition.displayProperties.name;
+                          if (definition.objectives) {
+                            item.questlineItemHash = definition.objectives.questlineItemHash;
+                          }
                           if (!item.itemName) {
                             //debug.error("Empty definition name");
                             //debug.warn(JSON.stringify(definition, null, 2));
                             item.itemName = "Unknown name";
                           }
+                          //if (item.itemHash === 4014308450) {
+                            //debug(JSON.stringify(item, null, 2));
+                          //}
+
                           callback(null, item);
                         }, lang)
                       } else {
@@ -1815,12 +1824,12 @@ export class Destiny {
                           item.objective.objectives,
                           function (objective, callback) {
                             const key = (item.characterId || user.bungieNetUser.membershipId) + item.itemInstanceId + objective.objectiveHash;
-                            // debug(key+' -> '+objective.progress);
+                            //debug(key+' -> '+objective.progress);
                             result.objectives[key] = objective.progress;
 
-                            // if (objective.objectiveHash == 3521931022) {
-                            //   debug(item);
-                            // }
+                            //if (objective.objectiveHash == 3521931022) {
+                            //debug(item);
+                            //}
 
                             Destiny.queryObjectiveById(objective.objectiveHash, function (err, itemValue) {
                               objective.item = itemValue;
@@ -1892,7 +1901,8 @@ export class Destiny {
                           "expirationDate": item.expirationDate,
                           "rewards": [],
                           'icon': item.item.displayProperties.icon,
-                          'objectives': []
+                          'objectives': [],
+                          'questlineItemHash' : item.questlineItemHash
                         };
 
 
@@ -2182,14 +2192,14 @@ export class Destiny {
       }
       data.times = {};
 
-      // debug(data.objectives);
+      //debug(data.objectives);
 
       async.eachSeries(
         times,
         (objectiveTime: ObjectiveTime, callback) => {
           let modified = false;
           const key = objectiveTime.characterId + objectiveTime.pursuitId + objectiveTime.objectiveId;
-          // debug(key+ " -> " + data.objectives[key]);
+          //debug(key+ " -> " + data.objectives[key]);
 
           // if this objective is for this user
           if (objectiveTime.bungieNetUser === user.bungieNetUser.membershipId) {
@@ -2230,7 +2240,7 @@ export class Destiny {
 
         },
         (err) => {
-          // debug(data.times);
+          //debug(data.times);
           callback(err, data, times);
         }
       )
@@ -2423,7 +2433,7 @@ export class Destiny {
         Destiny.manifestDb[lang] = new sqlite.Database(manifestPath);
         return callback();
       }
-      // debug(manifestPath);
+      //debug(manifestPath);
 
       let manifestZipPath = manifestPath + '_' + Math.ceil(Math.random() * 100000000) + '.zip';
       let manifestNewPath = manifestPath + '_' + Math.ceil(Math.random() * 100000000) + '.content';
@@ -2519,7 +2529,7 @@ export class Destiny {
                               Destiny.queryItemById("", callback, lang);
                             },
                             //function (foo, callback) {
-                            //  Destiny.queryItemById(Destiny.POWERFUL_GEAR, function (err, item) {
+                            //  Destiny.queryItemById(2051771644, function (err, item) {
                             //    console.log(item);
                             //    callback(err, item);
                             //  }, lang);
@@ -3332,7 +3342,7 @@ export class Destiny {
           const user = Destiny.objectiveRunningList[time.bungieNetUser];
           debug('Watching ' + user.bungieNetUser.displayName);
 
-          // debug(user);
+          //debug(user);
           async.waterfall([
               (callback) => {
                 Destiny.getUserStuff(user, callback, Config.defaultLanguage);

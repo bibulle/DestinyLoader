@@ -736,7 +736,11 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
 
 
   static getPursuitKey (pursuit, character) {
-    return character.characterId + ' ' + pursuit.itemInstanceId;
+    if (pursuit.questlineItemHash) {
+      return character.characterId + ' ' + pursuit.questlineItemHash;
+    } else {
+      return character.characterId + ' ' + pursuit.itemInstanceId;
+    }
   }
 
   toggleSelectedPursuit (pursuit, character, event: any) {
