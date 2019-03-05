@@ -1,17 +1,17 @@
 <div>
   <div class="title">
     <div class="empty"></div>
-    <div class="user-name">{{'label.user-name' | translate}}</div>
-    <div class="character-name">{{'label.character-name' | translate}}</div>
-    <div class="pursuit">{{'label.pursuit' | translate}}</div>
-    <div class="objective">{{'label.objective' | translate}}</div>
-    <div class="count-start">{{'label.count-start' | translate}}</div>
-    <div class="count-end">{{'label.count-end' | translate}}</div>
-    <div class="count-finished">{{'label.count-finished' | translate}}</div>
-    <div class="time-start">{{'label.time-start' | translate}}</div>
-    <div class="time-end">{{'label.time-end' | translate}}</div>
-    <div class="time-by-value">{{'label.time-by-value' | translate}}</div>
-    <div class="last-verified">{{'label.last-verified' | translate}}</div>
+    <div class="user-name"><span>{{'label.user-name' | translate}}</span></div>
+    <div class="character-name"><span>{{'label.character-name' | translate}}</span></div>
+    <div class="pursuit"><span>{{'label.pursuit' | translate}}</span></div>
+    <div class="objective"><span>{{'label.objective' | translate}}</span></div>
+    <div class="count-start"><span>{{'label.count-start' | translate}}</span></div>
+    <div class="count-end"><span>{{'label.count-end' | translate}}</span></div>
+    <div class="count-finished"><span>{{'label.count-finished' | translate}}</span></div>
+    <div class="time-start"><span>{{'label.time-start' | translate}}</span></div>
+    <div class="time-end"><span>{{'label.time-end' | translate}}</span></div>
+    <div class="time-by-value"><span>{{'label.time-by-value' | translate}}</span></div>
+    <div class="last-verified"><span>{{'label.last-verified' | translate}}</span></div>
     <div class="tools"></div>
   </div>
   <div class="objective-time" *ngFor="let objectiveTime of objectiveTimes"
@@ -24,9 +24,9 @@
       <span>{{objectiveTime.objectiveProgressDescription}}</span></div>
     <div class="count-start"><span>{{objectiveTime.countStart}}</span></div>
     <div class="count-end"><span>{{objectiveTime.countEnd}}</span></div>
-    <div class="count-finished"><span>{{objectiveTime.countFinished}}</span>
+    <div class="count-finished"><span>{{(((objectiveTime.countFinished == 0) && objectiveTime.finished) ? objectiveTime.countEnd : objectiveTime.countFinished)}}</span>
       <div class="finished-progressbar"
-           [style.width]="(100 * objectiveTime.countEnd / objectiveTime.countFinished)+'%'">
+           [style.width]="(objectiveTime.finished ? '100%' : (100 * objectiveTime.countEnd / objectiveTime.countFinished)+'%')">
         &nbsp;
       </div>
     </div>

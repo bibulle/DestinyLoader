@@ -21,6 +21,7 @@ export class Destiny {
   private static _URL_GET_TOKEN_FROM_CODE = '/Platform/App/OAuth/Token/';
 // private static _URL_GET_TOKEN_FROM_REFRESH = '/Platform/App/GetAccessTokensFromRefreshToken/?code={refreshToken}';
   private static _URL_GET_CURRENT_USER = '/Platform/User/GetMembershipsForCurrentUser/';
+  private static _URL_SEARCH_USER_BY_ID = '/Platform/User/GetBungieNetUserById/{id}/';
   private static _URL_SEARCH_DESTINY_PLAYER = '/Platform/Destiny2/SearchDestinyPlayer/{membershipType}/{displayName}/';
   private static _URL_ACCOUNT_SUMMARY = '/Platform/Destiny2/{membershipType}/Profile/{destinyMembershipId}/?components=200,900';
   private static _URL_ACCOUNT_SUMMARY_SMALL = '/Platform/Destiny2/{membershipType}/Profile/{destinyMembershipId}/?components=100';
@@ -133,6 +134,23 @@ export class Destiny {
 
   };
 
+  public static getUserById (bungieNetUser, callback) {
+
+    // Get the Destiny player
+    let url = Destiny._URL_SEARCH_USER_BY_ID;
+    url = url.replace(/[{]id(})/, bungieNetUser);
+    //debug(JSON.stringify(url, null, 2));
+
+    Destiny._getFromBungie(url, function (err, data) {
+      //debug(JSON.stringify(data, null, 2));
+      if (err) {
+        return callback(err);
+      }
+      callback(null, data);
+    });
+
+  };
+
   public static getGrimoire (user, callback) {
     //debug("getGrimoire '" + user.id + "'");
 
@@ -223,7 +241,7 @@ export class Destiny {
 
       const membershipType = data[0].membershipType;
       const membershipId = data[0].membershipId;
-      //debug(JSON.stringify(membershipId, null, 2));
+      //debug('membershipId : ' +JSON.stringify(membershipId, null, 2));
 
       // Get characters
       let url = Destiny._URL_ACCOUNT_SUMMARY;
@@ -232,7 +250,17 @@ export class Destiny {
       //debug(JSON.stringify(url, null, 2));
 
       Destiny._getFromBungie(url, function (err, data) {
-        //debug(JSON.stringify(err, null, 2));
+        if (err) {
+          if (err.error) {
+            return callback(err);
+          } else {
+            return callback(null, []);
+          }
+        }
+        if (!data) {
+          error('Error in getting lights (' + userId + ')');
+          return callback(null, []);
+        }
         //debug(JSON.stringify(data, null, 2));
 
         let triumphScore = 0;
@@ -847,7 +875,7 @@ export class Destiny {
               Object.keys(data.itemComponents.objectives.data),
               function (instanceId, callback) {
                 //if (instanceId == "6917529083233657152") {
-                  //debug(JSON.stringify(data.itemComponents.objectives.data[instanceId], null, 2));
+                //debug(JSON.stringify(data.itemComponents.objectives.data[instanceId], null, 2));
                 //}
                 itemObjectivesTable[instanceId] = data.itemComponents.objectives.data[instanceId];
                 callback();
@@ -1634,7 +1662,7 @@ export class Destiny {
                             item.itemName = "Unknown name";
                           }
                           //if (item.itemHash === 4014308450) {
-                            //debug(JSON.stringify(item, null, 2));
+                          //debug(JSON.stringify(item, null, 2));
                           //}
 
                           callback(null, item);
@@ -1902,7 +1930,7 @@ export class Destiny {
                           "rewards": [],
                           'icon': item.item.displayProperties.icon,
                           'objectives': [],
-                          'questlineItemHash' : item.questlineItemHash
+                          'questlineItemHash': item.questlineItemHash
                         };
 
 
@@ -2507,7 +2535,7 @@ export class Destiny {
                                   if (file.match(/world_sql_content/)) {
                                     fs.stat('data/' + file, ((err, stats) => {
                                       if (err) {
-                                        return debug(err);
+                                        return error(err);
                                       } else {
                                         const age = (new Date().getTime()) - stats.atimeMs;
 
@@ -3155,7 +3183,7 @@ export class Destiny {
    * @param accessToken
    * @private
    */
-  private static _getFromBungie (path: string, callback: Function, accessToken?: string): void {
+  static _getFromBungie (path: string, callback: Function, accessToken?: string): void {
     //debug("_getFromBungie(" + path + ")");
     const options = {
       hostname: 'www.bungie.net',
@@ -3284,7 +3312,7 @@ export class Destiny {
         } catch (e) {
           //error("statusCode: ", res.statusCode, " : ", res.statusMessage);
           debug(content);
-          debug.error("Error in getting Bungie data : " + e + ' from ' + path);
+          error("Error in getting Bungie data : " + e + ' from ' + path);
           return callback("Error in getting Bungie data : " + e + ' from ' + path, null);
         }
 
@@ -3332,6 +3360,8 @@ export class Destiny {
       async.eachSeries(
         times,
         (time, callback) => {
+
+          time = Destiny._validateObjectiveRunning(time);
           if (time.finished) {
             return callback(null);
           }
@@ -3375,6 +3405,116 @@ export class Destiny {
     });
 
 
+  }
+
+  static _userNamesTable: { [id: string]: string; } = {
+    'HardCoded': 'HardCoded'
+  };
+  static _characterNamesTable: { [id: string]: string; } = {
+    'HardCoded': 'HardCoded'
+  };
+
+  /**
+   * Validate the time
+   *     to fill legacy times ;-)
+   * @param time
+   * @private
+   */
+  static _validateObjectiveRunning (time: ObjectiveTime) {
+    if (!time.bungieUserName) {
+      debug('Objective time : No user name (' + time.bungieNetUser + ')');
+      if (Destiny._userNamesTable[time.bungieNetUser]) {
+        time.bungieUserName = Destiny._userNamesTable[time.bungieNetUser];
+        DestinyDb.insertTime(time.bungieNetUser, time, (err, t) => {
+          if (err) {
+            error(err);
+          } else {
+            debug('Corrected');
+            //debug(t);
+          }
+        });
+      } else {
+        Destiny.getUserById(time.bungieNetUser, (err, data) => {
+          if (err) {
+            error(err);
+          } else {
+            if (data.displayName) {
+              Destiny._userNamesTable[time.bungieNetUser] = data.displayName;
+            }
+          }
+        });
+      }
+    } else {
+      Destiny._userNamesTable[time.bungieNetUser] = time.bungieUserName;
+    }
+
+    if (!time.characterName) {
+      debug('Objective time : No character name (' + time.characterId + ')');
+      if (Destiny._characterNamesTable[time.characterId]) {
+        time.characterName = Destiny._characterNamesTable[time.characterId];
+        DestinyDb.insertTime(time.bungieNetUser, time, (err, t) => {
+          if (err) {
+            error(err);
+          } else {
+            debug('Corrected');
+            //debug(t);
+          }
+        });
+      } else if (time.bungieUserName === 'HardCoded') {
+        Destiny._characterNamesTable[time.characterId] = 'HardCoded';
+      } else if (time.bungieUserName) {
+        Destiny.getLight(time.bungieUserName, false, (err, data) => {
+          if (err) {
+            error(err);
+          } else {
+            //debug(data);
+            data.forEach(c => {
+              switch (c.class) {
+                case 'W':
+                  Destiny._characterNamesTable[c.id] = "Warlock";
+                  break;
+                case 'H':
+                  Destiny._characterNamesTable[c.id] = "Hunter";
+                  break;
+                case 'T':
+                  Destiny._characterNamesTable[c.id] = "Titan";
+                  break;
+              }
+            });
+          }
+        })
+      }
+    } else {
+      Destiny._characterNamesTable[time.characterId] = time.characterName;
+    }
+
+    if (!time.objectiveProgressDescription) {
+      debug('Objective time : No objective description (' + time.objectiveId + ')');
+      Destiny.queryObjectiveById(time.objectiveId, (err, item) => {
+        if (err) {
+          error(err);
+        }
+        if (item && item.progressDescription) {
+          //debug(item);
+          time.objectiveProgressDescription = item.progressDescription;
+        } else if (item && item.displayProperties && item.displayProperties.description) {
+          //debug(item);
+          time.objectiveProgressDescription = item.displayProperties.description;
+        } else {
+          time.objectiveProgressDescription = "Unknown";
+        }
+        DestinyDb.insertTime(time.bungieNetUser, time, (err, t) => {
+          if (err) {
+            error(err);
+          } else {
+            debug('Corrected');
+            //debug(t);
+          }
+        });
+      }, 'en');
+    }
+
+    return time;
   }
 
   public static addUserToObjectiveRunningList (user) {
