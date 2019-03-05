@@ -129,6 +129,8 @@ function monitorRouter (passport): Router {
               function (err, data) {
                 //error(err);
                 if (err) {
+                  debug(err);
+                  response.statusMessage = err.replace(/[(].*[)]/,'');
                   response.status(500).send(err);
                   //data.messages.push("ERROR : "+err);
                   //return response.send(JSON.stringify({messages: err}, null, 2));
