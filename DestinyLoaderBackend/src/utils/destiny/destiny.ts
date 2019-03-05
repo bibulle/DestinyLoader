@@ -2887,7 +2887,7 @@ export class Destiny {
 
 // get objective definition
 //noinspection JSUnusedLocalSymbols
-  private static queryObjectiveById (objectiveHash, callback, lang: string) {
+  static queryObjectiveById (objectiveHash, callback, lang: string) {
     if (!Destiny.objectiveHashCacheById[Config.getLang(lang)]) {
       Destiny.objectiveHashCacheById[Config.getLang(lang)] = {};
       try {
@@ -3421,7 +3421,22 @@ export class Destiny {
    * @private
    */
   static _validateObjectiveRunning (time: ObjectiveTime) {
-    if (!time.bungieUserName) {
+
+    // remove the hardcoded ones
+    if (time.bungieNetUser === 'HardCoded') {
+      debug('Objective time : Found hardcoded');
+      DestinyDb.deleteTime(time._id, (err, t) => {
+        if (err) {
+          error(err);
+        } else {
+          debug('Corrected');
+          debug(t);
+        }
+      });
+    }
+
+
+    if (!time.bungieUserName || (time.bungieUserName === 'HardCoded')) {
       debug('Objective time : No user name (' + time.bungieNetUser + ')');
       if (Destiny._userNamesTable[time.bungieNetUser]) {
         time.bungieUserName = Destiny._userNamesTable[time.bungieNetUser];
@@ -3488,7 +3503,7 @@ export class Destiny {
       Destiny._characterNamesTable[time.characterId] = time.characterName;
     }
 
-    if (!time.objectiveProgressDescription) {
+    if (!time.objectiveProgressDescription || (time.objectiveProgressDescription === 'Unknown')) {
       debug('Objective time : No objective description (' + time.objectiveId + ')');
       Destiny.queryObjectiveById(time.objectiveId, (err, item) => {
         if (err) {
@@ -3546,16 +3561,31 @@ function refreshManifest () {
 
 function refreshObjectiveTime () {
 
-  Destiny._calculateObjectiveRunning(
-    (err) => {
-      if (err) {
-        error(err);
-      }
+  // before whatever, load the objectives
+  Destiny.queryObjectiveById('3340083262', (err, item) => {
+    if (err) {
+      error(err);
       setTimeout(refreshObjectiveTime,
         (20 + Math.random() * 10) * 1000);
-
     }
-  )
+    if (item) {
+      //debug(item);
+      Destiny._calculateObjectiveRunning(
+        (err) => {
+          if (err) {
+            error(err);
+          }
+          setTimeout(refreshObjectiveTime,
+            (20 + Math.random() * 10) * 1000);
+
+        }
+      )
+    } else {
+      setTimeout(refreshObjectiveTime,
+        (20 + Math.random() * 10) * 1000);
+    }
+  }, 'en');
+
 
 }
 
