@@ -3516,7 +3516,7 @@ export class Destiny {
           //debug(item);
           time.objectiveProgressDescription = item.displayProperties.description;
         } else {
-          time.objectiveProgressDescription = "Unknown";
+          time.objectiveProgressDescription = "not found";
         }
         DestinyDb.insertTime(time.bungieNetUser, time, (err, t) => {
           if (err) {
@@ -3562,14 +3562,14 @@ function refreshManifest () {
 function refreshObjectiveTime () {
 
   // before whatever, load the objectives
-  Destiny.queryObjectiveById('3340083262', (err, item) => {
+  Destiny.queryObjectiveById('384893112', (err, item) => {
     if (err) {
       error(err);
       setTimeout(refreshObjectiveTime,
         (20 + Math.random() * 10) * 1000);
     }
     if (item) {
-      //debug(item);
+      debug(item);
       Destiny._calculateObjectiveRunning(
         (err) => {
           if (err) {
