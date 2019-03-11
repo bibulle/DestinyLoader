@@ -168,9 +168,7 @@ export class Reward {
   }
 
   static compareRewards (r1: Reward, r2: Reward): number {
-    const ret = Reward.getRewardValue(r2) - Reward.getRewardValue(r1);
-
-    return ret;
+    return Reward.getRewardValue(r2) - Reward.getRewardValue(r1);
   }
 
   static getRewardValue (r: Reward): number {
@@ -202,15 +200,24 @@ export class Reward {
       case 4072589658: // Augmented Weapon
       case 257827327: // Offering to the Oracle
       case 3682636565: // Etched Engram
+      case 334865270: // Legendary Engram
         return Reward.VALUE_LEGENDARY_GEAR;
       case 3853748946: // Enhancement Core
       case 1633854071: // Dark Fragment
       case 3255036626: // Transcendent Blessing
       case 214896340: // Black Armory Badge
+      case 1691570586: // Invader Synth
+      case 3948022968: // Collector Synth
+      case 3552598030: // Sentry Synth
+      case 889896758: // Reaper Synth
         return Reward.VALUE_IMPORTANT_CONSUMABLE;
       case 580961571: // Loaded Question
       case 792755504: // Nightshade
       case 324382200: // Breakneck
+      case 3354242550: // The recluse
+      case 1600633250: // 21% Delirium
+      case 46155327: // Who Are You?
+      case 3907337522: // Oxygen SR3
         return Reward.VALUE_SPECIAL_WEAPON;
       case 3782248531: // Modulus Report
       case 183980811: // Crucible Token
@@ -240,6 +247,14 @@ export class Reward {
       case 3085039018: // Glimmer
       case 3159615086: // Glimmer
       case 49145143: // Simulation Seed
+      case 1498824035: // Shotgun (Power 640)
+      case 3946022997: // Pulse Rifle (Power 640)
+      case 2462658602: // Rocket Launcher (Power 640)
+      case 562103581: // Helmet (Power 640)
+      case 1202043098: // Gauntlets (Power 640)
+      case 1244752982: // Chest Armor (Power 640)
+      case 3896846872: // Leg Armor (Power 640)
+      case 2515448385: // Class Item (Power 640)
         return Reward.VALUE_RESOURCE;
       default:
         console.log('reward "' + r.itemHash + '" not found (' + r.name + ')');
