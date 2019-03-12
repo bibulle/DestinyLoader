@@ -34,7 +34,7 @@ store.on('error', function(error) {
 });
 
 debug(Config.package_name + ' - ' +Config.package_version + ' (' + Config.package_commit.number + ' ' + Config.package_commit.hash + ')');
-debug(Config.admin);
+//debug(Config.admin);
 
 //--------------
 // init webApp

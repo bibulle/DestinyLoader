@@ -21,6 +21,7 @@ export class Config {
       vendor_bounty: true,
       owned_bounty: true,
       forge: true,
+      prime_gambit: true,
       pursuit: true,
       triumph: false,
       triumphRedeemable: false

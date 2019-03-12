@@ -210,6 +210,8 @@ export class Reward {
       case 3948022968: // Collector Synth
       case 3552598030: // Sentry Synth
       case 889896758: // Reaper Synth
+      case 596773932: // Synthesizer Upgrade
+      case 1355700046: // Invader Head Upgrade
         return Reward.VALUE_IMPORTANT_CONSUMABLE;
       case 580961571: // Loaded Question
       case 792755504: // Nightshade

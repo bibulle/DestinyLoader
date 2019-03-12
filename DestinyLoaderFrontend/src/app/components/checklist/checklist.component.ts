@@ -860,6 +860,14 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
               checkedType = true;
               ret = ret || this.config.visible.types.forge;
               break;
+            case 'Container':
+            case 'Prime Weekly Bounty':
+            case 'Civic Duty" Bounty':
+            case 'Prime "Civic Duty" Bounty':
+            case 'Prime Daily Bounty':
+              checkedType = true;
+              ret = ret || this.config.visible.types.prime_gambit;
+              break;
             case 'Pursuits':
             case 'Poursuites':
               checkedType = true;
@@ -875,7 +883,7 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
     }
 
     if (!checkedType) {
-      console.log('not checked type : ' + pursuit.itemType + ' ' + pursuit.itemTypeDisplayName);
+      console.log('not checked type : ' + pursuit.itemType + ' "' + pursuit.itemTypeDisplayName + '"');
       console.log(pursuit);
     }
 
