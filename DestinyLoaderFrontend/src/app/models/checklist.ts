@@ -212,7 +212,8 @@ export class Reward {
       case 889896758: // Reaper Synth
       case 596773932: // Synthesizer Upgrade
       case 1355700046: // Invader Head Upgrade
-        return Reward.VALUE_IMPORTANT_CONSUMABLE;
+      case 1045201464: // Sentry Head Upgrade
+          return Reward.VALUE_IMPORTANT_CONSUMABLE;
       case 580961571: // Loaded Question
       case 792755504: // Nightshade
       case 324382200: // Breakneck
@@ -257,6 +258,7 @@ export class Reward {
       case 1244752982: // Chest Armor (Power 640)
       case 3896846872: // Leg Armor (Power 640)
       case 2515448385: // Class Item (Power 640)
+      case 2961190721: // A Gift from Eververse
         return Reward.VALUE_RESOURCE;
       default:
         console.log('reward "' + r.itemHash + '" not found (' + r.name + ')');

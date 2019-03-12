@@ -861,20 +861,27 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
               ret = ret || this.config.visible.types.forge;
               break;
             case 'Container':
-            case 'Prime Weekly Bounty':
-            case 'Civic Duty" Bounty':
-            case 'Prime "Civic Duty" Bounty':
+            case 'Boîte':
             case 'Prime Daily Bounty':
+            case 'Contrat du jour (Gambit Prestige)':
+            case 'Prime Weekly Bounty':
+            case 'Contrat de la semaine (Gambit Prestige)':
+            case 'Prime "Civic Duty" Bounty':
+            case 'Contrat citoyen':
               checkedType = true;
               ret = ret || this.config.visible.types.prime_gambit;
               break;
             case 'Pursuits':
             case 'Poursuites':
+            case 'Ship Schematics':
+            case 'Schémas de vaisseau':
               checkedType = true;
               ret = ret || this.config.visible.types.pursuit;
               break;
             case 'Weekly Drifter Bounty':
             case 'Contrats de la semaine du Vagabond':
+            case 'Weekly Clan Bounties':
+            case 'Contrats de clan de la semaine':
               checkedType = true;
               ret = ret || this.config.visible.types.owned_bounty;
               break;

@@ -152,7 +152,10 @@ export class HeaderService {
     this._loadConfigFromBackend()
         .then(config => {
           if (!config.language && !config.selectedPursuits) {
-            this.saveConfig(config);
+            let newConfig = new Config();
+            newConfig = {...newConfig, ...HeaderService._loadConfigFromLocalStorage()};
+            newConfig.visible = {...new Config().visible, ...newConfig.visible};
+            this.saveConfig(newConfig);
           } else {
             this.config = new Config();
             this.config = {...this.config, ...config};
