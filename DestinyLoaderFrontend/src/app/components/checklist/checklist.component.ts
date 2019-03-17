@@ -890,13 +890,19 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
     }
 
     if (!checkedType) {
-      console.log('not checked type : ' + pursuit.itemType + ' "' + pursuit.itemTypeDisplayName + '"');
-      console.log(pursuit);
+      if (!ChecklistComponent.notCheckedType[pursuit.itemTypeDisplayName]) {
+        console.log('not checked type : ' + pursuit.itemType + ' "' + pursuit.itemTypeDisplayName + '"');
+        console.log(pursuit);
+        ChecklistComponent.notCheckedType[pursuit.itemTypeDisplayName] = pursuit;
+      }
+      ret = ret || this.config.visible.types.pursuit;
     }
 
 
     return ret;
   }
+
+  static notCheckedType = {};
 
   pursuitHasRunningObjectives (pursuit: Pursuit) {
     let ret = false;

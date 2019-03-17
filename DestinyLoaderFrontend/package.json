@@ -1,6 +1,6 @@
 {
   "name": "destiny-front-end",
-  "version": "0.0.25",
+  "version": "0.0.26",
   "license": "MIT",
   "scripts": {
     "ng": "ng",
@@ -63,10 +63,10 @@
     "typescript": "~3.2.4"
   },
   "commit": {
-    "number": 236,
-    "hash": "12f64fe7eefd9a028078b20143be126c8276ceec",
-    "shorthash": "12f64fe",
-    "timestamp": "1551451489"
+    "number": 245,
+    "hash": "7a777898bf8bfc113655e17b7015f8cd90e7b50d",
+    "shorthash": "7a77789",
+    "timestamp": "1552403271"
   },
   "husky": {
     "hooks": {

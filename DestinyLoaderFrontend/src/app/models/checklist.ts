@@ -171,6 +171,8 @@ export class Reward {
     return Reward.getRewardValue(r2) - Reward.getRewardValue(r1);
   }
 
+  static notFoundRewards = {};
+
   static getRewardValue (r: Reward): number {
     if (r == null) {
       return -2;
@@ -213,7 +215,7 @@ export class Reward {
       case 596773932: // Synthesizer Upgrade
       case 1355700046: // Invader Head Upgrade
       case 1045201464: // Sentry Head Upgrade
-          return Reward.VALUE_IMPORTANT_CONSUMABLE;
+        return Reward.VALUE_IMPORTANT_CONSUMABLE;
       case 580961571: // Loaded Question
       case 792755504: // Nightshade
       case 324382200: // Breakneck
@@ -261,8 +263,11 @@ export class Reward {
       case 2961190721: // A Gift from Eververse
         return Reward.VALUE_RESOURCE;
       default:
-        console.log('reward "' + r.itemHash + '" not found (' + r.name + ')');
-        // console.log(r);
+        if (!Reward.notFoundRewards[r.itemHash]) {
+          console.log('reward "' + r.itemHash + '" not found (' + r.name + ')');
+          console.log(r);
+          Reward.notFoundRewards[r.itemHash] = r;
+        }
         return Reward.VALUE_UNKNOWN;
     }
   }
