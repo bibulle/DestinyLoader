@@ -29,7 +29,14 @@ export class ObjectiveTimesComponent implements OnInit {
   ngOnInit () {
     this._currentObjectiveTimesSubscription = this._checklistService.currentObjectiveTimesObservable().subscribe(
       (objectiveTimes: ObjectiveTime[]) => {
-        this.objectiveTimes = objectiveTimes;
+        this.objectiveTimes = objectiveTimes.sort((ot1, ot2) => {
+          const ret = ot1.objectiveId - ot2.objectiveId;
+
+          if (ret !== 0) {
+            return ret;
+          }
+          return new Date(ot1.timeStart).getTime() - new Date(ot2.timeStart).getTime();
+        });
         console.log(this.objectiveTimes);
 
       });
@@ -67,6 +74,7 @@ export class ObjectiveTimesComponent implements OnInit {
         .get('confirmation.delete.objective.time')
         .subscribe(res => {
           if (confirm(res)) {
+            //noinspection JSIgnoredPromiseFromCall
             this._checklistService.deleteObjectiveTime(objectiveTime);
           }
         });

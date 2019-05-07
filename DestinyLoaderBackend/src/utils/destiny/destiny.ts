@@ -702,6 +702,8 @@ export class Destiny {
 
   private static MILESTONE_IRON_BANNER = 3427325023;
 
+  private static MILESTONE_RECIPE_FOR_SUCCESS = 2188900244;
+
   private static CHALLENGE_SOURCED_REWARD = 326786556;
 
   private static POWERFUL_GEAR = 4039143015;
@@ -1350,7 +1352,8 @@ export class Destiny {
                           // Add rewards on missing one
                           if ((milestone.data.milestoneHash === Destiny.MILESTONE_FLASH_POINT) ||
                             (milestone.data.milestoneHash === Destiny.MILESTONE_GUARDIAN_OF_ALL) ||
-                            (milestone.data.milestoneHash === Destiny.MILESTONE_IRON_BANNER)) {
+                            (milestone.data.milestoneHash === Destiny.MILESTONE_IRON_BANNER) ||
+                            (milestone.data.milestoneHash === Destiny.MILESTONE_RECIPE_FOR_SUCCESS)) {
                             if (milestone.rewards.length == 0) {
                               let reward = {
                                 earned: false,
@@ -2564,6 +2567,12 @@ export class Destiny {
                             //},
                             function (foo, callback) {
                               Destiny.queryItemByName("", callback, lang);
+                            },
+                            function (foo, callback) {
+                              Destiny.queryBucketByName("Thorn", function (err, item) {
+                                console.log(item);
+                                callback(err, item);
+                              }, lang);
                             },
                             function (foo, callback) {
                               Destiny.queryBucketByName("Pursuits", function (err, bucket) {

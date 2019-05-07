@@ -215,6 +215,13 @@ export class Reward {
       case 596773932: // Synthesizer Upgrade
       case 1355700046: // Invader Head Upgrade
       case 1045201464: // Sentry Head Upgrade
+      case 3007303932: // Reaper Head
+      case 4041437604: // Collector Head
+      case 3818379434: // Powerful Revelry Head Engram
+      case 514936467: // Powerful Revelry Chest Engram
+      case 323881355: // Powerful Revelry Leg Engram
+      case 2501601653: // Powerful Revelry Arms Engram
+      case 1508024268: // Powerful Revelry Class Engram
         return Reward.VALUE_IMPORTANT_CONSUMABLE;
       case 580961571: // Loaded Question
       case 792755504: // Nightshade
@@ -223,6 +230,7 @@ export class Reward {
       case 1600633250: // 21% Delirium
       case 46155327: // Who Are You?
       case 3907337522: // Oxygen SR3
+      case 1970295559: // Murmuration (it's a ship)
         return Reward.VALUE_SPECIAL_WEAPON;
       case 3782248531: // Modulus Report
       case 183980811: // Crucible Token
@@ -240,6 +248,7 @@ export class Reward {
         return Reward.VALUE_TOKENS;
       case Reward.TRIUMPH_POINT_PSEUDO_HASH: // Triumph points
         return Reward.VALUE_TRIUMPH;
+      case 3272358192: // Reveler's Essence
       case 1022552290: // Legendary Shards
       case 592227263: // Baryon Bough
       case 2014411539: // Alkane Dust
