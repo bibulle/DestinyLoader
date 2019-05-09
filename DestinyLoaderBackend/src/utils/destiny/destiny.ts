@@ -1,8 +1,8 @@
-import { Config } from "../config/config";
-import { Database } from "sqlite3";
-import { DestinyDb } from "../destinyDb/destinyDb";
-import { ObjectiveTime } from "../../models/objectiveTime";
-import { User } from "../../models/user";
+import {Config} from "../config/config";
+import {Database} from "sqlite3";
+import {DestinyDb} from "../destinyDb/destinyDb";
+import {ObjectiveTime} from "../../models/objectiveTime";
+import {User} from "../../models/user";
 import * as _ from "lodash";
 
 const debug = require('debug')('server:debug:Destiny');
@@ -106,7 +106,7 @@ export class Destiny {
   private static manifestDb: { [id: string]: Database } = {};
 
   //noinspection JSUnusedGlobalSymbols
-  public static getAuthenticationCodeUrl (callback) {
+  public static getAuthenticationCodeUrl(callback) {
     let url = Destiny._URL_AUTH_GET_CODE;
     url = url.replace(/[{]client-id(})/, Config.oAuthClientId);
 
@@ -115,11 +115,11 @@ export class Destiny {
 
   };
 
-  public static getTokenUrl (callback) {
+  public static getTokenUrl(callback) {
     return callback(null, Destiny._URL_GET_TOKEN_FROM_CODE);
   };
 
-  public static getCurrentUser (user, callback) {
+  public static getCurrentUser(user, callback) {
     //debug("getCurrentUser '" + user.auth.access_token + "'");
 
     // Get the Destiny player
@@ -134,7 +134,7 @@ export class Destiny {
 
   };
 
-  public static getUserById (bungieNetUser, callback) {
+  public static getUserById(bungieNetUser, callback) {
 
     // Get the Destiny player
     let url = Destiny._URL_SEARCH_USER_BY_ID;
@@ -151,7 +151,7 @@ export class Destiny {
 
   };
 
-  public static getGrimoire (user, callback) {
+  public static getGrimoire(user, callback) {
     //debug("getGrimoire '" + user.id + "'");
 
     // Get the Destiny player
@@ -214,7 +214,7 @@ export class Destiny {
 
   };
 
-  public static getLight (userId: string, isOnLine, callback) {
+  public static getLight(userId: string, isOnLine, callback) {
     //debug("getLight '" + userId + "'");
 
     // Get the Destiny player
@@ -502,7 +502,7 @@ export class Destiny {
 
   };
 
-  public static getClan (groupId, callback) {
+  public static getClan(groupId, callback) {
     //debug("getClan '" + groupId + "'");
     // Get the Destiny player
 
@@ -596,7 +596,7 @@ export class Destiny {
     });
   };
 
-  public static getGroup (userNameList, callback) {
+  public static getGroup(userNameList, callback) {
     //debug("getGroup '" + userNameList + "'");
 
     // Get the Destiny players
@@ -708,7 +708,7 @@ export class Destiny {
 
   private static POWERFUL_GEAR = 4039143015;
 
-  public static getUserStuff (user, callback, lang: string) {
+  public static getUserStuff(user, callback, lang: string) {
     //debug("getUserStuff ");
 
     // Get the Destiny player
@@ -1077,21 +1077,25 @@ export class Destiny {
                             //console.log(item);
                             return callback(err);
                           }
-                          //if ((triumph.hash == '1842255612') || (triumph.hash == "1082441448")) {
-                          //if (item.presentationInfo.parentPresentationNodeHashes.length == 0) {
-                          //debug(item);
+                          //if (triumph.hash === '3758540824') {
+                            //if ((triumph.hash == '1842255612') || (triumph.hash == "1082441448")) {
+                            //if (item.presentationInfo.parentPresentationNodeHashes.length == 0) {
+                            //debug(item);
                           //}
 
 
                           triumph.item = _.pick(item, ['displayProperties', 'hash', 'presentationInfo.parentPresentationNodeHashes']);
-                          triumph.scoreValue = item.completionInfo.ScoreValue;
+                          //console.log(triumph.hash);
+                          if (item.completionInfo) {
+                            triumph.scoreValue = item.completionInfo.ScoreValue;
+                          }
                           result.triumphs.push(triumph);
                           callback();
                         },
                         lang);
                     },
                     (callback) => {
-                      if (triumph.item && triumph.item.presentationInfo.parentPresentationNodeHashes.length != 0) {
+                      if (triumph.item && triumph.item.presentationInfo && triumph.item.presentationInfo.parentPresentationNodeHashes.length != 0) {
                         //debug(triumph.item.presentationInfo.parentPresentationNodeHashes[0]);
                         let presentationHash = triumph.item.presentationInfo.parentPresentationNodeHashes[0];
                         Destiny.queryPresentationNodeById(presentationHash, (err, presentationNode) => {
@@ -2014,7 +2018,7 @@ export class Destiny {
 
   };
 
-  public static getVendors (user, characterId, callback, lang: string) {
+  public static getVendors(user, characterId, callback, lang: string) {
     //debug("getVendors ");
 
     // Get the Destiny player
@@ -2216,7 +2220,7 @@ export class Destiny {
     }, user.auth.access_token);
   };
 
-  public static addObjectivesTime (user, data, callback) {
+  public static addObjectivesTime(user, data, callback) {
     DestinyDb.listTimes((err, times) => {
       if (err) {
         return callback(err);
@@ -2280,7 +2284,7 @@ export class Destiny {
   }
 
 //noinspection JSUnusedGlobalSymbols
-  public static lockItem (user, item, characterId, state, callback) {
+  public static lockItem(user, item, characterId, state, callback) {
     //debug("lockItem");
 
     // Get the Destiny player
@@ -2302,7 +2306,7 @@ export class Destiny {
       }, user.auth.access_token);
   };
 
-  public static equipItem (user, item, callback) {
+  public static equipItem(user, item, callback) {
     //debug("equipItem "+item.name+" "+(item.lightLevel+item.lightLevelBonus));
 
     // Get the Destiny player
@@ -2333,7 +2337,7 @@ export class Destiny {
    * @param equip             shall we equip the item
    * @param callback          callback
    */
-  public static moveItem (user, item, itemCanBeEquipped, characterId, moveToVault, equip, callback) {
+  public static moveItem(user, item, itemCanBeEquipped, characterId, moveToVault, equip, callback) {
     //debug("moveItem");
     //debug(JSON.stringify(item, null, 2));
     //debug(JSON.stringify(characterId, null, 2));
@@ -2419,7 +2423,7 @@ export class Destiny {
 
   };
 
-  public static initManifestDb (callback, lang: string) {
+  public static initManifestDb(callback, lang: string) {
 
     //debug("initManifestDb");
 
@@ -2444,7 +2448,7 @@ export class Destiny {
 
   };
 
-  public static refreshManifestDb (callback, lang: string) {
+  public static refreshManifestDb(callback, lang: string) {
 
     lang = Config.getLang(lang);
 
@@ -2634,7 +2638,7 @@ export class Destiny {
   };
 
 // get tables names
-  private static queryManifestTables (callback, lang: string) {
+  private static queryManifestTables(callback, lang: string) {
 
     Destiny.initManifestDb((err) => {
       if (err) {
@@ -2664,7 +2668,7 @@ export class Destiny {
   };
 
 // get bucket definition
-  private static queryBucketById (buckedHash, callback, lang: string) {
+  private static queryBucketById(buckedHash, callback, lang: string) {
     if (!Destiny.bucketHashCache[Config.getLang(lang)]) {
       Destiny.bucketHashCache[Config.getLang(lang)] = {};
       try {
@@ -2740,7 +2744,7 @@ export class Destiny {
   private static bucketHashCacheByName: { [lang: string]: object } = {};
 
 // get item definition
-  private static queryItemById (itemHash, callback, lang: string) {
+  private static queryItemById(itemHash, callback, lang: string) {
     if (!Destiny.itemHashCacheById[Config.getLang(lang)]) {
       Destiny.itemHashCacheById[Config.getLang(lang)] = {};
       try {
@@ -2780,7 +2784,7 @@ export class Destiny {
 
   private static itemHashCacheById: { [lang: string]: object } = {};
 
-  private static queryItemByName (itemName, callback, lang: string) {
+  private static queryItemByName(itemName, callback, lang: string) {
     if (!Destiny.itemHashCacheByName[Config.getLang(lang)]) {
       const itemHashCacheByNameTmp = {};
       try {
@@ -2819,7 +2823,7 @@ export class Destiny {
   private static itemHashCacheByName: { [lang: string]: object } = {};
 
 // get checklist definition
-  private static queryChecklistById (checklistHash, callback, lang: string) {
+  private static queryChecklistById(checklistHash, callback, lang: string) {
     if (!Destiny.checklistHashCacheById[Config.getLang(lang)]) {
       Destiny.checklistHashCacheById[Config.getLang(lang)] = {};
       try {
@@ -2857,7 +2861,7 @@ export class Destiny {
   private static checklistHashCacheById: { [lang: string]: object } = {};
 
 // get milestone definition
-  private static queryMilestoneById (milestoneHash, callback, lang: string) {
+  private static queryMilestoneById(milestoneHash, callback, lang: string) {
     if (!Destiny.milestoneHashCacheById[Config.getLang(lang)]) {
       Destiny.milestoneHashCacheById[Config.getLang(lang)] = {};
       try {
@@ -2896,7 +2900,7 @@ export class Destiny {
 
 // get objective definition
 //noinspection JSUnusedLocalSymbols
-  static queryObjectiveById (objectiveHash, callback, lang: string) {
+  static queryObjectiveById(objectiveHash, callback, lang: string) {
     if (!Destiny.objectiveHashCacheById[Config.getLang(lang)]) {
       Destiny.objectiveHashCacheById[Config.getLang(lang)] = {};
       try {
@@ -2934,7 +2938,7 @@ export class Destiny {
   private static objectiveHashCacheById: { [lang: string]: object } = {};
 
 // get vendor definition
-  private static queryVendorById (vendorHash, callback, lang: string) {
+  private static queryVendorById(vendorHash, callback, lang: string) {
     if (!Destiny.vendorHashCacheById[Config.getLang(lang)]) {
       Destiny.vendorHashCacheById[Config.getLang(lang)] = {};
       try {
@@ -2972,7 +2976,7 @@ export class Destiny {
   private static vendorHashCacheById: { [lang: string]: object } = {};
 
 // get class definition
-  private static queryClassById (classHash, callback, lang: string) {
+  private static queryClassById(classHash, callback, lang: string) {
     if (!Destiny.classHashCacheById[Config.getLang(lang)]) {
       Destiny.classHashCacheById[Config.getLang(lang)] = {};
       try {
@@ -3010,7 +3014,7 @@ export class Destiny {
   private static classHashCacheById: { [lang: string]: object } = {};
 
 // get race definition
-  private static queryRaceById (raceHash, callback, lang: string) {
+  private static queryRaceById(raceHash, callback, lang: string) {
     if (!Destiny.raceHashCacheById[Config.getLang(lang)]) {
       Destiny.raceHashCacheById[Config.getLang(lang)] = {};
       try {
@@ -3048,7 +3052,7 @@ export class Destiny {
   private static raceHashCacheById: { [lang: string]: object } = {};
 
 // get plugSet definition
-  private static queryPlugSetById (plugSetHash, callback, lang: string) {
+  private static queryPlugSetById(plugSetHash, callback, lang: string) {
     if (!Destiny.plugSetHashCacheById[Config.getLang(lang)]) {
       Destiny.plugSetHashCacheById[Config.getLang(lang)] = {};
       try {
@@ -3086,7 +3090,7 @@ export class Destiny {
   private static plugSetHashCacheById: { [lang: string]: object } = {};
 
 // get presentationNode definition
-  private static queryPresentationNodeById (presentationNodeHash, callback, lang: string) {
+  private static queryPresentationNodeById(presentationNodeHash, callback, lang: string) {
     if (!Destiny.presentationNodeHashCacheById[Config.getLang(lang)]) {
       Destiny.presentationNodeHashCacheById[Config.getLang(lang)] = {};
       try {
@@ -3124,7 +3128,7 @@ export class Destiny {
   private static presentationNodeHashCacheById: { [lang: string]: object } = {};
 
 // get Record definition
-  private static queryRecordById (recordHash, callback, lang: string) {
+  private static queryRecordById(recordHash, callback, lang: string) {
     if (!Destiny.recordHashCacheById[Config.getLang(lang)]) {
       Destiny.recordHashCacheById[Config.getLang(lang)] = {};
       try {
@@ -3162,7 +3166,7 @@ export class Destiny {
   private static recordHashCacheById: { [lang: string]: object } = {};
 
 //noinspection JSUnusedLocalSymbols
-  public static checkConf (conf, callback, lang: string) {
+  public static checkConf(conf, callback, lang: string) {
     const messages = [];
 
     //debug(JSON.stringify(conf, null, 2));
@@ -3192,7 +3196,7 @@ export class Destiny {
    * @param accessToken
    * @private
    */
-  static _getFromBungie (path: string, callback: Function, accessToken?: string): void {
+  static _getFromBungie(path: string, callback: Function, accessToken?: string): void {
     //debug("_getFromBungie(" + path + ")");
     const options = {
       hostname: 'www.bungie.net',
@@ -3276,7 +3280,7 @@ export class Destiny {
    * @param accessToken
    * @private
    */
-  private static _postFromBungie (path, postData, callback, accessToken) {
+  private static _postFromBungie(path, postData, callback, accessToken) {
     //debug("_postFromBungie(" + path + ")");
     //debug(JSON.stringify(postData, null, 2));
 
@@ -3358,7 +3362,7 @@ export class Destiny {
    * Manage the off line evaluation of objective running
    *
    */
-  static _calculateObjectiveRunning (callback) {
+  static _calculateObjectiveRunning(callback) {
     //debug('_calculateObjectiveRunning');
 
     DestinyDb.listTimes((err, times: ObjectiveTime[]) => {
@@ -3429,7 +3433,7 @@ export class Destiny {
    * @param time
    * @private
    */
-  static _validateObjectiveRunning (time: ObjectiveTime) {
+  static _validateObjectiveRunning(time: ObjectiveTime) {
 
     // remove the hardcoded ones
     if (time.bungieNetUser === 'HardCoded') {
@@ -3541,7 +3545,7 @@ export class Destiny {
     return time;
   }
 
-  public static addUserToObjectiveRunningList (user) {
+  public static addUserToObjectiveRunningList(user) {
     Destiny.objectiveRunningList[user.bungieNetUser.membershipId] = user;
   }
 
@@ -3550,7 +3554,7 @@ export class Destiny {
 }
 
 
-function refreshManifest () {
+function refreshManifest() {
   async.eachSeries(
     Config.languages,
     (lang, callback) => {
@@ -3568,7 +3572,7 @@ function refreshManifest () {
 
 }
 
-function refreshObjectiveTime () {
+function refreshObjectiveTime() {
 
   // before whatever, load the objectives
   Destiny.queryObjectiveById('384893112', (err, item) => {

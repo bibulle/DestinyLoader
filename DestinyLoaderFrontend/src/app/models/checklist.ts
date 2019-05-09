@@ -194,6 +194,8 @@ export class Reward {
       case 305996677: // Powerful Gear
       case 2043403989: // Powerful Gear
       case 248695599: // Powerful Gear
+      case 1514402550: // Powerful Gear
+      case 783563440 : // Powerful Gear
         return Reward.VALUE_POWER_GEAR;
       case 2646629159: // Luminous Engram
       case 2127149322: // Legendary Gear
@@ -231,6 +233,7 @@ export class Reward {
       case 46155327: // Who Are You?
       case 3907337522: // Oxygen SR3
       case 1970295559: // Murmuration (it's a ship)
+      case 2199703228 : // Synestesia (Borealis ornement)
         return Reward.VALUE_SPECIAL_WEAPON;
       case 3782248531: // Modulus Report
       case 183980811: // Crucible Token
