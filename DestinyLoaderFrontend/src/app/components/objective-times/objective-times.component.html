@@ -1,10 +1,10 @@
 <div>
   <div class="title">
     <div class="empty"></div>
-    <div class="user-name"><span>{{'label.user-name' | translate}}</span></div>
-    <div class="character-name"><span>{{'label.character-name' | translate}}</span></div>
     <div class="pursuit"><span>{{'label.pursuit' | translate}}</span></div>
     <div class="objective"><span>{{'label.objective' | translate}}</span></div>
+    <div class="user-name"><span>{{'label.user-name' | translate}}</span></div>
+    <div class="character-name"><span>{{'label.character-name' | translate}}</span></div>
     <div class="count-start"><span>{{'label.count-start' | translate}}</span></div>
     <div class="count-end"><span>{{'label.count-end' | translate}}</span></div>
     <div class="count-finished"><span>{{'label.count-finished' | translate}}</span></div>
@@ -14,14 +14,17 @@
     <div class="last-verified"><span>{{'label.last-verified' | translate}}</span></div>
     <div class="tools"></div>
   </div>
-  <div class="objective-time" *ngFor="let objectiveTime of objectiveTimes"
-       [ngClass]="{ 'finished': objectiveTime.finished}">
+  <div class="objective-time" *ngFor="let objectiveTime of objectiveTimes; let i = index;"
+       [ngClass]="{
+        'finished': objectiveTime.finished,
+        'same-pursuit':objectiveTime.pursuitId === (i === objectiveTimes.length-1 ? 0 : objectiveTimes[i+1].pursuitId),
+        'same-objective':objectiveTime.objectiveId === (i === objectiveTimes.length-1 ? 0 : objectiveTimes[i+1].objectiveId)}">
     <div class="empty"></div>
-    <div class="user-name" title="{{objectiveTime.bungieNetUser}}"><span>{{objectiveTime.bungieUserName}}</span></div>
-    <div class="character-name" title="{{objectiveTime.characterId}}"><span>{{objectiveTime.characterName}}</span></div>
     <div class="pursuit" title="{{objectiveTime.pursuitId}}"><span>{{objectiveTime.pursuitName}}</span></div>
     <div class="objective" title="{{objectiveTime.objectiveId}}">
       <span>{{objectiveTime.objectiveProgressDescription}}</span></div>
+    <div class="user-name" title="{{objectiveTime.bungieNetUser}}"><span>{{objectiveTime.bungieUserName}}</span></div>
+    <div class="character-name" title="{{objectiveTime.characterId}}"><span>{{objectiveTime.characterName}}</span></div>
     <div class="count-start"><span>{{objectiveTime.countStart}}</span></div>
     <div class="count-end"><span>{{objectiveTime.countEnd}}</span></div>
     <div class="count-finished"><span>{{(((objectiveTime.countFinished == 0) && objectiveTime.finished) ? objectiveTime.countEnd : objectiveTime.countFinished)}}</span>

@@ -70,6 +70,21 @@
     .objective-time.finished {
       color: #666666
     }
+    .objective-time.same-pursuit {
+      //color: red;
+      .pursuit {
+        border-bottom: none;
+      }
+    }
+    .objective-time.same-objective {
+      //color: green;
+      > div {
+        border-bottom: none;
+      }
+
+    }
+
+
 
 
   }

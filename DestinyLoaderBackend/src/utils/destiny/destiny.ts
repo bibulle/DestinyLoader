@@ -765,7 +765,8 @@ export class Destiny {
         vendors: {},
         objectives: {},
         catalysts: [],
-        triumphs: []
+        triumphs: [],
+        pursuitsName: {}
       };
       let itemsToLoad;
       const itemInstancesTable = {};
@@ -1078,9 +1079,9 @@ export class Destiny {
                             return callback(err);
                           }
                           //if (triumph.hash === '3758540824') {
-                            //if ((triumph.hash == '1842255612') || (triumph.hash == "1082441448")) {
-                            //if (item.presentationInfo.parentPresentationNodeHashes.length == 0) {
-                            //debug(item);
+                          //if ((triumph.hash == '1842255612') || (triumph.hash == "1082441448")) {
+                          //if (item.presentationInfo.parentPresentationNodeHashes.length == 0) {
+                          //debug(item);
                           //}
 
 
@@ -1485,6 +1486,8 @@ export class Destiny {
                     milestone.icon = definition.displayProperties.icon;
                     milestone.description = definition.displayProperties.description;
 
+                    //result.pursuitsName[milestone.instanceId] = 'Milestone : ' + definition.displayProperties.name;
+
                     // if no name, unknown one
                     if (!milestone.milestoneName) {
                       //debug.error("Empty definition name");
@@ -1861,9 +1864,12 @@ export class Destiny {
                             const key = (item.characterId || user.bungieNetUser.membershipId) + item.itemInstanceId + objective.objectiveHash;
                             //debug(key+' -> '+objective.progress);
                             result.objectives[key] = objective.progress;
-
+                            //debug(item.itemInstanceId+' '+item.itemName);
                             //if (objective.objectiveHash == 3521931022) {
                             //debug(item);
+                            //}
+                            //if (item.itemInstanceId === '6917529091906914379') {
+                            //  debug(item);
                             //}
 
                             Destiny.queryObjectiveById(objective.objectiveHash, function (err, itemValue) {
@@ -2006,6 +2012,101 @@ export class Destiny {
                 callback(err, result);
               }
             )
+          },
+
+          // fill items names
+          function (callback) {
+            async.series([
+                // Pursuits
+                function (callback) {
+                  //console.log(result.items['1345459588']);
+                  async.eachSeries(Object.keys(result.items['1345459588']),
+                    (key, callback) => {
+                      async.eachSeries(result.items['1345459588'][key],
+                        (item, callback) => {
+                          //debug(item);
+                          result.pursuitsName[item.itemInstanceId] = 'Pursuit : '+item.name;
+                          callback();
+                        },
+                        function (err) {
+                          callback(err);
+                        });
+                    },
+                    function (err) {
+                      callback(err);
+                    });
+                },
+                // Milestone
+                function (callback) {
+                  async.eachSeries(result.characters,
+                    (char, callback) => {
+                      async.eachSeries(char.milestones,
+                        (milestone, callback) => {
+                          //debug(milestone);
+                          result.pursuitsName[milestone.instanceId] = 'Milestone : '+milestone.milestoneName;
+                          callback();
+                        },
+                        function (err) {
+                          callback(err);
+                        });
+                    },
+                    function (err) {
+                      callback(err);
+                    });
+                },
+                // Catalysts
+                function (callback) {
+                  async.eachSeries(result.catalysts,
+                    (catalyst, callback) => {
+                      //debug(catalyst);
+                      result.pursuitsName[catalyst.inventoryItem.itemInstanceId] = 'Catalyst : '+catalyst.inventoryItem.itemName;
+                      callback();
+                    },
+                    function (err) {
+                      callback(err);
+                    });
+                },
+                // Triumphs
+                function (callback) {
+                  async.eachSeries(result.triumphs,
+                    (triumph, callback) => {
+                      //debug(triumph);
+                      result.pursuitsName[triumph.hash] = 'Triumph : '+triumph.item.displayProperties.name;
+                      callback();
+                    },
+                    function (err) {
+                      callback(err);
+                    });
+                },
+                // Vendors
+                function (callback) {
+                  async.eachSeries(result.characters,
+                    (char, callback) => {
+                      async.eachSeries(result.vendors[char.characterId],
+                        (vendor, callback) => {
+                          async.eachSeries(vendor.sales,
+                            (sale, callback) => {
+                              //debug(sale);
+                              result.pursuitsName[sale.hash] = 'Contract : '+sale.name;
+                              callback();
+                            },
+                            function (err) {
+                              callback(err);
+                            });
+                        },
+                        function (err) {
+                          callback(err);
+                        });
+                    },
+                    function (err) {
+                      callback(err);
+                    });
+                }
+
+              ],
+              function (err) {
+                callback(err);
+              });
           }
         ],
 
@@ -2221,6 +2322,7 @@ export class Destiny {
   };
 
   public static addObjectivesTime(user, data, callback) {
+    //debug('addObjectivesTime');
     DestinyDb.listTimes((err, times) => {
       if (err) {
         return callback(err);
@@ -2234,7 +2336,13 @@ export class Destiny {
         (objectiveTime: ObjectiveTime, callback) => {
           let modified = false;
           const key = objectiveTime.characterId + objectiveTime.pursuitId + objectiveTime.objectiveId;
+          //debug(objectiveTime.pursuitId + " " + data.pursuitsName[objectiveTime.pursuitId]+" ("+objectiveTime.pursuitName+")");
           //debug(key+ " -> " + data.objectives[key]);
+
+          if (data.pursuitsName[objectiveTime.pursuitId] && (objectiveTime.pursuitName !== data.pursuitsName[objectiveTime.pursuitId])) {
+            objectiveTime.pursuitName = data.pursuitsName[objectiveTime.pursuitId];
+            modified = true;
+          }
 
           // if this objective is for this user
           if (objectiveTime.bungieNetUser === user.bungieNetUser.membershipId) {
@@ -2915,11 +3023,10 @@ export class Destiny {
 
               //debug(JSON.stringify(row, null, 2));
               const data = JSON.parse(row.json);
-              //debug(JSON.stringify(data, null, 2));
+              //debug(data.hash+' '+data.displayProperties.description);
               Destiny.objectiveHashCacheById[Config.getLang(lang)][data.hash] = data;
             }, function (err, cpt) {
               debug(cpt + " objective definitions read");
-              //debug(JSON.stringify(objectiveHash, null, 2));
               callback(null, Destiny.objectiveHashCacheById[Config.getLang(lang)][objectiveHash]);
             });
           });
@@ -3573,16 +3680,16 @@ function refreshManifest() {
 }
 
 function refreshObjectiveTime() {
-
+  //debug('refreshObjectiveTime');
   // before whatever, load the objectives
-  Destiny.queryObjectiveById('384893112', (err, item) => {
+  Destiny.queryObjectiveById('1346084039', (err, item) => {
     if (err) {
       error(err);
       setTimeout(refreshObjectiveTime,
         (20 + Math.random() * 10) * 1000);
     }
     if (item) {
-      debug(item);
+      //debug(item);
       Destiny._calculateObjectiveRunning(
         (err) => {
           if (err) {
@@ -3594,6 +3701,7 @@ function refreshObjectiveTime() {
         }
       )
     } else {
+      error('objective not found');
       setTimeout(refreshObjectiveTime,
         (20 + Math.random() * 10) * 1000);
     }

@@ -58,13 +58,13 @@ export class ObjectiveTimesComponent implements OnInit {
 
   }
 
-  getTimeByIncrement (objective: ObjectiveTime) {
+  getTimeByIncrement (objective: ObjectiveTime): string {
     if (objective.timeEnd === objective.timeStart) {
       return null;
     } else if (objective.timeEnd) {
-      return (new Date(objective.timeEnd).getTime() - new Date(objective.timeStart).getTime()) / (objective.countEnd - objective.countStart);
+      return String((new Date(objective.timeEnd).getTime() - new Date(objective.timeStart).getTime()) / (objective.countEnd - objective.countStart));
     } else {
-      return (new Date(objective.lastVerified).getTime() - new Date(objective.timeStart).getTime()) / (objective.countEnd - objective.countStart);
+      return String((new Date(objective.lastVerified).getTime() - new Date(objective.timeStart).getTime()) / (objective.countEnd - objective.countStart));
     }
   }
 
