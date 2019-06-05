@@ -878,6 +878,8 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
             case 'Invitation of the Nine':
             case 'Invitation des Neuf':
             case 'Récipient':
+            case 'Alien Technology':
+            case 'Technologie extraterrestre':
               checkedType = true;
               ret = ret || this.config.visible.types.pursuit;
               break;

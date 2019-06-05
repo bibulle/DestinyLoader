@@ -205,6 +205,8 @@ export class Reward {
       case 257827327: // Offering to the Oracle
       case 3682636565: // Etched Engram
       case 334865270: // Legendary Engram
+      case 1772646107: // Rune légendaire
+      case 476782113: // Best of Year One Engram
         return Reward.VALUE_LEGENDARY_GEAR;
       case 3853748946: // Enhancement Core
       case 1633854071: // Dark Fragment
@@ -224,6 +226,7 @@ export class Reward {
       case 323881355: // Powerful Revelry Leg Engram
       case 2501601653: // Powerful Revelry Arms Engram
       case 1508024268: // Powerful Revelry Class Engram
+      case 2823823727: // Bourse d'Impériaux minuscule
         return Reward.VALUE_IMPORTANT_CONSUMABLE;
       case 580961571: // Loaded Question
       case 792755504: // Nightshade
@@ -232,6 +235,9 @@ export class Reward {
       case 1600633250: // 21% Delirium
       case 46155327: // Who Are You?
       case 3907337522: // Oxygen SR3
+      case 578459533: // Wendigo GL3
+      case 1584643826: // Chut
+      case 654608616: // Revoker
       case 1970295559: // Murmuration (it's a ship)
       case 2199703228 : // Synestesia (Borealis ornement)
         return Reward.VALUE_SPECIAL_WEAPON;
@@ -240,6 +246,7 @@ export class Reward {
       case 1873857625: // Iron Banner Token
       case 304443327: // Clan XP
       case 372496383: // Infamy Rank Points
+      case 1808687944: // Valor Rank Points
       case 3899548068: // Vanguard Tactician Token
       case 3196288028: // Boon of the Crucible
       case 3922324861: // Nessus Rewards
@@ -248,6 +255,9 @@ export class Reward {
       case 1317670974: // EDZ Rewards
       case 2109561326: // Eververse Bounty Note
       case 3792590697: // Confectionery Heart
+      case 1629549128: // Random Armor Mod
+      case 2654582465: // Random Weapon Mod
+      case 4046539562: // Mod Components
         return Reward.VALUE_TOKENS;
       case Reward.TRIUMPH_POINT_PSEUDO_HASH: // Triumph points
         return Reward.VALUE_TRIUMPH;
