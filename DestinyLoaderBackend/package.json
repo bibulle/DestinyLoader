@@ -1,6 +1,6 @@
 {
   "name": "destiny-loader",
-  "version": "0.0.32",
+  "version": "0.0.33",
   "private": true,
   "scripts": {
     "start": "node ./src/bin/www",
@@ -50,10 +50,10 @@
     "typescript": "^3.4.5"
   },
   "commit": {
-    "number": 248,
-    "hash": "18e569f9ceacece712aeb4def9fdc8268365ff64",
-    "shorthash": "18e569f",
-    "timestamp": "1557221987"
+    "number": 252,
+    "hash": "1ff8f00449bb83df66b17f08befdf83753e671ce",
+    "shorthash": "1ff8f00",
+    "timestamp": "1559723012"
   },
   "husky": {
     "hooks": {

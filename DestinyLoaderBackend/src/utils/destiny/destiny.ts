@@ -747,6 +747,7 @@ export class Destiny {
       //debug(JSON.stringify(data.characters, null, 2));
       //debug(JSON.stringify(data.characterInventories, null, 2));
       //debug(JSON.stringify(data.characterProgressions, null, 2));
+      //debug(JSON.stringify(data.characterProgressions.data["2305843009262856643"].uninstancedItemObjectives, null, 2));
       //debug(JSON.stringify(data.characterActivities, null, 2));
       //debug(JSON.stringify(data.characterEquipment, null, 2));
       //debug(JSON.stringify(data.characterPlugSets, null, 2));
@@ -772,7 +773,7 @@ export class Destiny {
       const itemInstancesTable = {};
       const itemObjectivesTable = {};
       const itemSocketsTable = {};
-      const triumphTree = {};
+      //const triumphTree = {};
 
       const checklistToLoad = [];
       const milestoneToLoad = [];
@@ -923,7 +924,7 @@ export class Destiny {
                       //debug('\n\n==========================');
                       //debug(obj.sockets);
                       //debug(data.profileInventory.data.items[key]);
-                      let instanceItem = itemInstancesTable[inventoryItem.itemInstanceId];
+                      //let instanceItem = itemInstancesTable[inventoryItem.itemInstanceId];
                       //debug(inventoryItem);
                       if ((inventoryItem.state & 4) == 4) {
                         //debug(item.displayProperties.name + " : The catalyst is done");
@@ -1856,7 +1857,11 @@ export class Destiny {
                       if (!item) {
                         return callback(null, null);
                       }
-                      //debug(JSON.stringify(item, null, 2));
+                      if (data.characterProgressions.data[item.characterId] && data.characterProgressions.data[item.characterId].uninstancedItemObjectives[item.itemHash]) {
+                        item.objective = {
+                          objectives: data.characterProgressions.data[item.characterId].uninstancedItemObjectives[item.itemHash]
+                        };
+                      }
                       if (item.objective && item.objective.objectives) {
                         async.eachSeries(
                           item.objective.objectives,
@@ -1874,6 +1879,12 @@ export class Destiny {
 
                             Destiny.queryObjectiveById(objective.objectiveHash, function (err, itemValue) {
                               objective.item = itemValue;
+                              //if ((item.itemHash === 432848324) ||
+                              //  (item.itemHash === 2540008660)) {
+                              //  debug(item.item.displayProperties.name+" "+item.itemHash+" "+item.bucketHash);
+                              //  debug(JSON.stringify(objective.item, null, 2));
+                              //  //debug(JSON.stringify(data.characterProgressions.data[item.characterId].uninstancedItemObjectives[item.itemHash]));
+                              //}
                               callback();
                             }, lang)
                           },
@@ -3159,6 +3170,7 @@ export class Destiny {
   private static raceHashCacheById: { [lang: string]: object } = {};
 
 // get plugSet definition
+  //noinspection JSUnusedLocalSymbols
   private static queryPlugSetById(plugSetHash, callback, lang: string) {
     if (!Destiny.plugSetHashCacheById[Config.getLang(lang)]) {
       Destiny.plugSetHashCacheById[Config.getLang(lang)] = {};
@@ -3560,7 +3572,7 @@ export class Destiny {
       debug('Objective time : No user name (' + time.bungieNetUser + ')');
       if (Destiny._userNamesTable[time.bungieNetUser]) {
         time.bungieUserName = Destiny._userNamesTable[time.bungieNetUser];
-        DestinyDb.insertTime(time.bungieNetUser, time, (err, t) => {
+        DestinyDb.insertTime(time.bungieNetUser, time, (err) => {
           if (err) {
             error(err);
           } else {
@@ -3587,7 +3599,7 @@ export class Destiny {
       debug('Objective time : No character name (' + time.characterId + ')');
       if (Destiny._characterNamesTable[time.characterId]) {
         time.characterName = Destiny._characterNamesTable[time.characterId];
-        DestinyDb.insertTime(time.bungieNetUser, time, (err, t) => {
+        DestinyDb.insertTime(time.bungieNetUser, time, (err) => {
           if (err) {
             error(err);
           } else {
@@ -3638,7 +3650,7 @@ export class Destiny {
         } else {
           time.objectiveProgressDescription = "not found";
         }
-        DestinyDb.insertTime(time.bungieNetUser, time, (err, t) => {
+        DestinyDb.insertTime(time.bungieNetUser, time, (err) => {
           if (err) {
             error(err);
           } else {
