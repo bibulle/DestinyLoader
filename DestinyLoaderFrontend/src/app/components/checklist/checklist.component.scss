@@ -10,6 +10,35 @@
 
   .page {
     display: flex;
+    overflow: hidden;
+
+    mat-tab-group {
+      flex: 1 1 100%;
+      overflow-x: hidden;
+      //::ng-deep .mat-tab-header-pagination {
+      //  display: none !important;
+      //}
+    }
+
+    .tab-header mat-card-title {
+      width: 13em;
+      transition: all 200ms ease-in;
+      transform: scale(0.8);
+    }
+
+    .tab-header.selected  mat-card-title {
+      width: 16em;
+      transition: all 200ms ease-in;
+      transform: scale(1);
+    }
+
+    .content {
+      display: flex;
+
+      > div {
+        flex: 1 1 33%;
+      }
+    }
 
     .character {
       flex: 1 1 auto;
@@ -18,7 +47,7 @@
       align-content: flex-start;
       align-items: center;
 
-      .character-card-sticky, .character-card {
+      .character-card {
         background-color: #303030;
         flex: 1 1 100%;
 
@@ -67,35 +96,6 @@
 
         }
 
-      }
-
-      .character-card-sticky {
-        position: fixed;
-        display: none;
-      }
-
-      .character-card0 {
-        z-index: 20;
-      }
-
-      .character-card-sticky0 {
-        z-index: 21;
-      }
-
-      .character-card1 {
-        z-index: 22;
-      }
-
-      .character-card-sticky1 {
-        z-index: 23;
-      }
-
-      .character-card2 {
-        z-index: 24;
-      }
-
-      .character-card-sticky2 {
-        z-index: 25;
       }
 
       .not-visible {
@@ -275,16 +275,6 @@
 
     }
 
-    .character0 {
-      z-index: 15;
-    }
-    .character1 {
-      z-index: 16;
-    }
-    .character2 {
-      z-index: 17;
-    }
-
     .config-choices {
       position: absolute;
       right: 0;
@@ -297,66 +287,37 @@
     background-color: #ffff8d;
     color: #303030;
   }
+  .searched ::ng-deep .highlight-text {
+    background-color: #ffff00;
+    color: #303030;
+  }
+
+
 }
 
 @media (max-width: 700px) {
-  .page {
-    flex-direction: column;
+  .page .content.character  > div {
+    flex: 0 1 100%;
   }
 }
 
-// ONE CHARACTER
 @media (min-width: 700px) and (max-width: 1400px) {
-  .page.characters-1 .character {
-    display: flex;
-    > div {
+  .page .content.character  > div {
       flex: 0 1 50%;
-    }
   }
 }
 @media (min-width: 1400px) and (max-width: 2100px) {
-  .page.characters-1 .character {
-    display: flex;
-    > div {
+  .page .content.character  > div {
       flex: 0 1 33%;
-    }
   }
 }
-@media (min-width: 2100px) {
-  .page.characters-1 .character {
-    display: flex;
-
-    > div {
-      flex: 0 1 25%;
-    }
-  }
-}
-
-
-// TWO CHARACTERS
 @media (min-width: 2100px) and (max-width: 3500px) {
-  .page.characters-2 .character {
-    display: flex;
-    > div {
-      flex: 0 1 50%;
-    }
+  .page .content.character  > div {
+      flex: 0 1 25%;
   }
 }
 @media (min-width: 3500px) {
-  .page.characters-2 .character {
-    display: flex;
-    > div {
-      flex: 0 1 33%;
-    }
-  }
-}
-
-// THREE CHARACTERS
-@media (min-width: 3500px) {
-  .page.characters-3 .character {
-    display: flex;
-    > div {
-      flex: 0 1 50%;
-    }
+  .page .content.character  > div {
+      flex: 0 1 20%;
   }
 }

@@ -30,6 +30,9 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
   searchTimout: Timer;
   private _currentSearchSubscription: Subscription;
 
+  selectedTab = 0;
+  searchedId = '';
+
   constructor (private _checklistService: ChecklistService,
                private _translateService: TranslateService,
                private _headerService: HeaderService,
@@ -52,9 +55,9 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
 
         checklist = checklist as Checklist;
 
-//        if (checklist.characters) {
-//          checklist.characters = [checklist.characters[0]];
-//        }
+        // if (checklist.characters) {
+        //  checklist.characters = [checklist.characters[0]];
+        // }
 
         // If we have things to show
         if (checklist && checklist.items && checklist.items[ChecklistComponent.PURSUIT_HASH] && checklist.characters && checklist.times && checklist.currentTimes) {
@@ -493,17 +496,22 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
               const charNum = Math.floor(key / this.PURSUIT_KEY_MULTIPLIER);
               const pursuitNum = key - charNum * this.PURSUIT_KEY_MULTIPLIER;
 
-              let el = document.getElementById('character-' + charNum);
-              if (pursuitNum > 0) {
-                el = document.getElementById('pursuit-' + charNum + '-' + (pursuitNum - 1));
+              if (charNum !== this.selectedTab) {
+                this.selectedTab = charNum;
               }
+              this.searchedId = charNum + '-' + pursuitNum;
+              console.log(this.searchedId);
 
-              if (el) {
-                el.scrollIntoView({behavior: 'smooth'});
-              } else {
-                console.log('not found el : ' + charNum + '-' + pursuitNum);
-                console.log(search);
-              }
+              setTimeout(() => {
+                const el = document.getElementById('pursuit-' + this.searchedId);
+
+                if (el) {
+                  el.scrollIntoView({behavior: 'smooth'});
+                } else {
+                  console.log('not found el : ' + charNum + '-' + pursuitNum);
+                  console.log(search);
+                }
+              });
             }
           }, 100);
         }

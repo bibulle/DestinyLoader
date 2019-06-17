@@ -1,104 +1,93 @@
 <div class="page characters-{{checklist.characters.length}}" *ngIf="checklist">
-  <div class="character character{{charNum}}" *ngFor="let character of checklist.characters; let charNum = index"
-       [style.flex]="'1 1 '+(100/checklist.characters.length)+'%'">
-    <mat-card class="character-card-sticky character-card-sticky{{charNum}}">
-      <div>
-        <mat-card-title
-            [style.background-image]="'url(https://www.bungie.net'+character.emblemBackgroundPath+')'">
-          <div class="type">{{character.genderedClassNames}}<span
-              class="race">{{character.genderedRaceNames}}</span><span class="light">{{character.light}}</span>
-          </div>
+  <mat-tab-group mat-stretch-tabs mat-align-tabs="center" [(selectedIndex)]="selectedTab">
+    <mat-tab *ngFor="let character of checklist.characters; let charNum = index">
+      <ng-template mat-tab-label>
+        <div class="character character{{charNum}} tab-header" [class.selected]="charNum === selectedTab">
 
-        </mat-card-title>
-      </div>
-      <!--<div class="tooltip" *ngIf="(i === checklist.characters.length - 1) && !config.showOnlyPowerfulGear"-->
-      <!--(click)="toggleShowOnlyPowerfulGear($event)">{{'power_gear_not_only'|translate}}-->
-      <!--</div>-->
-      <!--<div class="tooltip" *ngIf="(i === checklist.characters.length - 1) &&  config.showOnlyPowerfulGear"-->
-      <!--(click)="toggleShowOnlyPowerfulGear($event)">{{'power_gear_only'|translate}}-->
-      <!--</div>-->
-    </mat-card>
-    <mat-card class="character-card character-card{{charNum}}" [attr.id]="'character-'+charNum">
-      <div>
-        <mat-card-title
-            [style.background-image]="'url(https://www.bungie.net'+character.emblemBackgroundPath+')'">
-          <div class="type">{{character.genderedClassNames}}<span
-              class="race">{{character.genderedRaceNames}}</span><span class="light">{{character.light}}</span>
-          </div>
+          <mat-card class="character-card character-card{{charNum}}">
+            <div>
+              <mat-card-title
+                  [style.background-image]="'url(https://www.bungie.net'+character.emblemBackgroundPath+')'">
+                <div class="type">{{character.genderedClassNames}}<span
+                    class="race">{{character.genderedRaceNames}}</span><span class="light">{{character.light}}</span>
+                </div>
 
-        </mat-card-title>
-      </div>
-      <!--<div class="tooltip" *ngIf="(i === checklist.characters.length - 1) && !config.showOnlyPowerfulGear"-->
-      <!--(click)="toggleShowOnlyPowerfulGear($event)">{{'power_gear_not_only'|translate}}-->
-      <!--</div>-->
-      <!--<div class="tooltip" *ngIf="(i === checklist.characters.length - 1) &&  config.showOnlyPowerfulGear"-->
-      <!--(click)="toggleShowOnlyPowerfulGear($event)">{{'power_gear_only'|translate}}-->
-      <!--</div>-->
-    </mat-card>
-    <div *ngFor="let pursuit of character.pursuits; let pursuitNum = index"
-         [ngClass]="{'glow': (pursuitHasRunningObjectives(pursuit)), 'not-visible': (!pursuitShouldBeDisplayed(pursuit, character))}" [attr.id]="'pursuit-'+charNum+'-'+pursuitNum">
-    <mat-card class="pursuit-item" *ngIf="pursuitShouldBeDisplayed(pursuit, character)" title="{{pursuit.description}}"
-              (click)="toggleSelectedPursuit(pursuit, character, $event)"
-              [ngClass]="{'selected': (pursuitIsSelected(pursuit, character))}">
-      <!--<div class="highlighter">&nbsp;</div>-->
-      <!--<div class="selected">&nbsp;</div>-->
-      <mat-card-title class="pursuit-title">
-        <img class="pursuit-item-icon" *ngIf="pursuit.icon" src="https://www.bungie.net{{pursuit.icon}}"
-             alt="{{pursuit.itemTypeDisplayName}}" title="{{pursuit.itemTypeDisplayName}}">
-        <div class="pursuit-text">
-          <span class="pursuit-itemType" *ngIf="!pursuit.icon">{{highlight(pursuit.itemTypeDisplayName, charNum, pursuitNum)}} : </span>
-          <span [innerHTML]="highlight(pursuit.name, charNum, pursuitNum)"></span>
-          <div class="pursuit-description" [innerHTML]="highlight(pursuit.description, charNum, pursuitNum)"></div>
-          <div class="pursuit-expiration"
-               *ngIf="pursuit.expirationDate">{{pursuit.expirationDate | timeExpiration }}</div>
-          <div class="pursuit-expiration"
-               *ngIf="pursuit.itemTypeDisplayName == 'Vendor'">{{'available_bounty' | translate }}
-            : <span [innerHTML]="highlight(pursuit.vendorName, charNum, pursuitNum)"></span></div>
+              </mat-card-title>
+            </div>
+          </mat-card>
         </div>
-      </mat-card-title>
-      <mat-card-subtitle class="reward" *ngFor="let reward of pursuit.rewards">
-        <div *ngIf="reward && !reward.redeemed && ((reward.earned !== false) || (pursuit.objectives.length != 0))">
-          <img class="reward-icon" *ngIf="reward.icon" src="https://www.bungie.net{{reward.icon}}"
-               alt="{{reward.name}}">
-          <span *ngIf="reward.identifier && (reward.identifier != pursuit.name)">
+      </ng-template>
+      <div class="content character character{{charNum}}">
+        <div *ngFor="let pursuit of character.pursuits; let pursuitNum = index"
+             [ngClass]="{'glow': (pursuitHasRunningObjectives(pursuit)), 'not-visible': (!pursuitShouldBeDisplayed(pursuit, character)), 'searched': (searchedId===charNum+'-'+pursuitNum)}"
+             [attr.id]="'pursuit-'+charNum+'-'+pursuitNum">
+          <mat-card class="pursuit-item" *ngIf="pursuitShouldBeDisplayed(pursuit, character)"
+                    title="{{pursuit.description}}"
+                    (click)="toggleSelectedPursuit(pursuit, character, $event)"
+                    [ngClass]="{'selected': (pursuitIsSelected(pursuit, character))}">
+            <!--<div class="highlighter">&nbsp;</div>-->
+            <!--<div class="selected">&nbsp;</div>-->
+            <mat-card-title class="pursuit-title">
+              <img class="pursuit-item-icon" *ngIf="pursuit.icon" src="https://www.bungie.net{{pursuit.icon}}"
+                   alt="{{pursuit.itemTypeDisplayName}}" title="{{pursuit.itemTypeDisplayName}}">
+              <div class="pursuit-text">
+            <span class="pursuit-itemType"
+                  *ngIf="!pursuit.icon">{{highlight(pursuit.itemTypeDisplayName, charNum, pursuitNum)}} : </span>
+                <span [innerHTML]="highlight(pursuit.name, charNum, pursuitNum)"></span>
+                <div class="pursuit-description" [innerHTML]="highlight(pursuit.description, charNum, pursuitNum)"></div>
+                <div class="pursuit-expiration"
+                     *ngIf="pursuit.expirationDate">{{pursuit.expirationDate | timeExpiration }}</div>
+                <div class="pursuit-expiration"
+                     *ngIf="pursuit.itemTypeDisplayName == 'Vendor'">{{'available_bounty' | translate }}
+                  : <span [innerHTML]="highlight(pursuit.vendorName, charNum, pursuitNum)"></span></div>
+              </div>
+            </mat-card-title>
+            <mat-card-subtitle class="reward" *ngFor="let reward of pursuit.rewards">
+              <div *ngIf="reward && !reward.redeemed && ((reward.earned !== false) || (pursuit.objectives.length != 0))">
+                <img class="reward-icon" *ngIf="reward.icon" src="https://www.bungie.net{{reward.icon}}"
+                     alt="{{reward.name}}">
+                <span *ngIf="reward.identifier && (reward.identifier != pursuit.name)">
             <img class="reward-identifier-icon" *ngIf="reward.identifierIcon"
                  src="https://www.bungie.net{{reward.identifierIcon}}" title="{{reward.identifier}}"
                  alt="{{reward.identifier}}">
           </span>
-          <span><span [innerHTML]="highlight(reward.name, charNum, pursuitNum)"></span>&nbsp;<span>{{reward.quantity < 2 ? '' : '+' + reward.quantity}}</span></span>
-        </div>
-      </mat-card-subtitle>
-      <div *ngIf="pursuit.objectives">
-        <mat-card-subtitle class="objective" *ngFor="let objective of pursuit.objectives"
-                           title="{{objective.objectiveHash}}">
-          <mat-checkbox class="objective-checkbox"
-                        [ngClass]="{'objective-checkbox-border': (objective.completionValue >= 1)}" readonly
-                        [ngModel]="objective.complete">
-            <div class="objective-progressbar" [style.width]="getObjectiveProgress(objective)+'%'">
-              &nbsp;
-            </div>
-            <span class="objective-description"><span [innerHTML]="highlight(objective.item.progressDescription, charNum, pursuitNum)"></span>
+                <span><span
+                    [innerHTML]="highlight(reward.name, charNum, pursuitNum)"></span>&nbsp;<span>{{reward.quantity < 2 ? '' : '+' + reward.quantity}}</span></span>
+              </div>
+            </mat-card-subtitle>
+            <div *ngIf="pursuit.objectives">
+              <mat-card-subtitle class="objective" *ngFor="let objective of pursuit.objectives"
+                                 title="{{objective.objectiveHash}}">
+                <mat-checkbox class="objective-checkbox"
+                              [ngClass]="{'objective-checkbox-border': (objective.completionValue >= 1)}" readonly
+                              [ngModel]="objective.complete">
+                  <div class="objective-progressbar" [style.width]="getObjectiveProgress(objective)+'%'">
+                    &nbsp;
+                  </div>
+                  <span class="objective-description"><span
+                      [innerHTML]="highlight(objective.item.progressDescription, charNum, pursuitNum)"></span>
               <span *ngIf="objective.timeTillFinished > 0">({{objective.timeTillFinished | timeExpiration}})</span>
             </span>
-            <span class="objective-progress">{{objective.progress}}/{{objective.completionValue}}</span>
-          </mat-checkbox>
-          <div class="objective-running"
-               *ngIf="(pursuit.itemTypeDisplayName != 'Vendor') && objectivesIsRunning(objective)"
-               (click)="stopObjectiveTime(objective, character.characterId, pursuit.itemInstanceId, $event)">
-            <mat-icon>stop</mat-icon>
-            <span>{{objective.runningTimeObjective.timeRunning | timeExpiration}}</span>
-          </div>
-          <div class="objective-running"
-               *ngIf="(pursuit.itemTypeDisplayName != 'Vendor') && !objectivesIsRunning(objective)"
-               (click)="launchObjectiveTime(objective, character.characterId, character.genderedClassNames, pursuit.itemInstanceId, pursuit.name, $event)">
-            <mat-icon>play_arrow</mat-icon>
-          </div>
-          <div class="objective-running" *ngIf="pursuit.itemTypeDisplayName == 'Vendor'">
-          </div>
-        </mat-card-subtitle>
+                  <span class="objective-progress">{{objective.progress}}/{{objective.completionValue}}</span>
+                </mat-checkbox>
+                <div class="objective-running"
+                     *ngIf="(pursuit.itemTypeDisplayName != 'Vendor') && objectivesIsRunning(objective)"
+                     (click)="stopObjectiveTime(objective, character.characterId, pursuit.itemInstanceId, $event)">
+                  <mat-icon>stop</mat-icon>
+                  <span>{{objective.runningTimeObjective.timeRunning | timeExpiration}}</span>
+                </div>
+                <div class="objective-running"
+                     *ngIf="(pursuit.itemTypeDisplayName != 'Vendor') && !objectivesIsRunning(objective)"
+                     (click)="launchObjectiveTime(objective, character.characterId, character.genderedClassNames, pursuit.itemInstanceId, pursuit.name, $event)">
+                  <mat-icon>play_arrow</mat-icon>
+                </div>
+                <div class="objective-running" *ngIf="pursuit.itemTypeDisplayName == 'Vendor'">
+                </div>
+              </mat-card-subtitle>
+            </div>
+          </mat-card>
+        </div>
       </div>
-    </mat-card>
-  </div>
-</div>
-
+    </mat-tab>
+  </mat-tab-group>
 </div>

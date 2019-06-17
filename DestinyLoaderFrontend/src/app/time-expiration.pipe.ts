@@ -10,7 +10,7 @@ import { Pipe, PipeTransform } from '@angular/core';
 })
 export class TimeExpirationPipe implements PipeTransform {
 
-  public transform (input: string): string {
+  public transform (input: string | number): string {
 
     // console.log(input + ' : ' + Number(input));
 
@@ -19,7 +19,7 @@ export class TimeExpirationPipe implements PipeTransform {
     if (!isNaN(Number(input))) {
       // a number (representing the delta in millisecond)
       return TimeExpirationPipe.elapsed(Number(input));
-    } else if (new Date(input).toString() !== 'Invalid Date' && !isNaN(Date.parse(input))) {
+    } else if (new Date(input).toString() !== 'Invalid Date' && !isNaN(Date.parse('' + input))) {
       // a Date
       return TimeExpirationPipe.elapsed(new Date(input).getTime() - new Date().getTime());
     }

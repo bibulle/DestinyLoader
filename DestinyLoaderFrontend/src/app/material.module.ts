@@ -14,7 +14,7 @@ import {
   MatProgressSpinnerModule,
   MatCheckboxModule,
   MatTooltipModule,
-  MatFormFieldModule, MatInputModule,
+  MatFormFieldModule, MatInputModule, MatTabsModule,
   // MatCardModule
 } from '@angular/material';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -33,7 +33,8 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
     MatProgressSpinnerModule,
     MatCheckboxModule,
     MatFormFieldModule,
-    MatInputModule
+    MatInputModule,
+    MatTabsModule
   ],
   exports: [
     MatButtonModule,
@@ -48,7 +49,8 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
     MatCheckboxModule,
     MatTooltipModule,
     MatFormFieldModule,
-    MatInputModule
+    MatInputModule,
+    MatTabsModule
   ]
 })
 export class MaterialModule {
