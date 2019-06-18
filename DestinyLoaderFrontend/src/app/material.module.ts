@@ -20,15 +20,20 @@ import * as Hammer from 'hammerjs';
 
 export class MyHammerConfig extends HammerGestureConfig  {
   overrides = {
-    pan: {
+    'swipe': {
+      velocity: 0.4, threshold: 20,
+      enable: false,
+      direction: Hammer.DIRECTION_VERTICAL
+    },
+    'pan': {
       velocity: 0.4, threshold: 20,
       enable: true,
-      direction: Hammer.DIRECTION_ALL
+      direction: Hammer.DIRECTION_HORIZONTAL
     },
-    pinch: {
+    'pinch': {
       enable: false
     },
-    rotate: {
+    'rotate': {
       enable: false
     }
   };
@@ -43,6 +48,8 @@ export class MyHammerConfig extends HammerGestureConfig  {
   buildHammer(element: HTMLElement) {
     return new Hammer(element, {
       touchAction: 'pan-y'
+//      touchAction: 'none'
+//      touchAction: 'auto'
     });
   }
 }
