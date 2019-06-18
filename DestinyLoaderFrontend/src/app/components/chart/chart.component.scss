@@ -12,7 +12,7 @@
   //  position: inherit;
   //}
 
-  /deep/ .svg-content {
+  ::ng-deep .svg-content {
     display: inline-block;
     position: absolute;
     top: 0;
@@ -61,7 +61,7 @@
     }
 
   }
-  /deep/ .tooltip {
+  ::ng-deep .tooltip {
     //width: 17em;
     font-size: 0.7em;
 

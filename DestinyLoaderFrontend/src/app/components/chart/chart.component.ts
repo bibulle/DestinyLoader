@@ -23,7 +23,7 @@ export class ChartComponent implements OnInit, OnDestroy, OnChanges {
   @Input()
   graphType = GraphTypeKey.LIGHT;
 
-  @ViewChild('chart')
+  @ViewChild('chart', { static: true })
   private chartContainer: ElementRef;
 
   private created: boolean;

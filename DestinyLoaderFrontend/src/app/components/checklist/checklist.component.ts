@@ -15,7 +15,7 @@ import Timer = NodeJS.Timer;
 })
 export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
 
-  @ViewChild('page')
+  @ViewChild('page', { static: false })
   tableElement: ElementRef;
 
   checklist: Checklist = new Checklist();
