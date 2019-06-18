@@ -868,8 +868,6 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
               checkedType = true;
               ret = ret || this.config.visible.types.forge;
               break;
-            case 'Container':
-            case 'Boîte':
             case 'Prime Daily Bounty':
             case 'Contrat du jour (Gambit Prestige)':
             case 'Prime Weekly Bounty':
@@ -888,6 +886,8 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
             case 'Récipient':
             case 'Alien Technology':
             case 'Technologie extraterrestre':
+            case 'Container':
+            case 'Boîte':
               checkedType = true;
               ret = ret || this.config.visible.types.pursuit;
               break;
