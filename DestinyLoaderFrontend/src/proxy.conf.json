@@ -1,0 +1,15 @@
+{
+  "/monitorStuff": {
+    "target": "http://localhost:4001",
+    "secure": false
+  },
+  "/api1": {
+    "target": "http://localhost:4001",
+    "secure": false
+  },
+  "/authent": {
+    "target": "http://localhost:4001",
+    "secure": false
+  }
+
+}

@@ -23,7 +23,8 @@ export class HeaderService {
 // tslint:disable-next-line:member-ordering
   private static KEY_CONFIG_LOCAL_STORAGE = 'config';
 
-  private configUrl = environment.serverUrl + 'monitorStuff/value';
+//  private configUrl = environment.serverUrl + 'monitorStuff/value';
+  private configUrl = '/monitorStuff/value';
 
   constructor (private httpClient: HttpClient,
                private _translateService: TranslateService,

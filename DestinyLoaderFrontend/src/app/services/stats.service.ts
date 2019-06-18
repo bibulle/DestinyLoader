@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { environment } from '../../environments/environment';
+// import { environment } from '../../environments/environment';
 import { Stats } from '../models/stats';
 import { BehaviorSubject ,  Observable } from 'rxjs';
 import * as d3 from 'd3';
@@ -20,7 +20,8 @@ export class StatsService {
   private static _refreshIsRunning = false;
   private readonly currentStatsSubject: BehaviorSubject<Character[]>;
 
-  private booksUrl = environment.serverUrl + 'api1';
+//  private booksUrl = environment.serverUrl + 'api1';
+  private booksUrl = '/api1';
 
   constructor (private httpClient: HttpClient,
                private _userService: UserService,

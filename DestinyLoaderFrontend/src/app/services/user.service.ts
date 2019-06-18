@@ -3,7 +3,7 @@ import {distinctUntilChanged} from 'rxjs/operators';
 import { Injectable } from '@angular/core';
 import { JwtHelperService } from '@auth0/angular-jwt';
 import { User } from '../models/user';
-import { environment } from '../../environments/environment';
+// import { environment } from '../../environments/environment';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { BehaviorSubject, Observable, timer } from 'rxjs';
 import { WindowService } from './window.service';
@@ -111,7 +111,8 @@ export class UserService {
    */
   startLoginBungie (): Promise<void> {
     // console.log('startLoginBungie');
-    const oAuthURL = `${environment.serverUrl}authent/bungie`;
+//    const oAuthURL = `${environment.serverUrl}authent/bungie`;
+    const oAuthURL = `/authent/bungie`;
     return this._startLoginOAuth(oAuthURL);
 
   }
@@ -123,7 +124,8 @@ export class UserService {
    */
   loginBungie(parsed): Promise<User|string> {
     // console.log("loginBungie "+parsed.code);
-    return this._doGet(environment.serverUrl + 'authent/bungie/login?code=' + parsed.code);
+//    return this._doGet(environment.serverUrl + 'authent/bungie/login?code=' + parsed.code);
+    return this._doGet('/authent/bungie/login?code=' + parsed.code);
   }
 
   //noinspection JSUnusedGlobalSymbols

@@ -1,10 +1,10 @@
 {
   "name": "destiny-front-end",
-  "version": "0.5.2",
+  "version": "0.5.3",
   "license": "MIT",
   "scripts": {
     "ng": "ng",
-    "start": "ng serve",
+    "start": "ng serve --host 10.70.148.130",
     "build": "ng build --prod",
     "test": "ng test",
     "lint": "ng lint",

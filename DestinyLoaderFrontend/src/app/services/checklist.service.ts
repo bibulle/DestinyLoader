@@ -1,7 +1,7 @@
 /* tslint:disable:member-ordering */
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { environment } from '../../environments/environment';
+// import { environment } from '../../environments/environment';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { UserService } from './user.service';
 import { HeaderService } from './header.service';
@@ -29,8 +29,10 @@ export class ChecklistService {
   private static _refreshObjectiveTimesIsRunning = false;
   private readonly currentObjectiveTimesSubject: BehaviorSubject<ObjectiveTime[]>;
 
-  private checklistUrl = environment.serverUrl + 'monitorStuff/api';
-  private runningUrl = environment.serverUrl + 'monitorStuff/running';
+//  private checklistUrl = environment.serverUrl + 'monitorStuff/api';
+//  private runningUrl = environment.serverUrl + 'monitorStuff/running';
+  private checklistUrl = '/monitorStuff/api';
+  private runningUrl =  '/monitorStuff/running';
 
   private language = '';
 
