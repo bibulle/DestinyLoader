@@ -47,7 +47,14 @@ export class MyHammerConfig extends HammerGestureConfig  {
 
   buildHammer(element: HTMLElement) {
     return new Hammer(element, {
-      touchAction: 'pan-y'
+      touchAction: 'auto',
+      inputClass: Hammer.SUPPORT_POINTER_EVENTS ? Hammer.PointerEventInput : Hammer.TouchMouseInput,
+      recognizers: [
+        [Hammer.Swipe, {
+          direction: Hammer.DIRECTION_HORIZONTAL
+        }]
+      ]
+//      touchAction: 'pan-y'
 //      touchAction: 'none'
 //      touchAction: 'auto'
     });

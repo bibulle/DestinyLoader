@@ -965,7 +965,6 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
   swipe(event) {
     console.log(`swipe : ${event.type} ${this.selectedTab}`);
     console.log(event);
-    console.log(event.additionalEvent);
 
     if ((event.type === 'swiperight') && (this.selectedTab !== 0)) {
       // console.log(this.selectedTab);
