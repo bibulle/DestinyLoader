@@ -20,10 +20,14 @@
       //}
     }
 
+    ::ng-deep .mat-tab-label {
+      height: 7em;
+    }
+
     .tab-header mat-card-title {
       width: 13em;
       transition: all 200ms ease-in;
-      transform: scale(0.8);
+      transform: scale(0.7);
     }
 
     .tab-header.selected  mat-card-title {
@@ -298,6 +302,22 @@
 @media (max-width: 700px) {
   .page .content.character  > div {
     flex: 0 1 100%;
+  }
+  .page .tab-header.selected mat-card-title {
+    width: 12em !important;
+  }
+  .page ::ng-deep .mat-tab-label {
+    height: 5em !important;
+  }
+
+  .page .tab-header mat-card-title {
+    font-size: 20px !important;
+  }
+  .page ::ng-deep .mat-tab-label {
+    padding: 0;
+  }
+  .page ::ng-deep .mat-tab-header-pagination {
+    display: none;
   }
 }
 
