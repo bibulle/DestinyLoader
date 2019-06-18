@@ -1,5 +1,5 @@
 /* tslint:disable:member-ordering no-bitwise */
-import { AfterViewChecked, Component, ElementRef, HostListener, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { AfterViewChecked, ChangeDetectorRef, Component, ElementRef, HostListener, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { ChecklistService } from '../../services/checklist.service';
 import { catalystState, Character, Checklist, Objective, ObjectiveTime, Pursuit, PursuitType, Reward } from '../../models/checklist';
@@ -36,7 +36,8 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
   constructor (private _checklistService: ChecklistService,
                private _translateService: TranslateService,
                private _headerService: HeaderService,
-               private elRef: ElementRef) {
+               private elRef: ElementRef,
+               private cd: ChangeDetectorRef) {
   }
 
   private static PURSUIT_HASH = '1345459588';
@@ -500,7 +501,7 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
                 this.selectedTab = charNum;
               }
               this.searchedId = charNum + '-' + pursuitNum;
-              console.log(this.searchedId);
+              // console.log(this.searchedId);
 
               setTimeout(() => {
                 const el = document.getElementById('pursuit-' + this.searchedId);
@@ -677,34 +678,39 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
     // console.log('stopObjectiveTime');
     event.stopPropagation();
 
-    this._checklistService.stopObjective(objective, characterId, pursuitId)
-        .then(obj => {
+    if (this.swipeRunning === -1) {
 
-          if (obj.runningTimeObjective) {
-            obj.runningTimeObjective.timeStart = new Date(obj.runningTimeObjective.timeStart);
-          }
-          ChecklistComponent.updateObject(obj, objective);
-        });
+      this._checklistService.stopObjective(objective, characterId, pursuitId)
+          .then(obj => {
+
+            if (obj.runningTimeObjective) {
+              obj.runningTimeObjective.timeStart = new Date(obj.runningTimeObjective.timeStart);
+            }
+            ChecklistComponent.updateObject(obj, objective);
+          });
+    }
   }
 
   launchObjectiveTime (objective: Objective, characterId: string, characterName: string, pursuitId: string, pursuitName: string, event: any) {
     // console.log('launchObjectiveTime');
     event.stopPropagation();
 
-    this._checklistService.startObjective(objective, characterId, characterName, pursuitId, pursuitName)
-        .then(obj => {
+    if (this.swipeRunning === -1) {
 
-          if (obj.runningTimeObjective) {
-            // console.log(obj);
-            obj.runningTimeObjective.timeStart = new Date(obj.runningTimeObjective.timeStart);
-            obj.runningTimeObjective.timeRunning = (new Date().getTime() - obj.runningTimeObjective.timeStart.getTime());
-            // console.log(obj);
-          }
+      this._checklistService.startObjective(objective, characterId, characterName, pursuitId, pursuitName)
+          .then(obj => {
 
-          ChecklistComponent.updateObject(obj, objective);
-          this.checklist.currentTimes.push(objective.runningTimeObjective);
-        });
+            if (obj.runningTimeObjective) {
+              // console.log(obj);
+              obj.runningTimeObjective.timeStart = new Date(obj.runningTimeObjective.timeStart);
+              obj.runningTimeObjective.timeRunning = (new Date().getTime() - obj.runningTimeObjective.timeStart.getTime());
+              // console.log(obj);
+            }
 
+            ChecklistComponent.updateObject(obj, objective);
+            this.checklist.currentTimes.push(objective.runningTimeObjective);
+          });
+    }
   }
 
 
@@ -759,10 +765,12 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
   }
 
   toggleSelectedPursuit (pursuit, character, event: any) {
-    // console.log('toggleSelectedPursuit');
+    // console.log(`toggleSelectedPursuit (${this.swipeRunning})`);
     event.stopPropagation();
-    this._headerService.toggleSelectedPursuit(ChecklistComponent.getPursuitKey(pursuit, character));
-    // console.log(pursuit);
+    if (this.swipeRunning === -1) {
+      this._headerService.toggleSelectedPursuit(ChecklistComponent.getPursuitKey(pursuit, character));
+      // console.log(pursuit);
+    }
   }
 
   pursuitIsSelected (pursuit, character) {
@@ -954,15 +962,38 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
     });
   }
 
-  swipe(action) {
-    // console.log('swipe : ' + action);
+  swipe(event) {
+    // console.log(`swipe : ${event.type} ${this.selectedTab}`);
+    // console.log(event);
 
-    if ((action === 'swiperight') && (this.selectedTab !== 0)) {
+    if ((event.type === 'swiperight') && (this.selectedTab !== 0)) {
+      // console.log(this.selectedTab);
       this.selectedTab--;
     }
-    if ((action === 'swipeleft') && (this.selectedTab !== this.checklist.characters.length - 1)) {
+    if ((event.type === 'swipeleft') && (this.selectedTab !== this.checklist.characters.length - 1)) {
+      // console.log(this.selectedTab);
       this.selectedTab++;
     }
+    // console.log(this.selectedTab);
+    this.cd.detectChanges();
+    this.swipeRunning = this.selectedTab;
+    setTimeout(() => {
+      this.swipeRunning = -1;
+    }, 100);
+  }
+  swipeRunning = -1;
+  selectedIndexChange(event) {
+    // console.log(`selectedIndexChange : ${event} (${this.swipeRunning})`);
+    // console.log(this.selectedTab);
+    this.selectedTab = event;
+    this.cd.detectChanges();
+
+    if ((this.swipeRunning !== -1) && (this.swipeRunning !== event)) {
+      this.selectedTab = this.swipeRunning;
+      this.cd.detectChanges();
+    }
+
+    // console.log(this.selectedTab);
   }
 }
 
