@@ -953,5 +953,16 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
       return '<span class="highlight-text">' + match + '</span>';
     });
   }
+
+  swipe(action) {
+    // console.log('swipe : ' + action);
+
+    if ((action === 'swiperight') && (this.selectedTab !== 0)) {
+      this.selectedTab--;
+    }
+    if ((action === 'swipeleft') && (this.selectedTab !== this.checklist.characters.length - 1)) {
+      this.selectedTab++;
+    }
+  }
 }
 
