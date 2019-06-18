@@ -1,4 +1,4 @@
-<div class="page characters-{{checklist.characters.length}}" *ngIf="checklist" (swipeleft)="swipe($event)" (swiperight)="swipe($event)">
+<div class="page characters-{{checklist.characters.length}}" *ngIf="checklist" (panend)="swipe($event)" (swipeleft)="swipe($event)" (swiperight)="swipe($event)">
   <mat-tab-group mat-stretch-tabs mat-align-tabs="center" [selectedIndex]="selectedTab" (selectedIndexChange)="selectedIndexChange($event)">
     <mat-tab *ngFor="let character of checklist.characters; let charNum = index">
       <ng-template mat-tab-label>

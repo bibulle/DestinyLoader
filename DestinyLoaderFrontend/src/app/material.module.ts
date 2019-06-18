@@ -1,28 +1,29 @@
 import { NgModule } from '@angular/core';
 
-import {
-  MatButtonModule,
-  MatCardModule,
-  MatCheckboxModule,
-  MatFormFieldModule,
-  MatIconModule,
-  MatInputModule,
-  MatListModule,
-  MatMenuModule,
-  MatProgressSpinnerModule,
-  MatSidenavModule,
-  MatSnackBarModule,
-  MatTabsModule,
-  MatToolbarModule,
-  MatTooltipModule,
-} from '@angular/material';
+import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
+import { MatListModule } from '@angular/material/list';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSidenavModule } from '@angular/material/sidenav';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatTabsModule } from '@angular/material/tabs';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { HAMMER_GESTURE_CONFIG, HammerGestureConfig } from '@angular/platform-browser';
+import * as Hammer from 'hammerjs';
 
 export class MyHammerConfig extends HammerGestureConfig  {
   overrides = {
     pan: {
-      direction: 31
+      velocity: 0.4, threshold: 20,
+      enable: true,
+      direction: Hammer.DIRECTION_ALL
     },
     pinch: {
       enable: false
@@ -31,21 +32,19 @@ export class MyHammerConfig extends HammerGestureConfig  {
       enable: false
     }
   };
+
 //  overrides = <any>{
-//    // override hammerjs default configuration
-//    'pinch': { enable: false  },
-//    'rotate': { enable: false  },
-//    'swipe': { enable: true  }
+//    'swipe': { enable: false },
+//    'pinch': { enable: false },
+//    'rotate': { enable: false },
+//    'pan': { velocity: 0.4, threshold: 20, enable: true, direction: Hammer.DIRECTION_ALL }
 //  };
-//  options = {
-//    touchAction: 'auto',
-//    inputClass: Hammer.SUPPORT_POINTER_EVENTS ? Hammer.PointerEventInput : Hammer.TouchMouseInput,
-//    recognizers: [
-//      [Hammer.Swipe, {
-//        direction: Hammer.DIRECTION_HORIZONTAL
-//      }]
-//    ]
-//  };
+
+  buildHammer(element: HTMLElement) {
+    return new Hammer(element, {
+      touchAction: 'pan-y'
+    });
+  }
 }
 
 

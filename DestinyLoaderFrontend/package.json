@@ -1,6 +1,6 @@
 {
   "name": "destiny-front-end",
-  "version": "0.5.8",
+  "version": "0.5.9",
   "license": "MIT",
   "scripts": {
     "ng": "ng",
@@ -14,13 +14,13 @@
   "private": true,
   "dependencies": {
     "@angular/animations": "^8.0.1",
-    "@angular/cdk": "^7.3.7",
+    "@angular/cdk": "^8.0.1",
     "@angular/common": "^8.0.1",
     "@angular/compiler": "^8.0.1",
     "@angular/core": "^8.0.1",
     "@angular/forms": "^8.0.1",
     "@angular/http": "^7.2.15",
-    "@angular/material": "^7.3.7",
+    "@angular/material": "^8.0.1",
     "@angular/platform-browser": "^8.0.1",
     "@angular/platform-browser-dynamic": "^8.0.1",
     "@angular/pwa": "^0.13.9",
@@ -63,10 +63,10 @@
     "typescript": "~3.4.5"
   },
   "commit": {
-    "number": 260,
-    "hash": "c09bea5315130dd237bf9b99a062ab8b48b1fa60",
-    "shorthash": "c09bea5",
-    "timestamp": "1560861726"
+    "number": 261,
+    "hash": "b95a4eb73140eda72efa1f5908145c7f72842093",
+    "shorthash": "b95a4eb",
+    "timestamp": "1560867298"
   },
   "husky": {
     "hooks": {
