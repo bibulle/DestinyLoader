@@ -57,7 +57,7 @@
 NAME="destinyloader"
 NODE_BIN_DIR="/usr/local/bin"
 NODE_PATH="/usr/local/lib/node_modules"
-APPLICATION_PATH="/opt/DestinyLoader1/DestinyLoaderBackend/src/bin/dataMiner.js"
+APPLICATION_PATH="/opt/DestinyLoader/DestinyLoaderBackend/src/bin/dataMiner.js"
 PIDFILE="/var/run/destinyloader.pid"
 LOGFILE="/var/log/destinyloader.log"
 MIN_UPTIME="5000"
