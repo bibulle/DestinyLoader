@@ -190,88 +190,90 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
             });
 
             // add character triumph
-            char.triumphs.forEach(
-              triumph => {
-                // console.log(triumph);
-                // if it's a root item (badges), do nothing (they cannot be redeemed)
-                if ((triumph.state === 0) && (triumph.item.presentationInfo.parentPresentationNodeHashes.length === 0)) {
-                  return;
-                }
-
-                // If not already redeemed, add it
-                if ((triumph.state & 1) === 0) {
-                  const newTriumph: Pursuit = {
-                    itemInstanceId: triumph.hash,
-                    itemType: (triumph.state === 0 ? Pursuit.ITEM_TYPE_TRIUMPH_REDEEMABLE : Pursuit.ITEM_TYPE_TRIUMPH),
-                    itemTypeDisplayName: 'Triumph',
-                    description: triumph.item.displayProperties.description,
-                    name: triumph.item.displayProperties.name,
-                    icon: triumph.item.displayProperties.icon,
-                    expirationDate: undefined,
-                    rewards: [],
-                    maxRewardLevel: -2,
-                    objectives: [],
-                    vendorName: undefined,
-                    saleDescription: undefined,
-                    type: (triumph.state === 0 ? PursuitType.TRIUMPH_REDEEMABLE : PursuitType.TRIUMPH)
-                  };
-
-                  char.pursuits.push(newTriumph);
-
-                  // add well formed objectives
-                  if (triumph.objectives) {
-                    // console.log(newCatalyst.itemInstanceId+" "+newCatalyst.name);
-                    triumph.objectives.forEach(objective => {
-                      const newObjective: Objective = {
-                        objectiveHash: objective.objectiveHash,
-                        completionValue: objective.completionValue,
-                        complete: objective.complete,
-                        progress: objective.progress,
-                        item: objective.item,
-                        timeTillFinished: Number.MAX_SAFE_INTEGER
-                      };
-                      newTriumph.objectives.push(newObjective);
-
-
-                      // add running objective
-                      if (currentTimeObjective[char.characterId] &&
-                        currentTimeObjective[char.characterId][objective.objectiveHash] &&
-                        currentTimeObjective[char.characterId][objective.objectiveHash].pursuitId === newTriumph.itemInstanceId) {
-                        newObjective.runningTimeObjective = currentTimeObjective[char.characterId][objective.objectiveHash];
-                        newObjective.runningTimeObjective.timeStart = new Date(newObjective.runningTimeObjective.timeStart);
-                        newObjective.runningTimeObjective.timeRunning = (new Date().getTime() - newObjective.runningTimeObjective.timeStart.getTime());
-
-                      }
-
-
-                    });
+            if (char.triumphs) {
+              char.triumphs.forEach(
+                triumph => {
+                  // console.log(triumph);
+                  // if it's a root item (badges), do nothing (they cannot be redeemed)
+                  if ((triumph.state === 0) && (triumph.item.presentationInfo.parentPresentationNodeHashes.length === 0)) {
+                    return;
                   }
 
-                  // Add pseudo reward
-                  if (triumph.scoreValue) {
-                    const newReward: Reward = {
-                      name: 'Triumph points',
-                      icon: triumph.parentIcon,
-                      quantity: triumph.scoreValue,
-                      identifier: '',
-                      identifierIcon: '',
-                      redeemed: false,
-                      earned: false,
-                      objectivesSize: newTriumph.objectives.length,
-                      itemHash: Reward.TRIUMPH_POINT_PSEUDO_HASH
+                  // If not already redeemed, add it
+                  if ((triumph.state & 1) === 0) {
+                    const newTriumph: Pursuit = {
+                      itemInstanceId: triumph.hash,
+                      itemType: (triumph.state === 0 ? Pursuit.ITEM_TYPE_TRIUMPH_REDEEMABLE : Pursuit.ITEM_TYPE_TRIUMPH),
+                      itemTypeDisplayName: 'Triumph',
+                      description: triumph.item.displayProperties.description,
+                      name: triumph.item.displayProperties.name,
+                      icon: triumph.item.displayProperties.icon,
+                      expirationDate: undefined,
+                      rewards: [],
+                      maxRewardLevel: -2,
+                      objectives: [],
+                      vendorName: undefined,
+                      saleDescription: undefined,
+                      type: (triumph.state === 0 ? PursuitType.TRIUMPH_REDEEMABLE : PursuitType.TRIUMPH)
                     };
 
+                    char.pursuits.push(newTriumph);
 
-                    newTriumph.rewards.push(newReward);
+                    // add well formed objectives
+                    if (triumph.objectives) {
+                      // console.log(newCatalyst.itemInstanceId+" "+newCatalyst.name);
+                      triumph.objectives.forEach(objective => {
+                        const newObjective: Objective = {
+                          objectiveHash: objective.objectiveHash,
+                          completionValue: objective.completionValue,
+                          complete: objective.complete,
+                          progress: objective.progress,
+                          item: objective.item,
+                          timeTillFinished: Number.MAX_SAFE_INTEGER
+                        };
+                        newTriumph.objectives.push(newObjective);
 
+
+                        // add running objective
+                        if (currentTimeObjective[char.characterId] &&
+                          currentTimeObjective[char.characterId][objective.objectiveHash] &&
+                          currentTimeObjective[char.characterId][objective.objectiveHash].pursuitId === newTriumph.itemInstanceId) {
+                          newObjective.runningTimeObjective = currentTimeObjective[char.characterId][objective.objectiveHash];
+                          newObjective.runningTimeObjective.timeStart = new Date(newObjective.runningTimeObjective.timeStart);
+                          newObjective.runningTimeObjective.timeRunning = (new Date().getTime() - newObjective.runningTimeObjective.timeStart.getTime());
+
+                        }
+
+
+                      });
+                    }
+
+                    // Add pseudo reward
+                    if (triumph.scoreValue) {
+                      const newReward: Reward = {
+                        name: 'Triumph points',
+                        icon: triumph.parentIcon,
+                        quantity: triumph.scoreValue,
+                        identifier: '',
+                        identifierIcon: '',
+                        redeemed: false,
+                        earned: false,
+                        objectivesSize: newTriumph.objectives.length,
+                        itemHash: Reward.TRIUMPH_POINT_PSEUDO_HASH
+                      };
+
+
+                      newTriumph.rewards.push(newReward);
+
+                    }
+
+
+                    // console.log(catalyst);
                   }
 
-
-                  // console.log(catalyst);
                 }
-
-              }
-            );
+              );
+            }
 
             // add catalyst and triumph (to the first character)
             if (charIndex === 1) {
