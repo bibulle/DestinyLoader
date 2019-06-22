@@ -97,6 +97,7 @@ export class Character {
   }[];
   light: number;
   pursuits: (Pursuit)[];
+  triumphs: Triumph[];
 }
 
 

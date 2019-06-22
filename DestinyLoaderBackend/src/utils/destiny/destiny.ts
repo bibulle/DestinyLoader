@@ -1063,9 +1063,9 @@ export class Destiny {
                 const triumph = data.profileRecords.data.records[triumphHash];
                 //debug(triumph);
                 triumph.hash = triumphHash;
-                //if ((triumph.hash == '1842255612') || (triumph.hash == "1082441448")) {
-                //debug(triumph);
-                //}
+                // if ((triumph.hash == '64778617') || (triumph.hash == "64778617")) {
+                //   debug(triumph);
+                // }
 
                 async.waterfall([
                     (callback) => {
@@ -1079,6 +1079,9 @@ export class Destiny {
                             //console.log(item);
                             return callback(err);
                           }
+                          // if (item.displayProperties.name.match(/nuit/i)) {
+                          //   debug(triumphHash+' '+item.displayProperties.name);
+                          // }
                           //if (triumph.hash === '3758540824') {
                           //if ((triumph.hash == '1842255612') || (triumph.hash == "1082441448")) {
                           //if (item.presentationInfo.parentPresentationNodeHashes.length == 0) {
@@ -1170,6 +1173,146 @@ export class Destiny {
                   });
 
 
+              },
+              (err) => {
+                if (err) {
+                  error(err);
+                }
+                callback(err);
+              }
+            );
+          },
+          // read triumphs for characters
+          function (callback) {
+            async.eachSeries(
+              result.characters,
+              function(character, callback) {
+                character.triumphs = [];
+                async.forEachSeries(
+                  Object.keys(data.characterRecords.data[character.characterId].records),
+                  (triumphHash, callback) => {
+
+                    const triumph = data.characterRecords.data[character.characterId].records[triumphHash];
+                    //debug(triumph);
+                    triumph.hash = triumphHash;
+                    // if ((triumph.hash == '64778617') || (triumph.hash == "64778617")) {
+                    //   debug(triumph);
+                    // }
+
+                    async.waterfall([
+                        (callback) => {
+                          // read record info
+                          Destiny.queryRecordById(
+                            triumphHash,
+                            (err, item) => {
+                              // if not record, don't add
+                              if (item.displayProperties.name === '') {
+                                //console.log('-----');
+                                //console.log(item);
+                                return callback(err);
+                              }
+                              // if (item.displayProperties.name.match(/nuit/i)) {
+                              //   debug(triumphHash + ' ' + item.displayProperties.name);
+                              // }
+                              //if (triumph.hash === '3758540824') {
+                              //if ((triumph.hash == '1842255612') || (triumph.hash == "1082441448")) {
+                              //if (item.presentationInfo.parentPresentationNodeHashes.length == 0) {
+                              //debug(item);
+                              //}
+
+
+                              triumph.item = _.pick(item, ['displayProperties', 'hash', 'presentationInfo.parentPresentationNodeHashes']);
+                              //console.log(triumph.hash);
+                              if (item.completionInfo) {
+                                triumph.scoreValue = item.completionInfo.ScoreValue;
+                              }
+                              character.triumphs.push(triumph);
+                              callback();
+                            },
+                            lang);
+                        },
+                        (callback) => {
+                          if (triumph.item && triumph.item.presentationInfo && triumph.item.presentationInfo.parentPresentationNodeHashes.length != 0) {
+                            //debug(triumph.item.presentationInfo.parentPresentationNodeHashes[0]);
+                            let presentationHash = triumph.item.presentationInfo.parentPresentationNodeHashes[0];
+                            Destiny.queryPresentationNodeById(presentationHash, (err, presentationNode) => {
+                              if (presentationNode.displayProperties.icon) {
+                                triumph.parentIcon = presentationNode.displayProperties.icon;
+                                callback(err);
+                              } else {
+                                presentationHash = presentationNode.parentNodeHashes[0];
+                                Destiny.queryPresentationNodeById(presentationHash, (err, presentationNode) => {
+                                  if (presentationNode.displayProperties.icon) {
+                                    triumph.parentIcon = presentationNode.displayProperties.icon;
+                                    callback(err);
+                                  } else {
+                                    presentationHash = presentationNode.parentNodeHashes[0];
+                                    Destiny.queryPresentationNodeById(presentationHash, (err, presentationNode) => {
+                                      if (presentationNode.displayProperties.icon) {
+                                        triumph.parentIcon = presentationNode.displayProperties.icon;
+                                        callback(err);
+                                      } else {
+                                        presentationHash = presentationNode.parentNodeHashes[0];
+                                        Destiny.queryPresentationNodeById(presentationHash, (err, presentationNode) => {
+                                          if (presentationNode.displayProperties.icon) {
+                                            triumph.parentIcon = presentationNode.displayProperties.icon;
+                                            callback(err);
+                                          } else {
+                                            presentationHash = presentationNode.parentNodeHashes[0];
+                                            Destiny.queryPresentationNodeById(presentationHash, (err, presentationNode) => {
+                                              if (presentationNode.displayProperties.icon) {
+                                                triumph.parentIcon = presentationNode.displayProperties.icon;
+                                                callback(err);
+                                              } else {
+                                                debug("not found !!");
+                                                callback(err);
+                                              }
+                                            }, lang);
+                                          }
+                                        }, lang);
+                                      }
+                                    }, lang);
+                                  }
+                                }, lang);
+                              }
+                            }, lang);
+                          } else {
+                            callback();
+                          }
+                        },
+                        (callback) => {
+                          async.forEachSeries(
+                            triumph.objectives,
+                            (objective, callback) => {
+                              Destiny.queryObjectiveById(objective.objectiveHash,
+                                (err, item) => {
+                                  objective.item = _.pick(item, ['progressDescription']);
+                                  callback(err);
+                                },
+                                lang)
+                            },
+                            (err) => {
+                              callback(err);
+                            }
+                          );
+                        }
+                      ],
+                      (err) => {
+                        if (err) {
+                          error(err);
+                        }
+                        callback(err);
+                      });
+
+
+                  },
+                  (err) => {
+                    if (err) {
+                      error(err);
+                    }
+                    callback(err);
+                  }
+                );
               },
               (err) => {
                 if (err) {

@@ -74,8 +74,9 @@ export class ChecklistService {
 
 
 // tslint:disable-next-line:member-ordering
-  private static _saveChecklistFromLocalStorage (checklist) {
+  static saveChecklistFromLocalStorage (checklist) {
     localStorage.setItem(ChecklistService.KEY_CHECKLIST_LOCAL_STORAGE, JSON.stringify(checklist));
+    console.log('Storage used by checklist : ' + (localStorage.getItem(ChecklistService.KEY_CHECKLIST_LOCAL_STORAGE).length * 2 / 1024 / 1024).toFixed(2) + 'Mb');
   }
 
 // tslint:disable-next-line:member-ordering
@@ -111,7 +112,7 @@ export class ChecklistService {
       _service._loadChecklistFromBungie()
               .then(checklist => {
                 // console.log('currentChecklistSubject.next ' + checklist.length);
-                ChecklistService._saveChecklistFromLocalStorage(checklist);
+                // ChecklistService._saveChecklistFromLocalStorage(checklist);
                 _service.currentChecklistSubject.next(checklist);
                 if (!once) {
                   setTimeout(() => {
