@@ -594,11 +594,13 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
         this.config = rel;
         // console.log(rel);
 
-        this.checklist.characters.forEach(char => {
-          setTimeout(() => {
-            this.sortPursuits(char);
-          }, 500);
-        });
+        if (this.checklist && this.checklist.characters) {
+          this.checklist.characters.forEach(char => {
+            setTimeout(() => {
+              this.sortPursuits(char);
+            }, 500);
+          });
+        }
 
       });
 
