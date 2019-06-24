@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, EventEmitter, OnDestroy, OnInit, Output } from '@angular/core';
 import { NavigationEnd, Router } from '@angular/router';
 import { UserService } from '../../services/user.service';
 import { HeaderService } from '../../services/header.service';
@@ -12,7 +12,9 @@ import { environment } from '../../../environments/environment';
   templateUrl: './navbar.component.html',
   styleUrls: ['./navbar.component.scss']
 })
-export class NavbarComponent implements OnInit, OnDestroy {
+export class NavbarComponent implements OnInit, OnDestroy, AfterViewInit {
+
+  @Output() onHeight = new EventEmitter<number>();
 
   linksLeft: { path: string, label: string, icon: string, iconType: string, selected: boolean }[] = [];
   linksRight: { path: string, label: string, icon: string, iconType: string, selected: boolean }[] = [];
@@ -43,7 +45,8 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
   constructor (private _router: Router,
                private _userService: UserService,
-               private _headerService: HeaderService) {
+               private _headerService: HeaderService,
+               private _elementRef: ElementRef) {
 
     this._router.events.subscribe((data) => {
       if (data instanceof NavigationEnd) {
@@ -56,7 +59,6 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
       }
     });
-
 
   }
 
@@ -71,12 +73,14 @@ export class NavbarComponent implements OnInit, OnDestroy {
     this._currentReloadingSubscription = this._headerService.reloadingObservable().subscribe(
       rel => {
         this.reloading = rel;
+        this.checkHeight();
       });
 
     this._currentConfigSubscription = this._headerService.configObservable().subscribe(
       rel => {
         this.config = {...this.config, ...rel};
         console.log(this.config);
+        this.checkHeight();
       });
 
     this._currentSearchSubscription = this._headerService.searchObservable()
@@ -84,11 +88,13 @@ export class NavbarComponent implements OnInit, OnDestroy {
                                             // console.log(search);
                                             this.search = search;
                                             this.searchTextfield = this.search.searchText;
+                                            this.checkHeight();
                                           });
 
     this._currentVersionSubscription = this._headerService.versionObservable().subscribe(
       rel => {
         this.updateNeeded = rel;
+        this.checkHeight();
       });
 
   }
@@ -120,6 +126,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
     });
     this.linksLeft = newLinksLeft;
     this.linksRight = newLinksRight;
+    this.checkHeight();
   }
 
   ngOnDestroy (): void {
@@ -140,6 +147,20 @@ export class NavbarComponent implements OnInit, OnDestroy {
     }
   }
 
+  checkHeight() {
+    setTimeout(() => {
+      if (this._elementRef && this._elementRef.nativeElement) {
+        this.onHeight.emit(this._elementRef.nativeElement.offsetHeight);
+        // console.log(this._elementRef.nativeElement.offsetHeight);
+      }
+    });
+  }
+  ngAfterViewInit() {
+    this.checkHeight();
+  }
+  onResize () {
+    this.checkHeight();
+  }
 
   toggleShowOnlyPowerfulGear () {
     this._headerService.toggleShowOnlyPowerfulGear();
