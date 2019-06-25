@@ -1004,7 +1004,7 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
             case 'Rare Bounty':
             case 'Contrat spécial':
               checkedType = true;
-              ret = ret || this.config.visible.types.forge;
+              ret = ret || this.config.visible.types.owned_bounty;
               break;
             case 'Prime Daily Bounty':
             case 'Contrat du jour (Gambit Prestige)':
@@ -1013,7 +1013,7 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
             case 'Prime "Civic Duty" Bounty':
             case 'Contrat citoyen':
               checkedType = true;
-              ret = ret || this.config.visible.types.prime_gambit;
+              ret = ret || this.config.visible.types.owned_bounty;
               break;
             case 'Pursuits':
             case 'Poursuites':
