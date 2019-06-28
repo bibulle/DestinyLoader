@@ -28,12 +28,12 @@
   <div class="docs-header-right">
     <span class="version-small" matTooltip="commit : {{commit.shorthash}} ({{commit.timestamp * 1000 | date}})">{{version}}</span>
     <div class="user">
-      <div class="docs-navbar-hide-small not-reloading" *ngIf="!reloading"></div>
-      <mat-spinner class="docs-navbar-hide-small reloading" diameter="20" *ngIf="reloading"></mat-spinner>
+      <div class="docs-navbar-hide-small not-reloading" *ngIf="reloading === 0"></div>
+      <mat-progress-spinner class="docs-navbar-hide-small reloading" diameter="20" *ngIf="reloading !== 0" mode="determinate" [value]="reloading"></mat-progress-spinner>
       <div class="docs-navbar-hide-small connected-user" *ngIf="user['bungieNetUser']">
         <img
-            src="{{'https://www.bungie.net'+user['bungieNetUser'].profilePicturePath}}"
-            alt="{{user['bungieNetUser'].displayName}}"> {{user['bungieNetUser'].displayName}}
+            src="{{'https://www.bungie.net'+user['bungieNetUser']['profilePicturePath']}}"
+            alt="{{user['bungieNetUser']['displayName']}}"> {{user['bungieNetUser']['displayName']}}
       </div>
       <button mat-icon-button [matMenuTriggerFor]="menu">
         <mat-icon>settings</mat-icon>

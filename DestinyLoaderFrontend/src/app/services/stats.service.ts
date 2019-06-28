@@ -1,12 +1,12 @@
-import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import {Injectable} from '@angular/core';
+import {HttpClient} from '@angular/common/http';
 // import { environment } from '../../environments/environment';
-import { Stats } from '../models/stats';
-import { BehaviorSubject ,  Observable } from 'rxjs';
+import {Stats} from '../models/stats';
+import {BehaviorSubject, Observable} from 'rxjs';
 import * as d3 from 'd3';
-import { Character } from '../models/character';
-import { UserService } from './user.service';
-import { HeaderService } from './header.service';
+import {Character} from '../models/character';
+import {UserService} from './user.service';
+import {HeaderService, ReloadingKey} from './header.service';
 
 @Injectable({
   providedIn: 'root'
@@ -75,7 +75,7 @@ export class StatsService {
   private _loadStats (): Promise<Character[]> {
     // console.log('_loadStats ');
 
-    this._headerService.startReloading();
+    this._headerService.startReloading(ReloadingKey.Stats);
     return new Promise<Character[]>((resolve, reject) => {
       this.httpClient.get(this.booksUrl)
       // .map((res: Response) => res.json().data as Book[])
@@ -222,11 +222,11 @@ export class StatsService {
 //              graphType = savedGraphType;
 
 
-              this._headerService.stopReloading();
+              this._headerService.stopReloading(ReloadingKey.Stats);
               resolve(StatsService.statsList);
             },
             err => {
-              this._headerService.stopReloading();
+              this._headerService.stopReloading(ReloadingKey.Stats);
               reject(err);
             },
           );

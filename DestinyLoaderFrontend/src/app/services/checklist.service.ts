@@ -4,7 +4,7 @@ import { HttpClient } from '@angular/common/http';
 // import { environment } from '../../environments/environment';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { UserService } from './user.service';
-import { HeaderService } from './header.service';
+import {HeaderService, ReloadingKey} from './header.service';
 import { Checklist, Objective, ObjectiveTime } from '../models/checklist';
 import { NotificationService } from './notification.service';
 
@@ -142,7 +142,7 @@ export class ChecklistService {
   _loadChecklistFromBungie (): Promise<Checklist> {
     // console.log('_loadChecklistFromBungie ');
 
-    this._headerService.startReloading();
+    this._headerService.startReloading(ReloadingKey.Checklist);
     return new Promise<Checklist>((resolve, reject) => {
       this.httpClient.get(this.checklistUrl + '?lang=' + this.language)
       // .map((res: Response) => res.json().data as Book[])
@@ -160,11 +160,11 @@ export class ChecklistService {
               }
               ChecklistService.checklists = data['data'];
 
-              this._headerService.stopReloading();
+              this._headerService.stopReloading(ReloadingKey.Checklist);
               resolve(ChecklistService.checklists);
             },
             err => {
-              this._headerService.stopReloading();
+              this._headerService.stopReloading(ReloadingKey.Checklist);
               reject(err);
             },
           );
@@ -195,7 +195,7 @@ export class ChecklistService {
               resolve(data as Objective);
             },
             err => {
-              this._headerService.stopReloading();
+              // this._headerService.stopReloading();
               reject(err);
             }
           );
@@ -217,7 +217,7 @@ export class ChecklistService {
               resolve(data as Objective);
             },
             err => {
-              this._headerService.stopReloading();
+              // this._headerService.stopReloading();
               reject(err);
             }
           );
@@ -302,7 +302,7 @@ export class ChecklistService {
   _loadObjectiveTimesFromBackend (): Promise<ObjectiveTime[]> {
     // console.log('_loadObjectiveTimesFromBackend ');
 
-    this._headerService.startReloading();
+    this._headerService.startReloading(ReloadingKey.ObjectiveTimes);
     return new Promise<ObjectiveTime[]>((resolve, reject) => {
       this.httpClient.get(this.runningUrl + '?lang=' + this.language)
       // .map((res: Response) => res.json().data as Book[])
@@ -320,11 +320,11 @@ export class ChecklistService {
               }
               ChecklistService.objectiveTimes = data['data'].currentTimes;
 
-              this._headerService.stopReloading();
+              this._headerService.stopReloading(ReloadingKey.ObjectiveTimes);
               resolve(ChecklistService.objectiveTimes);
             },
             err => {
-              this._headerService.stopReloading();
+              this._headerService.stopReloading(ReloadingKey.ObjectiveTimes);
               reject(err);
             },
           );

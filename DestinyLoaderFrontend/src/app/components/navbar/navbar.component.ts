@@ -23,7 +23,7 @@ export class NavbarComponent implements OnInit, OnDestroy, AfterViewInit {
   private _currentUserSubscription: Subscription;
 
 
-  reloading = false;
+  reloading = 0;
   private _currentReloadingSubscription: Subscription;
 
   search = new Search();

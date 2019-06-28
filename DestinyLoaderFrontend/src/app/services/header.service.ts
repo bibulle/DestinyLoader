@@ -1,12 +1,12 @@
 /* tslint:disable:member-ordering */
-import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
-import { Config, Search } from '../models/config';
-import { TranslateService } from '@ngx-translate/core';
-import { HttpClient } from '@angular/common/http';
-import { environment } from '../../environments/environment';
-import { NotificationService } from './notification.service';
-import { UserService } from './user.service';
+import {Injectable} from '@angular/core';
+import {BehaviorSubject, Observable, timer} from 'rxjs';
+import {Config, Search} from '../models/config';
+import {TranslateService} from '@ngx-translate/core';
+import {HttpClient} from '@angular/common/http';
+import {environment} from '../../environments/environment';
+import {NotificationService} from './notification.service';
+import {UserService} from './user.service';
 
 @Injectable({
   providedIn: 'root'
@@ -14,7 +14,7 @@ import { UserService } from './user.service';
 export class HeaderService {
 
   private readonly searchSubject: BehaviorSubject<Search>;
-  private readonly reloadingSubject: BehaviorSubject<boolean>;
+  private readonly reloadingSubject: BehaviorSubject<number>;
   private readonly versionSubject: BehaviorSubject<boolean>;
 
   config: Config;
@@ -22,26 +22,33 @@ export class HeaderService {
 
 // tslint:disable-next-line:member-ordering
   private static KEY_CONFIG_LOCAL_STORAGE = 'config';
+  private static KEY_RELOADING_TIMES_LOCAL_STORAGE = 'reloadingTimeMeans';
 
 //  private configUrl = environment.serverUrl + 'monitorStuff/value';
   private configUrl = '/monitorStuff/value';
 
-  constructor (private httpClient: HttpClient,
-               private _translateService: TranslateService,
-               private _notificationService: NotificationService,
-               private _userService: UserService) {
+  constructor(private httpClient: HttpClient,
+              private _translateService: TranslateService,
+              private _notificationService: NotificationService,
+              private _userService: UserService) {
 
     this.searchSubject = new BehaviorSubject<Search>(new Search());
-    this.reloadingSubject = new BehaviorSubject<boolean>(false);
+    this.reloadingSubject = new BehaviorSubject<number>(0);
     this.versionSubject = new BehaviorSubject<boolean>(false);
 
     this._loadConfig();
+
+    this._reloadingTimesMeans = HeaderService._loadReloadingTimesFromLocalStorage();
+    timer(100, 100).subscribe(() => {
+      this._calculateReloadTime();
+    });
   }
 
   // Search management
-  searchObservable (): Observable<Search> {
+  searchObservable(): Observable<Search> {
     return this.searchSubject;
   }
+
   setSearch(search: string) {
     // console.log(search + ' - ' + this.searchSubject.getValue().searchText);
     if (search !== this.searchSubject.getValue().searchText) {
@@ -53,6 +60,7 @@ export class HeaderService {
       });
     }
   }
+
   setSearchNext() {
     this.searchSubject.next({
       shown: this.searchSubject.getValue().shown,
@@ -61,6 +69,7 @@ export class HeaderService {
       foundCurrent: this.searchSubject.getValue().foundCurrent + 1
     });
   }
+
   setSearchFoundCount(count) {
     this.searchSubject.next({
       shown: this.searchSubject.getValue().shown,
@@ -69,6 +78,7 @@ export class HeaderService {
       foundCurrent: this.searchSubject.getValue().foundCurrent
     });
   }
+
   setSearchShown(shown: boolean) {
     this.searchSubject.next({
       shown: shown,
@@ -79,30 +89,91 @@ export class HeaderService {
   }
 
   // Reloading management
-  reloadingObservable (): Observable<boolean> {
+
+  private readonly _reloadingSet = new Set();
+  private readonly _reloadingTimes = {};
+  private readonly _reloadingTimesMeans = {};
+
+  reloadingObservable(): Observable<number> {
     return this.reloadingSubject;
   }
 
-  startReloading () {
-    this.reloadingSubject.next(true);
+  startReloading(key: ReloadingKey) {
+    this._reloadingSet.add(key);
+    this._reloadingTimes[key] = Date.now();
+    // this.reloadingSubject.next(50);
   }
 
-  stopReloading () {
-    this.reloadingSubject.next(false);
+  private _calculateReloadTime() {
+    if (this._reloadingSet.size !== 0) {
+
+      let valueMin = 100;
+      this._reloadingSet.forEach(key => {
+        const DURING = this._reloadingTimesMeans[key] ? this._reloadingTimesMeans[key] : 10000;
+
+        let valueMilliSeconds = Date.now() - this._reloadingTimes[key];
+        if (valueMilliSeconds >= DURING + 1000) {
+          valueMilliSeconds = 0.9 * DURING + 0.1 * (valueMilliSeconds % DURING) / DURING;
+        }
+
+        valueMin = Math.min(valueMin, 100 * valueMilliSeconds / DURING);
+
+      });
+
+      this.reloadingSubject.next(valueMin);
+
+    }
+
   }
+
+  stopReloading(key: ReloadingKey) {
+
+    if (this._reloadingTimesMeans[key]) {
+      this._reloadingTimesMeans[key] = (9 * this._reloadingTimesMeans[key] + (Date.now() - this._reloadingTimes[key])) / 10;
+    } else {
+      this._reloadingTimesMeans[key] = (Date.now() - this._reloadingTimes[key]);
+    }
+    HeaderService._saveReloadingTimesToLocalStorage(this._reloadingTimesMeans);
+
+    this._reloadingSet.delete(key);
+    if (this._reloadingSet.size === 0) {
+      this.reloadingSubject.next(100);
+      setTimeout(() => {
+        this.reloadingSubject.next(0);
+      }, 100);
+    }
+  }
+
+  private static _saveReloadingTimesToLocalStorage(reloadingTimeMeans: {}) {
+    localStorage.setItem(HeaderService.KEY_RELOADING_TIMES_LOCAL_STORAGE, JSON.stringify(reloadingTimeMeans));
+  }
+
+  private static _loadReloadingTimesFromLocalStorage(): {} {
+    try {
+      const ret: {} = JSON.parse(localStorage.getItem(HeaderService.KEY_RELOADING_TIMES_LOCAL_STORAGE));
+      if (ret) {
+        return ret;
+      } else {
+        return {};
+      }
+    } catch {
+      return {};
+    }
+  }
+
 
   // Configuration management
-  configObservable (): Observable<Config> {
+  configObservable(): Observable<Config> {
     return this.configSubject;
   }
 
 
-  toggleShowOnlyPowerfulGear () {
+  toggleShowOnlyPowerfulGear() {
     this.config.showOnlyPowerfulGear = !this.config.showOnlyPowerfulGear;
     this.saveConfig(this.config);
   }
 
-  changeLanguage (language: string) {
+  changeLanguage(language: string) {
     // this.setSearch('');
     this.config.language = language;
 
@@ -112,7 +183,7 @@ export class HeaderService {
     this.saveConfig(this.config);
   }
 
-  toggleSelectedPursuit (key) {
+  toggleSelectedPursuit(key) {
     if (!this.config.selectedPursuits) {
       this.config.selectedPursuits = [];
     }
@@ -127,17 +198,17 @@ export class HeaderService {
   }
 
 
-  saveConfig (config) {
+  saveConfig(config) {
     this.config = config;
     this.configSubject.next(this.config);
     HeaderService._saveConfigToLocalStorage(this.config);
     this._saveConfigToBackend(this.config)
-        .catch((err) => {
-          console.log(err);
-        });
+      .catch((err) => {
+        console.log(err);
+      });
   }
 
-  private _loadConfig () {
+  private _loadConfig() {
     if (!this.config || !this.configSubject) {
       this.config = new Config();
       this.config = {...this.config, ...HeaderService._loadConfigFromLocalStorage()};
@@ -151,38 +222,38 @@ export class HeaderService {
     }
 
     this._loadConfigFromBackend()
-        .then(config => {
-          if (!config.language && !config.selectedPursuits) {
-            let newConfig = new Config();
-            newConfig = {...newConfig, ...HeaderService._loadConfigFromLocalStorage()};
-            newConfig.visible = {...new Config().visible, ...newConfig.visible};
-            this.saveConfig(newConfig);
-          } else {
-            this.config = new Config();
-            this.config = {...this.config, ...config};
-            this.config.visible = {...new Config().visible, ...this.config.visible};
-            // console.log(this.config);
-            this._setLanguageFromConfig();
-            this.configSubject.next(this.config);
-          }
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+      .then(config => {
+        if (!config.language && !config.selectedPursuits) {
+          let newConfig = new Config();
+          newConfig = {...newConfig, ...HeaderService._loadConfigFromLocalStorage()};
+          newConfig.visible = {...new Config().visible, ...newConfig.visible};
+          this.saveConfig(newConfig);
+        } else {
+          this.config = new Config();
+          this.config = {...this.config, ...config};
+          this.config.visible = {...new Config().visible, ...this.config.visible};
+          // console.log(this.config);
+          this._setLanguageFromConfig();
+          this.configSubject.next(this.config);
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   }
 
-  private _setLanguageFromConfig () {
+  private _setLanguageFromConfig() {
     if (!this.config.language) {
       this.config.language = this._translateService.getBrowserLang();
     }
     this._translateService.use(this.config.language);
   }
 
-  private static _saveConfigToLocalStorage (config: Config) {
+  private static _saveConfigToLocalStorage(config: Config) {
     localStorage.setItem(HeaderService.KEY_CONFIG_LOCAL_STORAGE, JSON.stringify(config));
   }
 
-  private static _loadConfigFromLocalStorage (): Config {
+  private static _loadConfigFromLocalStorage(): Config {
     try {
       const ret: Config = JSON.parse(localStorage.getItem(HeaderService.KEY_CONFIG_LOCAL_STORAGE));
       if (ret) {
@@ -195,63 +266,70 @@ export class HeaderService {
     }
   }
 
-  private _saveConfigToBackend (config: Config): Promise<Config> {
+  private _saveConfigToBackend(config: Config): Promise<Config> {
     return new Promise<Config>(((resolve, reject) => {
       this.httpClient.post(this.configUrl, {
         data: config,
         contentType: 'application/json'
       })
-          .subscribe(
-            (data: Object) => {
+        .subscribe(
+          (data: Object) => {
 
-              resolve(data as Config);
-            },
-            err => {
-              reject(err);
-            }
-          );
+            resolve(data as Config);
+          },
+          err => {
+            reject(err);
+          }
+        );
     }));
   }
 
-  private _loadConfigFromBackend (): Promise<Config> {
+  private _loadConfigFromBackend(): Promise<Config> {
     return new Promise<Config>((resolve, reject) => {
       this.httpClient.get(this.configUrl)
-          .subscribe(
-            (data: Object) => {
+        .subscribe(
+          (data: Object) => {
 
-              // console.log(data);
-              if (data['refreshedToken']) {
-                UserService.tokenSetter(data['refreshedToken']);
-                this._userService.checkAuthent();
-              }
-              if (data['version']) {
-                this.checkVersion(data['version']);
-              }
-              resolve(data['data'] as Config);
-            },
-            err => {
-              reject(err);
+            // console.log(data);
+            if (data['refreshedToken']) {
+              UserService.tokenSetter(data['refreshedToken']);
+              this._userService.checkAuthent();
             }
-          );
+            if (data['version']) {
+              this.checkVersion(data['version']);
+            }
+            resolve(data['data'] as Config);
+          },
+          err => {
+            reject(err);
+          }
+        );
     });
   }
 
   // Version management
-  versionObservable (): Observable<boolean> {
+  versionObservable(): Observable<boolean> {
     return this.versionSubject;
   }
-  checkVersion (versionBackend: any) {
+
+  checkVersion(versionBackend: any) {
     if (versionBackend && (versionBackend.commit.hash !== environment.commit.hash)) {
       console.log('should be update : \'' + versionBackend.commit.hash + '\' !== \'' + environment.commit.hash + '\'');
       if (this.versionSubject.getValue() === false) {
         this._translateService.get('update-needed')
-            .subscribe((text => {
-              this._notificationService.warn(text);
-            }));
+          .subscribe((text => {
+            this._notificationService.warn(text);
+          }));
       }
       this.versionSubject.next(true);
     } else {
       this.versionSubject.next(false);
     }
   }
+}
+
+export enum ReloadingKey {
+  ObjectiveTimes,
+  Stats,
+  Checklist
 }
