@@ -3,7 +3,7 @@ import { Subscription } from 'rxjs';
 import { StatsService } from '../../services/stats.service';
 import { Character } from '../../models/character';
 import { GraphTypeKey } from '../../models/graph';
-import { HeaderService } from '../../services/header.service';
+import {HeaderService, ReloadingKey} from '../../services/header.service';
 
 @Component({
   selector: 'app-light',
@@ -33,6 +33,7 @@ export class LightComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy (): void {
+    this._headerService.stopReloading(ReloadingKey.Stats);
     if (this._currentStatsSubscription) {
       this._currentStatsSubscription.unsubscribe();
     }

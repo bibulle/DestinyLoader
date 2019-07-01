@@ -1,9 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, OnDestroy, OnInit} from '@angular/core';
 import { ObjectiveTime } from '../../models/checklist';
 import { Subscription } from 'rxjs/internal/Subscription';
 import { ChecklistService } from '../../services/checklist.service';
 import { Config } from '../../models/config';
-import { HeaderService } from '../../services/header.service';
+import {HeaderService, ReloadingKey} from '../../services/header.service';
 import { TranslateService } from '@ngx-translate/core';
 
 @Component({
@@ -11,7 +11,7 @@ import { TranslateService } from '@ngx-translate/core';
   templateUrl: './objective-times.component.html',
   styleUrls: ['./objective-times.component.scss']
 })
-export class ObjectiveTimesComponent implements OnInit {
+export class ObjectiveTimesComponent implements OnInit, OnDestroy {
 
   objectiveTimes: ObjectiveTime[] = [];
   private _currentObjectiveTimesSubscription: Subscription;
@@ -57,6 +57,17 @@ export class ObjectiveTimesComponent implements OnInit {
       });
 
   }
+
+  ngOnDestroy (): void {
+    this._headerService.stopReloading(ReloadingKey.ObjectiveTimes);
+    if (this._currentObjectiveTimesSubscription) {
+      this._currentObjectiveTimesSubscription.unsubscribe();
+    }
+    if (this._currentConfigSubscription) {
+      this._currentConfigSubscription.unsubscribe();
+    }
+  }
+
 
   getTimeByIncrement (objective: ObjectiveTime): string {
     if (objective.timeEnd === objective.timeStart) {

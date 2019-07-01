@@ -1,11 +1,11 @@
 /* tslint:disable:member-ordering no-bitwise */
-import { AfterViewChecked, ChangeDetectorRef, Component, ElementRef, HostListener, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { Subscription } from 'rxjs';
-import { ChecklistService } from '../../services/checklist.service';
-import { catalystState, Character, Checklist, Objective, ObjectiveTime, Pursuit, PursuitType, Reward } from '../../models/checklist';
-import { Config } from '../../models/config';
-import { HeaderService } from '../../services/header.service';
-import { TranslateService } from '@ngx-translate/core';
+import {AfterViewChecked, ChangeDetectorRef, Component, ElementRef, HostListener, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {Subscription} from 'rxjs';
+import {ChecklistService} from '../../services/checklist.service';
+import {catalystState, Character, Checklist, Objective, ObjectiveTime, Pursuit, PursuitType, Reward} from '../../models/checklist';
+import {Config} from '../../models/config';
+import {HeaderService, ReloadingKey} from '../../services/header.service';
+import {TranslateService} from '@ngx-translate/core';
 import Timer = NodeJS.Timer;
 
 @Component({
@@ -724,6 +724,7 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
   }
 
   ngOnDestroy (): void {
+    this._headerService.stopReloading(ReloadingKey.Checklist);
     if (this._currentChecklistSubscription) {
       this._currentChecklistSubscription.unsubscribe();
     }
