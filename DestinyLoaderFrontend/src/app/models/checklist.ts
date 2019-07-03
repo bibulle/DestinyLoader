@@ -271,6 +271,7 @@ export class Reward {
       case 2817410917: // Bright Dust
       case 1305274547: // Phaseglass Needle
       case 3487922223: // Microphasic Datalattice
+      case 1177810185: // Etheric Spiral
       case 353785467: // Prismatic Facet
       case 3085039018: // Glimmer
       case 3159615086: // Glimmer
