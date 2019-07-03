@@ -1079,7 +1079,9 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
     if (!this.search || (this.search.length < this.SEARCH_MIN_LENGTH)) {
       return string;
     }
-    return string.replace(new RegExp(this.search, 'gi'), match => {
+    // add no break space (and &nbsp;)
+    const search = this.search.replace(/ /, '([  ]|&nbsp;)');
+    return string.replace(new RegExp(search, 'gi'), match => {
       const key = charNum * this.PURSUIT_KEY_MULTIPLIER + pursuitNum;
       if (this.foundList.indexOf(key) === -1) {
         this.foundList.push(key);

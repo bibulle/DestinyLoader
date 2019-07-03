@@ -1,6 +1,6 @@
 {
   "name": "destiny-loader",
-  "version": "0.5.22",
+  "version": "0.5.23",
   "private": true,
   "scripts": {
     "start": "node ./src/bin/www",
