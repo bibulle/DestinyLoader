@@ -1,7 +1,7 @@
 /* tslint:disable:member-ordering */
 import {Injectable} from '@angular/core';
 import {BehaviorSubject, Observable, timer} from 'rxjs';
-import {Config, Search} from '../models/config';
+import {Config, Search, SearchStyle} from '../models/config';
 import {TranslateService} from '@ngx-translate/core';
 import {HttpClient} from '@angular/common/http';
 import {environment} from '../../environments/environment';
@@ -56,7 +56,8 @@ export class HeaderService {
         shown: this.searchSubject.getValue().shown,
         searchText: search,
         foundCount: 0,
-        foundCurrent: 0
+        foundCurrent: 0,
+        style: this.searchSubject.getValue().style
       });
     }
   }
@@ -66,7 +67,8 @@ export class HeaderService {
       shown: this.searchSubject.getValue().shown,
       searchText: this.searchSubject.getValue().searchText,
       foundCount: this.searchSubject.getValue().foundCount,
-      foundCurrent: this.searchSubject.getValue().foundCurrent + 1
+      foundCurrent: this.searchSubject.getValue().foundCurrent + 1,
+      style: this.searchSubject.getValue().style
     });
   }
 
@@ -75,7 +77,8 @@ export class HeaderService {
       shown: this.searchSubject.getValue().shown,
       searchText: this.searchSubject.getValue().searchText,
       foundCount: count,
-      foundCurrent: this.searchSubject.getValue().foundCurrent
+      foundCurrent: this.searchSubject.getValue().foundCurrent,
+      style: this.searchSubject.getValue().style
     });
   }
 
@@ -84,7 +87,18 @@ export class HeaderService {
       shown: shown,
       searchText: (shown ? this.searchSubject.getValue().searchText : ''),
       foundCount: (shown ? this.searchSubject.getValue().foundCount : 0),
-      foundCurrent: (shown ? this.searchSubject.getValue().foundCurrent : 0)
+      foundCurrent: (shown ? this.searchSubject.getValue().foundCurrent : 0),
+      style: this.searchSubject.getValue().style
+    });
+  }
+
+  toggleSearchType() {
+    this.searchSubject.next({
+      shown: this.searchSubject.getValue().shown,
+      searchText: this.searchSubject.getValue().searchText,
+      foundCount: this.searchSubject.getValue().foundCount,
+      foundCurrent: this.searchSubject.getValue().foundCurrent,
+      style: (this.searchSubject.getValue().style === SearchStyle.SEARCH ? SearchStyle.FILTER : SearchStyle.SEARCH)
     });
   }
 
@@ -168,10 +182,10 @@ export class HeaderService {
   }
 
 
-  toggleShowOnlyPowerfulGear() {
-    this.config.showOnlyPowerfulGear = !this.config.showOnlyPowerfulGear;
-    this.saveConfig(this.config);
-  }
+  // toggleShowOnlyPowerfulGear() {
+  //   this.config.showOnlyPowerfulGear = !this.config.showOnlyPowerfulGear;
+  //   this.saveConfig(this.config);
+  // }
 
   changeLanguage(language: string) {
     // this.setSearch('');

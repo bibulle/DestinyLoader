@@ -2,7 +2,7 @@ import { AfterViewInit, Component, ElementRef, EventEmitter, OnDestroy, OnInit, 
 import { NavigationEnd, Router } from '@angular/router';
 import { UserService } from '../../services/user.service';
 import { HeaderService } from '../../services/header.service';
-import { Config, Search } from '../../models/config';
+import {Config, Search, SearchStyle} from '../../models/config';
 import { Subscription } from 'rxjs';
 import { User } from '../../models/user';
 import { environment } from '../../../environments/environment';
@@ -14,7 +14,7 @@ import { environment } from '../../../environments/environment';
 })
 export class NavbarComponent implements OnInit, OnDestroy, AfterViewInit {
 
-  @Output() onHeight = new EventEmitter<number>();
+  @Output() outputOnHeight = new EventEmitter<number>();
 
   linksLeft: { path: string, label: string, icon: string, iconType: string, selected: boolean }[] = [];
   linksRight: { path: string, label: string, icon: string, iconType: string, selected: boolean }[] = [];
@@ -28,6 +28,7 @@ export class NavbarComponent implements OnInit, OnDestroy, AfterViewInit {
 
   search = new Search();
   searchTextfield = '';
+  searchStyle = SearchStyle;
   private _currentSearchSubscription: Subscription;
 
   config: Config = new Config();
@@ -150,7 +151,7 @@ export class NavbarComponent implements OnInit, OnDestroy, AfterViewInit {
   checkHeight() {
     setTimeout(() => {
       if (this._elementRef && this._elementRef.nativeElement) {
-        this.onHeight.emit(this._elementRef.nativeElement.offsetHeight);
+        this.outputOnHeight.emit(this._elementRef.nativeElement.offsetHeight);
         // console.log(this._elementRef.nativeElement.offsetHeight);
       }
     });
@@ -162,9 +163,9 @@ export class NavbarComponent implements OnInit, OnDestroy, AfterViewInit {
     this.checkHeight();
   }
 
-  toggleShowOnlyPowerfulGear () {
-    this._headerService.toggleShowOnlyPowerfulGear();
-  }
+  // toggleShowOnlyPowerfulGear () {
+  //   this._headerService.toggleShowOnlyPowerfulGear();
+  // }
 
   saveConfig (event) {
     event.stopPropagation();
@@ -190,6 +191,10 @@ export class NavbarComponent implements OnInit, OnDestroy, AfterViewInit {
   searchNext (event: any) {
     event.stopPropagation();
     this._headerService.setSearchNext();
+  }
+
+  searchToggleType () {
+    this._headerService.toggleSearchType();
   }
 
   update() {

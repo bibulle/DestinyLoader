@@ -35,8 +35,12 @@ export class Search {
 //  action: SearchAction = SearchAction.FIRST;
   foundCount = 0;
   foundCurrent = 0;
+  style = SearchStyle.SEARCH;
 }
 
 export enum SearchAction {
   FIRST, NEXT
+}
+export enum SearchStyle {
+  SEARCH, FILTER
 }

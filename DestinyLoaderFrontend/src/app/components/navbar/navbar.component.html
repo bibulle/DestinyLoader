@@ -47,7 +47,8 @@
         <input matInput placeholder="{{ 'label.search' | translate }}" [(ngModel)]="searchTextfield"
                (ngModelChange)="searchText()" (keyup.enter)="searchNext($event)">
         <mat-hint *ngIf="search.foundCount > 0" align="start">{{search.foundCurrent % search.foundCount + 1}}/{{search.foundCount}}</mat-hint>
-        <mat-icon matSuffix (click)="searchNext($event)">search</mat-icon>
+        <mat-icon *ngIf="search.style === searchStyle.SEARCH" matSuffix (click)="searchToggleType()">search</mat-icon>
+        <mat-icon *ngIf="search.style === searchStyle.FILTER" matSuffix (click)="searchToggleType()">filter_list</mat-icon>
       </mat-form-field>
     </div>
 
@@ -77,14 +78,14 @@
     </mat-menu>
     <mat-menu #visibleItems="matMenu">
       <button mat-menu-item *ngFor="let key of visibleRewardsKeys">
-        <mat-checkbox class="objective-checkbox" readonly (click)="saveConfig($event)"
+        <mat-checkbox class="objective-checkbox" (click)="saveConfig($event)"
                       [(ngModel)]="config.visible.rewards[key]">
           <span>{{'label.' + key | translate}}</span>
         </mat-checkbox>
       </button>
       <mat-divider></mat-divider>
       <button mat-menu-item *ngFor="let key of visibleTypeKeys">
-        <mat-checkbox class="objective-checkbox" readonly (click)="saveConfig($event)"
+        <mat-checkbox class="objective-checkbox" (click)="saveConfig($event)"
                       [(ngModel)]="config.visible.types[key]">
           <span>{{'label.' + key | translate}}</span>
         </mat-checkbox>

@@ -3,7 +3,7 @@ import {AfterViewChecked, ChangeDetectorRef, Component, ElementRef, HostListener
 import {Subscription} from 'rxjs';
 import {ChecklistService} from '../../services/checklist.service';
 import {catalystState, Character, Checklist, Objective, ObjectiveTime, Pursuit, PursuitType, Reward} from '../../models/checklist';
-import {Config} from '../../models/config';
+import {Config, SearchStyle} from '../../models/config';
 import {HeaderService, ReloadingKey} from '../../services/header.service';
 import {TranslateService} from '@ngx-translate/core';
 import Timer = NodeJS.Timer;
@@ -26,6 +26,7 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
   oldLanguage = '';
 
   search = '';
+  private searchStyle = SearchStyle.SEARCH;
   foundList: number[] = [];
   searchTimout: Timer;
   private _currentSearchSubscription: Subscription;
@@ -577,7 +578,7 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
 
 
         // console.log(checklist);
-        this.foundList = [];
+        // this.foundList = [];
         ChecklistComponent.updateObject(checklist, this.checklist);
         console.log(this.checklist);
 
@@ -614,6 +615,7 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
         }
 
         this.search = search.searchText;
+        this.searchStyle = search.style;
 
         if (search.searchText.length >= this.SEARCH_MIN_LENGTH) {
           if (this.searchTimout) {
@@ -874,10 +876,10 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
   }
 
 
-  toggleShowOnlyPowerfulGear (event: any) {
-    event.stopPropagation();
-    this._headerService.toggleShowOnlyPowerfulGear();
-  }
+  // toggleShowOnlyPowerfulGear (event: any) {
+  //   event.stopPropagation();
+  //   this._headerService.toggleShowOnlyPowerfulGear();
+  // }
 
 
   static getPursuitKey (pursuit, character) {
@@ -908,7 +910,7 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
     return this.config.selectedPursuits && (this.config.selectedPursuits.indexOf(ChecklistComponent.getPursuitKey(pursuit, character)) > -1);
   }
 
-  pursuitShouldBeDisplayed (pursuit: Pursuit, character) {
+  pursuitShouldBeDisplayed(character: Character, pursuit: Pursuit, charNum: number, pursuitNum: number) {
     if (!pursuit) {
       return false;
     }
@@ -1050,6 +1052,13 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
       ret = ret || this.config.visible.types.pursuit;
     }
 
+
+    if (ret && (this.searchStyle === SearchStyle.FILTER)) {
+      const key = charNum * this.PURSUIT_KEY_MULTIPLIER + pursuitNum;
+      if (this.foundList.indexOf(key) === -1) {
+        ret = false;
+      }
+    }
 
     return ret;
   }
