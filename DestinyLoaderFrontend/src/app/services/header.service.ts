@@ -39,7 +39,7 @@ export class HeaderService {
     this._loadConfig();
 
     this._reloadingTimesMeans = HeaderService._loadReloadingTimesFromLocalStorage();
-    timer(100, 100).subscribe(() => {
+    timer(200, 200).subscribe(() => {
       this._calculateReloadTime();
     });
   }
