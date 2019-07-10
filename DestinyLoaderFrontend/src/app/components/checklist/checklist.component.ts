@@ -79,7 +79,7 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
               currentTimeObjective[ot.characterId] = {};
             }
             currentTimeObjective[ot.characterId][ot.objectiveId] = ot;
-            // console.log(ot);
+            // console.log(ot.objectiveId);
           });
 
 
@@ -238,7 +238,7 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
                         // add running objective
                         if (currentTimeObjective[char.characterId] &&
                           currentTimeObjective[char.characterId][objective.objectiveHash] &&
-                          currentTimeObjective[char.characterId][objective.objectiveHash].pursuitId === newTriumph.itemInstanceId) {
+                          currentTimeObjective[char.characterId][objective.objectiveHash].pursuitId === (newTriumph.itemInstanceId || 'HardCoded')) {
                           newObjective.runningTimeObjective = currentTimeObjective[char.characterId][objective.objectiveHash];
                           newObjective.runningTimeObjective.timeStart = new Date(newObjective.runningTimeObjective.timeStart);
                           newObjective.runningTimeObjective.timeRunning = (new Date().getTime() - newObjective.runningTimeObjective.timeStart.getTime());
@@ -333,7 +333,7 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
                         // add running objective
                         if (currentTimeObjective[char.characterId] &&
                           currentTimeObjective[char.characterId][objective.objectiveHash] &&
-                          currentTimeObjective[char.characterId][objective.objectiveHash].pursuitId === newCatalyst.itemInstanceId) {
+                          currentTimeObjective[char.characterId][objective.objectiveHash].pursuitId === (newCatalyst.itemInstanceId || 'HardCoded')) {
                           newObjective.runningTimeObjective = currentTimeObjective[char.characterId][objective.objectiveHash];
                           newObjective.runningTimeObjective.timeStart = new Date(newObjective.runningTimeObjective.timeStart);
                           newObjective.runningTimeObjective.timeRunning = (new Date().getTime() - newObjective.runningTimeObjective.timeStart.getTime());
@@ -393,7 +393,7 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
                         // add running objective
                         if (currentTimeObjective[char.characterId] &&
                           currentTimeObjective[char.characterId][objective.objectiveHash] &&
-                          currentTimeObjective[char.characterId][objective.objectiveHash].pursuitId === newTriumph.itemInstanceId) {
+                          currentTimeObjective[char.characterId][objective.objectiveHash].pursuitId === (newTriumph.itemInstanceId || 'HardCoded')) {
                           newObjective.runningTimeObjective = currentTimeObjective[char.characterId][objective.objectiveHash];
                           newObjective.runningTimeObjective.timeStart = new Date(newObjective.runningTimeObjective.timeStart);
                           newObjective.runningTimeObjective.timeRunning = (new Date().getTime() - newObjective.runningTimeObjective.timeStart.getTime());
@@ -442,7 +442,7 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
 
                 if (currentTimeObjective[char.characterId] &&
                   currentTimeObjective[char.characterId][objective.objectiveHash] &&
-                  currentTimeObjective[char.characterId][objective.objectiveHash].pursuitId === pursuit.itemInstanceId) {
+                  currentTimeObjective[char.characterId][objective.objectiveHash].pursuitId === (pursuit.itemInstanceId || 'HardCoded')) {
                   objective.runningTimeObjective = currentTimeObjective[char.characterId][objective.objectiveHash];
                   objective.runningTimeObjective.timeStart = new Date(objective.runningTimeObjective.timeStart);
                   objective.runningTimeObjective.timeRunning = (new Date().getTime() - objective.runningTimeObjective.timeStart.getTime());

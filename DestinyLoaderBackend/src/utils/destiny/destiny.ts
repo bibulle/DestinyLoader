@@ -1155,6 +1155,14 @@ export class Destiny {
                           Destiny.queryObjectiveById(objective.objectiveHash,
                             (err, item) => {
                               objective.item = _.pick(item, ['progressDescription']);
+
+                              // add objective to list
+                              Object.keys(data.characters.data).forEach(characterId => {
+                                const key = characterId + triumph.hash + objective.objectiveHash;
+                                //debug(key+' => '+objective.progress);
+                                result.objectives[key] = objective.progress;
+                              });
+
                               callback(err);
                             },
                             lang)
@@ -1287,6 +1295,12 @@ export class Destiny {
                               Destiny.queryObjectiveById(objective.objectiveHash,
                                 (err, item) => {
                                   objective.item = _.pick(item, ['progressDescription']);
+
+                                  // add objective to list
+                                  const key = character.characterId + triumph.hash + objective.objectiveHash;
+                                  //debug(key+' => '+objective.progress);
+                                  result.objectives[key] = objective.progress;
+
                                   callback(err);
                                 },
                                 lang)
@@ -1436,6 +1450,12 @@ export class Destiny {
                                   });
                                   if (!found) {
                                     milestone.objectives.push(challenge.objective);
+
+                                    // add objective to list
+                                    //debug(challenge);
+                                    const key = character.characterId + milestone.instanceId + challenge.objective.objectiveHash;
+                                    //debug(key+' => '+challenge.objective.progress);
+                                    result.objectives[key] = challenge.objective.progress;
                                   }
                                   callback();
                                 },
@@ -1463,6 +1483,11 @@ export class Destiny {
                                   });
                                   if (!found) {
                                     milestone.objectives.push(challenge);
+                                    // add objective to list
+                                    //debug(challenge);
+                                    const key = character.characterId + milestone.instanceId + challenge.objectiveHash;
+                                    //debug(key+' => '+challenge.progress);
+                                    result.objectives[key] = challenge.progress;
                                   }
                                   callback();
                                 },
@@ -2009,10 +2034,10 @@ export class Destiny {
                         async.eachSeries(
                           item.objective.objectives,
                           function (objective, callback) {
-                            const key = (item.characterId || user.bungieNetUser.membershipId) + item.itemInstanceId + objective.objectiveHash;
+                            const key = (item.characterId || user.bungieNetUser.membershipId) + (item.itemInstanceId || 'HardCoded') + objective.objectiveHash;
                             //debug(key+' -> '+objective.progress);
                             result.objectives[key] = objective.progress;
-                            //debug(item.itemInstanceId+' '+item.itemName);
+                            //debug(item.itemInstanceId+' '+item.itemName+' => '+objective.progress);
                             //if (objective.objectiveHash == 3521931022) {
                             //debug(item);
                             //}
@@ -3705,7 +3730,7 @@ export class Destiny {
           error(err);
         } else {
           debug('Corrected');
-          debug(t);
+          //debug(t);
         }
       });
     }
