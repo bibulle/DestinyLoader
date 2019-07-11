@@ -735,8 +735,16 @@ export class Destiny {
       //debug(JSON.stringify(data.profilePlugSets, null, 2));
       //debug(JSON.stringify(data.profileProgression, null, 2));
       //debug(JSON.stringify(data.profileRecords, null, 2));
+      //debug(Object.keys(data.profileRecords.data.records));
       //debug(data.profileRecords.data.score);
-      //debug(data.profileRecords.data.records['87609703']);
+      //debug(data.profileRecords.data.records['11994000']);
+      //Object.keys(data.profileRecords.data.records).forEach(hash => {
+      //   Destiny.queryRecordById(hash, (err, data) => {
+      //     if (data && data.displayProperties) {
+      //       debug(hash + ' -> ' + data.displayProperties.name);
+      //     }
+      //   }, lang);
+      //});
       //Destiny.queryRecordById('87609703', (err, data) => {
       //debug(data)
       //}, lang);
@@ -747,6 +755,19 @@ export class Destiny {
       //debug(JSON.stringify(data.characters, null, 2));
       //debug(JSON.stringify(data.characterInventories, null, 2));
       //debug(JSON.stringify(data.characterProgressions, null, 2));
+      //debug(Object.keys(data.characterProgressions.data));
+      //debug(Object.keys(data.characterProgressions.data["2305843009262856643"].progressions['70699614']));
+      //debug(JSON.stringify(data.characterProgressions.data["2305843009262856643"].progressions['2772425241'], null, 2));
+      // Object.keys(data.characterProgressions.data["2305843009262856643"].progressions).forEach(hash => {
+      //   Destiny.queryProgressionById(hash, (err, data) => {
+      //     if (data && data.displayProperties) {
+      //       debug(hash + ' -> ' + data.displayProperties.name);
+      //     }
+      //     if (hash === '2772425241') {
+      //       debug(data);
+      //     }
+      //   }, lang);
+      // });
       //debug(JSON.stringify(data.characterProgressions.data["2305843009262856643"].uninstancedItemObjectives, null, 2));
       //debug(JSON.stringify(data.characterActivities, null, 2));
       //debug(JSON.stringify(data.characterEquipment, null, 2));
@@ -777,6 +798,7 @@ export class Destiny {
 
       const checklistToLoad = [];
       const milestoneToLoad = [];
+      const progressionToLoad = [];
 
 
       async.series([
@@ -1194,7 +1216,7 @@ export class Destiny {
           function (callback) {
             async.eachSeries(
               result.characters,
-              function(character, callback) {
+              function (character, callback) {
                 character.triumphs = [];
                 async.forEachSeries(
                   Object.keys(data.characterRecords.data[character.characterId].records),
@@ -1613,6 +1635,204 @@ export class Destiny {
             );
           },
 
+          // read the progressions for characters
+          function (callback) {
+            async.eachSeries(
+              result.characters,
+              function (character, callback) {
+                character.progressions = [];
+                async.eachSeries(
+                  Object.keys(data.characterProgressions.data[character.characterId].progressions),
+                  function (progressionId, callback) {
+                    const progression = {
+                      data: data.characterProgressions.data[character.characterId].progressions[progressionId],
+                      instanceId: progressionId,
+                      characterId: character.characterId,
+                      objectives: []
+                    };
+
+                    // async.waterfall([
+                    //     function (callback) {
+                    //       // Read the objectives
+                    //       milestone.objectives = [];
+                    //       async.eachSeries(
+                    //         milestone.data.activities,
+                    //         function (activity, callback) {
+                    //           async.eachSeries(
+                    //             activity.challenges,
+                    //             function (challenge, callback) {
+                    //               let found = false;
+                    //               milestone.objectives.forEach(obj => {
+                    //                 if (obj.objectiveHash === challenge.objective.objectiveHash) {
+                    //                   found = true;
+                    //                 }
+                    //               });
+                    //               if (!found) {
+                    //                 milestone.objectives.push(challenge.objective);
+                    //
+                    //                 // add objective to list
+                    //                 //debug(challenge);
+                    //                 const key = character.characterId + milestone.instanceId + challenge.objective.objectiveHash;
+                    //                 //debug(key+' => '+challenge.objective.progress);
+                    //                 result.objectives[key] = challenge.objective.progress;
+                    //               }
+                    //               callback();
+                    //             },
+                    //             function (err) {
+                    //               callback(err);
+                    //             });
+                    //         },
+                    //         function (err) {
+                    //           callback(err);
+                    //         });
+                    //     },
+                    //     function (callback) {
+                    //       // Read the objectives (from quests)
+                    //       async.eachSeries(
+                    //         milestone.data.availableQuests,
+                    //         function (quest, callback) {
+                    //           async.eachSeries(
+                    //             quest.status.stepObjectives,
+                    //             function (challenge, callback) {
+                    //               let found = false;
+                    //               milestone.objectives.forEach(obj => {
+                    //                 if (obj.objectiveHash === challenge.objectiveHash) {
+                    //                   found = true;
+                    //                 }
+                    //               });
+                    //               if (!found) {
+                    //                 milestone.objectives.push(challenge);
+                    //                 // add objective to list
+                    //                 //debug(challenge);
+                    //                 const key = character.characterId + milestone.instanceId + challenge.objectiveHash;
+                    //                 //debug(key+' => '+challenge.progress);
+                    //                 result.objectives[key] = challenge.progress;
+                    //               }
+                    //               callback();
+                    //             },
+                    //             function (err) {
+                    //               callback(err);
+                    //             });
+                    //         },
+                    //         function (err) {
+                    //           callback(err);
+                    //         });
+                    //     },
+                    //     function (callback) {
+                    //       // Read the rewards
+                    //       milestone.rewards = [];
+                    //       async.eachSeries(
+                    //         milestone.data.rewards,
+                    //         function (rewardCategory, callback) {
+                    //           async.eachSeries(
+                    //             rewardCategory.entries,
+                    //             function (reward, callback) {
+                    //               reward.rewardCategoryHash = rewardCategory.rewardCategoryHash;
+                    //               reward.itemHash = reward.rewardEntryHash;
+                    //               milestone.rewards.push(reward);
+                    //               //debug(JSON.stringify(reward, null, 2));
+                    //               callback();
+                    //             },
+                    //             function (err) {
+                    //               callback(err);
+                    //             });
+                    //         },
+                    //         function (err) {
+                    //           callback(err);
+                    //         });
+                    //     },
+                    //     function (callback) {
+                    //       // Add rewards on missing one
+                    //       if ((milestone.data.milestoneHash === Destiny.MILESTONE_FLASH_POINT) ||
+                    //         (milestone.data.milestoneHash === Destiny.MILESTONE_GUARDIAN_OF_ALL) ||
+                    //         (milestone.data.milestoneHash === Destiny.MILESTONE_IRON_BANNER) ||
+                    //         (milestone.data.milestoneHash === Destiny.MILESTONE_RECIPE_FOR_SUCCESS)) {
+                    //         if (milestone.rewards.length == 0) {
+                    //           let reward = {
+                    //             earned: false,
+                    //             itemHash: Destiny.CHALLENGE_SOURCED_REWARD,
+                    //             items: [],
+                    //             redeemed: false,
+                    //             rewardCategoryHash: Destiny.CHALLENGE_SOURCED_REWARD,
+                    //             rewardEntryHash: Destiny.CHALLENGE_SOURCED_REWARD,
+                    //             quantity: 1,
+                    //             displayProperties: {}
+                    //           };
+                    //           milestone.rewards.push(reward);
+                    //
+                    //           Destiny.queryItemById(Destiny.POWERFUL_GEAR, (err, data) => {
+                    //             reward.displayProperties = data.displayProperties;
+                    //             //debug(JSON.stringify(reward, null, 2));
+                    //             callback();
+                    //           }, lang);
+                    //
+                    //         } else {
+                    //           callback();
+                    //         }
+                    //       } else {
+                    //         callback();
+                    //       }
+                    //     },
+                    //     function (callback) {
+                    //       //debug(milestone); // "536115997"
+                    //       // Read the rewards from quests
+                    //       if (milestone.data.milestoneHash) {
+                    //
+                    //         Destiny.queryMilestoneById(milestone.data.milestoneHash, (err, milestoneDef) => {
+                    //           if (milestoneDef.quests) {
+                    //             async.eachSeries(
+                    //               Object.keys(milestoneDef.quests),
+                    //               function (questItemHash, callback) {
+                    //                 if (!milestoneDef.quests[questItemHash].questRewards) {
+                    //                   return callback()
+                    //                 }
+                    //                 //debug(milestoneDef.displayProperties.description);
+                    //                 milestone.rewards.push(milestoneDef.quests[questItemHash].questRewards.items[0]);
+                    //                 Destiny.queryItemById(milestoneDef.quests[questItemHash].questRewards.items[0].itemHash, (err, data) => {
+                    //                   //debug(data.displayProperties);
+                    //                   milestoneDef.quests[questItemHash].questRewards.items[0].displayProperties = data.displayProperties;
+                    //                   callback();
+                    //                 }, lang)
+                    //
+                    //               },
+                    //               function (err) {
+                    //                 //debug(JSON.stringify(milestone.rewards, null, 2));
+                    //                 callback(err);
+                    //               }
+                    //             )
+                    //           } else {
+                    //             callback(err);
+                    //           }
+                    //         }, lang)
+                    //       } else {
+                    //         callback(err);
+                    //       }
+                    //     }
+                    //   ],
+                    //   function (err) {
+                    //if (milestoneId === '3603098564') {
+                    //debug(milestone);
+                    //}
+                    character.progressions.push(progression);
+                    //debug(progression);
+                    progressionToLoad.push(progression);
+                    callback(err);
+                    //});
+
+
+                  },
+                  function (err) {
+                    callback(err);
+                  }
+                )
+              },
+              function (err) {
+                //console.log(profileProgressionTable);
+                callback(err);
+              }
+            );
+          },
+
           // Fill the checklist from manifest
           function (callback) {
             async.eachSeries(
@@ -1761,6 +1981,119 @@ export class Destiny {
                 } else {
                   error("Empty milestone definition");
                   error(JSON.stringify(milestone.instanceId, null, 2));
+                  callback(null);
+                }
+              },
+              function (err) {
+                callback(err);
+              }
+            );
+          },
+
+          // Fill the progression from manifest
+          function (callback) {
+            async.eachSeries(
+              progressionToLoad,
+              function (progression, callback) {
+                if (progression.instanceId) {
+                  Destiny.queryProgressionById(progression.instanceId, function (err, definition) {
+                    if (err) return callback(err);
+                    progression.definition = definition;
+                    progression.progressionName = definition.displayProperties.name;
+                    progression.icon = definition.displayProperties.icon;
+                    progression.description = definition.displayProperties.description;
+
+                    //result.pursuitsName[progression.instanceId] = 'Progression : ' + definition.displayProperties.name;
+
+                    // if no name, unknown one
+                    if (!progression.progressionName) {
+                      //debug.error("Empty definition name");
+                      //debug.warn(JSON.stringify(definition, null, 2));
+                      progression.progressionName = "Unknown name";
+                    }
+                    // weird (double) progressions
+                    if (progression.definition.scope === 8) {
+                      //debug.error("Empty definition name");
+                      //debug.warn(JSON.stringify(definition, null, 2));
+                      progression.progressionName = "Unknown name";
+                    }
+
+                    // if no icon, search elsewhere
+                    if (!progression.icon && definition.quests) {
+                      Object.keys(definition.quests).forEach(q => {
+                        if (definition.quests[q].displayProperties.icon) {
+                          progression.icon = definition.quests[q].displayProperties.icon;
+                        }
+                      })
+                    }
+
+                    // add fake objectives
+                    if (definition.steps && (definition.repeatLastStep === false)) {
+                      let progressTotal = 0;
+                      definition.steps.forEach(step => {
+                        progressTotal += step.progressTotal;
+                      });
+                      if (progressTotal) {
+                        progression.objectives.push({
+                          objectiveHash: progression.instanceId + "_1",
+                          completionValue: progressTotal,
+                          complete: (progression.data.currentProgress >= progressTotal),
+                          progress: progression.data.currentProgress,
+                          itemName: 'Points to reset'
+                        });
+                        const key = progression.characterId + progression.instanceId + progression.instanceId + "_1";
+                        result.objectives[key] = progression.data.currentProgress;
+
+                      }
+                    } else {
+                      const completionValue = progression.data.currentProgress - progression.data.progressToNextLevel + progression.data.nextLevelAt;
+                      progression.objectives.push({
+                        objectiveHash: progression.instanceId + "_1",
+                        completionValue: completionValue,
+                        complete: (progression.data.currentProgress >= completionValue),
+                        progress: progression.data.currentProgress,
+                        itemName: 'Points to level '+ (progression.data.level + 1)
+                      });
+                      const key = progression.characterId + progression.instanceId + progression.instanceId + "_1";
+                      result.objectives[key] = progression.data.currentProgress;
+                    }
+                    if (progression.data.seasonResets) {
+                      let resets = 0;
+                      progression.data.seasonResets.forEach(r => {
+                        if (r.resets > resets) {
+                          resets = r.resets;
+                        }
+                      });
+                      progression.objectives.push({
+                        objectiveHash: progression.instanceId + "_2",
+                        completionValue: 3,
+                        complete: (resets >= 3),
+                        progress: resets,
+                        itemName: 'Resets max'
+                      });
+                      const key = progression.characterId + progression.instanceId + progression.instanceId + "_2";
+                      result.objectives[key] = resets;
+                    }
+
+                    // if (progression.progressionName !== 'Unknown name') {
+                    //   //debug(JSON.stringify(progression,null,2));
+                    //   debug(progression.progressionName+' '+progression.definition.scope);
+                    // }
+
+                    //if (progression.data && progression.data.activities && (progression.data.activities[0].challenges.length > 1)) {
+                    //debug(progression.progressionName+" "+progression.instanceId);
+                    //debug(progression.data.activities);
+                    //}
+
+                    //if (progression.instanceId === '3427325023') {
+                    //debug(progression);
+                    //}
+
+                    callback(err);
+                  }, lang)
+                } else {
+                  error("Empty progression definition");
+                  error(JSON.stringify(progression.instanceId, null, 2));
                   callback(null);
                 }
               },
@@ -2204,7 +2537,7 @@ export class Destiny {
                       async.eachSeries(result.items['1345459588'][key],
                         (item, callback) => {
                           //debug(item);
-                          result.pursuitsName[item.itemInstanceId] = 'Pursuit : '+item.name;
+                          result.pursuitsName[item.itemInstanceId] = 'Pursuit : ' + item.name;
                           callback();
                         },
                         function (err) {
@@ -2222,7 +2555,25 @@ export class Destiny {
                       async.eachSeries(char.milestones,
                         (milestone, callback) => {
                           //debug(milestone);
-                          result.pursuitsName[milestone.instanceId] = 'Milestone : '+milestone.milestoneName;
+                          result.pursuitsName[milestone.instanceId] = 'Milestone : ' + milestone.milestoneName;
+                          callback();
+                        },
+                        function (err) {
+                          callback(err);
+                        });
+                    },
+                    function (err) {
+                      callback(err);
+                    });
+                },
+                // Progression
+                function (callback) {
+                  async.eachSeries(result.characters,
+                    (char, callback) => {
+                      async.eachSeries(char.progressions,
+                        (progression, callback) => {
+                          //debug(progression);
+                          result.pursuitsName[progression.instanceId] = 'Progression : ' + progression.progressionName;
                           callback();
                         },
                         function (err) {
@@ -2238,7 +2589,7 @@ export class Destiny {
                   async.eachSeries(result.catalysts,
                     (catalyst, callback) => {
                       //debug(catalyst);
-                      result.pursuitsName[catalyst.inventoryItem.itemInstanceId] = 'Catalyst : '+catalyst.inventoryItem.itemName;
+                      result.pursuitsName[catalyst.inventoryItem.itemInstanceId] = 'Catalyst : ' + catalyst.inventoryItem.itemName;
                       callback();
                     },
                     function (err) {
@@ -2250,7 +2601,7 @@ export class Destiny {
                   async.eachSeries(result.triumphs,
                     (triumph, callback) => {
                       //debug(triumph);
-                      result.pursuitsName[triumph.hash] = 'Triumph : '+triumph.item.displayProperties.name;
+                      result.pursuitsName[triumph.hash] = 'Triumph : ' + triumph.item.displayProperties.name;
                       callback();
                     },
                     function (err) {
@@ -2266,7 +2617,7 @@ export class Destiny {
                           async.eachSeries(vendor.sales,
                             (sale, callback) => {
                               //debug(sale);
-                              result.pursuitsName[sale.hash] = 'Contract : '+sale.name;
+                              result.pursuitsName[sale.hash] = 'Contract : ' + sale.name;
                               callback();
                             },
                             function (err) {
@@ -2810,6 +3161,7 @@ export class Destiny {
                     Destiny.vendorHashCacheById = {};
                     Destiny.classHashCacheById = {};
                     Destiny.raceHashCacheById = {};
+                    Destiny.progressionHashCacheById = {};
 
                     async.eachSeries(
                       Config.languages,
@@ -2877,6 +3229,9 @@ export class Destiny {
                             },
                             function (foo, callback) {
                               Destiny.queryMilestoneById("", callback, lang);
+                            },
+                            function (foo, callback) {
+                              Destiny.queryProgressionById("", callback, lang);
                             },
                             // function (foo, callback) {
                             //   Destiny.queryMilestoneById(Destiny.MILESTONE_GUARDIAN_OF_ALL, function (err, milestone) {
@@ -3451,6 +3806,44 @@ export class Destiny {
   };
 
   private static recordHashCacheById: { [lang: string]: object } = {};
+
+// get Progression definition
+  private static queryProgressionById(progressionHash, callback, lang: string) {
+    if (!Destiny.progressionHashCacheById[Config.getLang(lang)]) {
+      Destiny.progressionHashCacheById[Config.getLang(lang)] = {};
+      try {
+        Destiny.initManifestDb((err) => {
+          if (err) {
+            return callback(err);
+          }
+          Destiny.manifestDb[Config.getLang(lang)].serialize(function () {
+            const query = "SELECT * FROM DestinyProgressionDefinition";
+            Destiny.manifestDb[Config.getLang(lang)].each(query, function (err, row) {
+              if (err) throw err;
+
+              //debug(JSON.stringify(row, null, 2));
+              const data = JSON.parse(row.json);
+              //debug(JSON.stringify(data, null, 2));
+              Destiny.progressionHashCacheById[Config.getLang(lang)][data.hash] = data;
+            }, function (err, cpt) {
+              debug(cpt + " Progression definitions read");
+              //debug(JSON.stringify(ProgressionHash, null, 2));
+              callback(null, Destiny.progressionHashCacheById[Config.getLang(lang)][progressionHash]);
+            });
+          });
+        }, Config.getLang(lang));
+
+      } catch (e) {
+        callback(e);
+      }
+
+    } else {
+      callback(null, Destiny.progressionHashCacheById[Config.getLang(lang)][progressionHash]);
+    }
+
+  };
+
+  private static progressionHashCacheById: { [lang: string]: object } = {};
 
 //noinspection JSUnusedLocalSymbols
   public static checkConf(conf, callback, lang: string) {

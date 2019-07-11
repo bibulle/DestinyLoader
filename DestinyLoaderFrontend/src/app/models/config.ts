@@ -24,7 +24,8 @@ export class Config {
       // prime_gambit: true,
       pursuit: true,
       triumph: false,
-      triumphRedeemable: false
+      triumphRedeemable: false,
+      progression: false
     }
   };
 }

@@ -95,6 +95,20 @@ export class Character {
       itemName: string;
     }[];
   }[];
+  progressions: {
+    instanceId: string;
+    progressionName: string;
+    description: string;
+    icon: string;
+    objectives: {
+      objectiveHash: string;
+      completionValue: number;
+      complete: boolean;
+      progress: number;
+      itemName: string;
+    }[];
+  }[];
+
   light: number;
   pursuits: (Pursuit)[];
   triumphs: Triumph[];
@@ -130,6 +144,7 @@ export class Pursuit {
   static ITEM_TYPE_CATALYST = -12;
   static ITEM_TYPE_TRIUMPH = -13;
   static ITEM_TYPE_TRIUMPH_REDEEMABLE = -14;
+  static ITEM_TYPE_PROGRESSION = -15;
 
 }
 
@@ -140,7 +155,7 @@ export class Pursuit {
 // }
 
 export enum PursuitType {
-  MILESTONE, SALE, PURSUIT, CATALYST, TRIUMPH, TRIUMPH_REDEEMABLE
+  MILESTONE, SALE, PURSUIT, CATALYST, TRIUMPH, TRIUMPH_REDEEMABLE, PROGRESSION
 }
 
 export enum catalystState {
@@ -159,7 +174,7 @@ export class Reward {
   objectivesSize: number;
   itemHash: number;
 
-  static getMaxReward (rewards: Reward[]): Reward {
+  static getMaxReward(rewards: Reward[]): Reward {
     rewards.sort(Reward.compareRewards);
     if (rewards.length > 0) {
       return rewards[0];
@@ -168,13 +183,13 @@ export class Reward {
     }
   }
 
-  static compareRewards (r1: Reward, r2: Reward): number {
+  static compareRewards(r1: Reward, r2: Reward): number {
     return Reward.getRewardValue(r2) - Reward.getRewardValue(r1);
   }
 
   static notFoundRewards = {};
 
-  static getRewardValue (r: Reward): number {
+  static getRewardValue(r: Reward): number {
     if (r == null) {
       return -2;
     }
@@ -259,6 +274,7 @@ export class Reward {
       case 1629549128: // Random Armor Mod
       case 2654582465: // Random Weapon Mod
       case 4046539562: // Mod Components
+      case 659535164: // Boon of Opulence
         return Reward.VALUE_TOKENS;
       case Reward.TRIUMPH_POINT_PSEUDO_HASH: // Triumph points
         return Reward.VALUE_TRIUMPH;
@@ -285,6 +301,11 @@ export class Reward {
       case 3896846872: // Leg Armor (Power 640)
       case 2515448385: // Class Item (Power 640)
       case 2961190721: // A Gift from Eververse
+      case 374658385: // Memory of Aru'un
+      case 374658384: // Memory of B'ael
+      case 374658387: // Memory of Gra'ask
+      case 374658386: // Memory of M'orn
+      case 374658397: // Memory of Ta'aurc
         return Reward.VALUE_RESOURCE;
       default:
         if (!Reward.notFoundRewards[r.itemHash]) {
@@ -319,7 +340,7 @@ export class Objective {
   timeTillFinished: number;
   runningTimeObjective?: ObjectiveTime;
 
-  static getMaxTimeTillFinished (objectives: Objective[]): number {
+  static getMaxTimeTillFinished(objectives: Objective[]): number {
 
     let result = 0;
     objectives.forEach(o => {
@@ -330,7 +351,7 @@ export class Objective {
     return result;
   }
 
-  static getPercentageTillFinished (objectives: Objective[]): number {
+  static getPercentageTillFinished(objectives: Objective[]): number {
 
     let result = 0;
     objectives.forEach(o => {

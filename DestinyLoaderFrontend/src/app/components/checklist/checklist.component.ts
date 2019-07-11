@@ -15,7 +15,7 @@ import Timer = NodeJS.Timer;
 })
 export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
 
-  @ViewChild('page', { static: false })
+  @ViewChild('page', {static: false})
   tableElement: ElementRef;
 
   checklist: Checklist = new Checklist();
@@ -34,11 +34,11 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
   selectedTab = 0;
   searchedId = '';
 
-  constructor (private _checklistService: ChecklistService,
-               private _translateService: TranslateService,
-               private _headerService: HeaderService,
-               private elRef: ElementRef,
-               private cd: ChangeDetectorRef) {
+  constructor(private _checklistService: ChecklistService,
+              private _translateService: TranslateService,
+              private _headerService: HeaderService,
+              private elRef: ElementRef,
+              private cd: ChangeDetectorRef) {
   }
 
   private static PURSUIT_HASH = '1345459588';
@@ -47,7 +47,7 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
 
   private PURSUIT_KEY_MULTIPLIER = 1000000000;
 
-  ngOnInit () {
+  ngOnInit() {
 
 
     this._currentChecklistSubscription = this._checklistService.currentChecklistObservable().subscribe(
@@ -190,6 +190,59 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
               char.pursuits.push(newMilestone);
             });
 
+            const progressionNames = [];
+            // foreach progression
+            char.progressions.forEach(progression => {
+
+              // remove classified or unknown progression
+              if ((progression.progressionName === 'Classified') ||
+                (progression.progressionName === 'Unknown name') ||
+                (!progression.icon) ||
+                (progression.icon.match(/missing_icon/))) {
+                return;
+              }
+
+              if (progressionNames.indexOf(progression.progressionName) > -1) {
+                return;
+              }
+              progressionNames.push(progression.progressionName);
+
+              // else create the object
+              const newProgression: Pursuit = {
+                itemInstanceId: progression.instanceId,
+                itemType: Pursuit.ITEM_TYPE_PROGRESSION,
+                itemTypeDisplayName: 'Progression',
+                description: progression.description,
+                name: progression.progressionName,
+                icon: progression.icon,
+                expirationDate: undefined,
+                rewards: [],
+                maxRewardLevel: -2,
+                objectives: [],
+                vendorName: undefined,
+                saleDescription: undefined,
+                type: PursuitType.PROGRESSION
+              };
+
+              // add well formed objectives
+              progression.objectives.forEach(objective => {
+                const newObjective: Objective = {
+                    objectiveHash: objective.objectiveHash,
+                    completionValue: objective.completionValue,
+                    complete: objective.complete,
+                    progress: objective.progress,
+                    item: {
+                      progressDescription: objective.itemName
+                    },
+                    timeTillFinished: Number.MAX_SAFE_INTEGER
+                  }
+                ;
+                newProgression.objectives.push(newObjective);
+              });
+
+              char.pursuits.push(newProgression);
+            });
+
             // add character triumph
             if (char.triumphs) {
               char.triumphs.forEach(
@@ -298,18 +351,18 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
                     };
 
                     this._translateService
-                        .get('catalyst', {name: catalyst.inventoryItem.itemName})
-                        .subscribe(res => {
-                          newCatalyst.name = res;
-                        });
+                      .get('catalyst', {name: catalyst.inventoryItem.itemName})
+                      .subscribe(res => {
+                        newCatalyst.name = res;
+                      });
 
                     // change description on dropped catalyst
                     if (catalyst.state === catalystState.DROPPED) {
                       this._translateService
-                          .get('catalyst.dropped')
-                          .subscribe(res => {
-                            newCatalyst.description = res;
-                          });
+                        .get('catalyst.dropped')
+                        .subscribe(res => {
+                          newCatalyst.description = res;
+                        });
                     }
 
 
@@ -537,6 +590,7 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
             delete char['genderType'];
             delete char['levelProgression'];
             delete char['milestones'];
+            delete char['progressions'];
             delete char['minutesPlayedThisSession'];
             delete char['minutesPlayedTotal'];
             delete char['percentToNextLevel'];
@@ -657,7 +711,7 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
 
   }
 
-  refreshRunningTimes () {
+  refreshRunningTimes() {
     // console.log('refreshRunningTimes')
     // console.log(this.checklist.currentTimes)
     if (this.checklist && this.checklist.currentTimes) {
@@ -671,7 +725,7 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
     }, 5000);
   }
 
-  sortPursuits (char) {
+  sortPursuits(char) {
     char.pursuits.sort((p1: Pursuit, p2: Pursuit) => {
       {
         let selectedCompare = 0;
@@ -725,7 +779,7 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
     });
   }
 
-  ngOnDestroy (): void {
+  ngOnDestroy(): void {
     this._headerService.stopReloading(ReloadingKey.Checklist);
     if (this._currentChecklistSubscription) {
       this._currentChecklistSubscription.unsubscribe();
@@ -738,7 +792,7 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
     }
   }
 
-  ngAfterViewChecked () {
+  ngAfterViewChecked() {
     this.initPositionsStickyHeaders();
     this.calcPositionsStickyHeaders();
   }
@@ -747,18 +801,18 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
   private topPage = 0;
 
   @HostListener('window:resize', ['$event'])
-  onResize () {
+  onResize() {
     this.initPositionsStickyHeaders();
 
   }
 
   @HostListener('window:scroll', ['$event'])
-  onScroll () {
+  onScroll() {
     this.calcPositionsStickyHeaders();
 
   }
 
-  private initPositionsStickyHeaders () {
+  private initPositionsStickyHeaders() {
     // calculate positioning and get reference
     this.topPage = this.elRef.nativeElement.parentElement.offsetTop;
 
@@ -783,7 +837,7 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
     }
   }
 
-  private calcPositionsStickyHeaders () {
+  private calcPositionsStickyHeaders() {
 
 
     // get character card position
@@ -807,47 +861,47 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
     }
   }
 
-  stopObjectiveTime (objective: Objective, characterId: string, pursuitId: string, event: any) {
+  stopObjectiveTime(objective: Objective, characterId: string, pursuitId: string, event: any) {
     // console.log('stopObjectiveTime');
     event.stopPropagation();
 
     if (this.swipeRunning === -1) {
 
       this._checklistService.stopObjective(objective, characterId, pursuitId)
-          .then(obj => {
+        .then(obj => {
 
-            if (obj.runningTimeObjective) {
-              obj.runningTimeObjective.timeStart = new Date(obj.runningTimeObjective.timeStart);
-            }
-            ChecklistComponent.updateObject(obj, objective);
-          });
+          if (obj.runningTimeObjective) {
+            obj.runningTimeObjective.timeStart = new Date(obj.runningTimeObjective.timeStart);
+          }
+          ChecklistComponent.updateObject(obj, objective);
+        });
     }
   }
 
-  launchObjectiveTime (objective: Objective, characterId: string, characterName: string, pursuitId: string, pursuitName: string, event: any) {
+  launchObjectiveTime(objective: Objective, characterId: string, characterName: string, pursuitId: string, pursuitName: string, event: any) {
     // console.log('launchObjectiveTime');
     event.stopPropagation();
 
     if (this.swipeRunning === -1) {
 
       this._checklistService.startObjective(objective, characterId, characterName, pursuitId, pursuitName)
-          .then(obj => {
+        .then(obj => {
 
-            if (obj.runningTimeObjective) {
-              // console.log(obj);
-              obj.runningTimeObjective.timeStart = new Date(obj.runningTimeObjective.timeStart);
-              obj.runningTimeObjective.timeRunning = (new Date().getTime() - obj.runningTimeObjective.timeStart.getTime());
-              // console.log(obj);
-            }
+          if (obj.runningTimeObjective) {
+            // console.log(obj);
+            obj.runningTimeObjective.timeStart = new Date(obj.runningTimeObjective.timeStart);
+            obj.runningTimeObjective.timeRunning = (new Date().getTime() - obj.runningTimeObjective.timeStart.getTime());
+            // console.log(obj);
+          }
 
-            ChecklistComponent.updateObject(obj, objective);
-            this.checklist.currentTimes.push(objective.runningTimeObjective);
-          });
+          ChecklistComponent.updateObject(obj, objective);
+          this.checklist.currentTimes.push(objective.runningTimeObjective);
+        });
     }
   }
 
 
-  private static updateObject (src: Object, dst: Object) {
+  private static updateObject(src: Object, dst: Object) {
 
     if ((src instanceof Array) && (dst instanceof Array)) {
       while (src.length < dst.length) {
@@ -882,7 +936,7 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
   // }
 
 
-  static getPursuitKey (pursuit, character) {
+  static getPursuitKey(pursuit, character) {
     // console.log(pursuit);
 
     let char = character.characterId;
@@ -897,7 +951,7 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
     }
   }
 
-  toggleSelectedPursuit (pursuit, character, event: any) {
+  toggleSelectedPursuit(pursuit, character, event: any) {
     // console.log(`toggleSelectedPursuit (${this.swipeRunning})`);
     event.stopPropagation();
     if (this.swipeRunning === -1) {
@@ -906,7 +960,7 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
     }
   }
 
-  pursuitIsSelected (pursuit, character) {
+  pursuitIsSelected(pursuit, character) {
     return this.config.selectedPursuits && (this.config.selectedPursuits.indexOf(ChecklistComponent.getPursuitKey(pursuit, character)) > -1);
   }
 
@@ -990,6 +1044,10 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
           checkedType = true;
           ret = ret || this.config.visible.types.triumphRedeemable;
           break;
+        case Pursuit.ITEM_TYPE_PROGRESSION:
+          checkedType = true;
+          ret = ret || this.config.visible.types.progression;
+          break;
         case Pursuit.ITEM_TYPE_VENDOR:
           checkedType = true;
           ret = ret || this.config.visible.types.vendor_bounty;
@@ -1065,7 +1123,7 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
 
   static notCheckedType = {};
 
-  pursuitHasRunningObjectives (pursuit: Pursuit) {
+  pursuitHasRunningObjectives(pursuit: Pursuit) {
     let ret = false;
     pursuit.objectives.forEach((obj) => {
       if (this.objectivesIsRunning(obj)) {
@@ -1076,15 +1134,15 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
     return ret;
   }
 
-  objectivesIsRunning (objective) {
+  objectivesIsRunning(objective) {
     return objective.runningTimeObjective && !objective.runningTimeObjective.finished;
   }
 
-  getObjectiveProgress (objective) {
+  getObjectiveProgress(objective) {
     return 100 * Math.min(1.0, objective.progress / objective.completionValue);
   }
 
-  highlight (string, charNum, pursuitNum): string {
+  highlight(string, charNum, pursuitNum): string {
     if (!this.search || (this.search.length < this.SEARCH_MIN_LENGTH)) {
       return string;
     }
@@ -1123,7 +1181,9 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
       this.swipeRunning = -1;
     }, 100);
   }
+
   swipeRunning = -1;
+
   selectedIndexChange(event) {
     // console.log(`selectedIndexChange : ${event} (${this.swipeRunning})`);
     // console.log(this.selectedTab);
