@@ -966,7 +966,7 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
     return this.config.selectedPursuits && (this.config.selectedPursuits.indexOf(ChecklistComponent.getPursuitKey(pursuit, character)) > -1);
   }
 
-  pursuitShouldBeDisplayed(character: Character, pursuit: Pursuit, charNum: number, pursuitNum: number) {
+  pursuitShouldBeDisplayed(character: Character, pursuit: Pursuit) {
     if (!pursuit) {
       return false;
     }
