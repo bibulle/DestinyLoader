@@ -2861,7 +2861,7 @@ export class Destiny {
                             },
                             function (foo, callback) {
                               Destiny.queryBucketByName("Thorn", function (err, item) {
-                                console.log(item);
+                                //console.log(item);
                                 callback(err, item);
                               }, lang);
                             },
