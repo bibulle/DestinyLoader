@@ -25,7 +25,8 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
   private _currentConfigSubscription: Subscription;
   oldLanguage = '';
 
-  search = '';
+  searchText = '';
+  search: RegExp;
   private searchStyle = SearchStyle.SEARCH;
   foundList: number[] = [];
   searchTimout: Timer;
@@ -664,11 +665,12 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
     this._headerService.setSearchShown(true);
     this._currentSearchSubscription = this._headerService.searchObservable().subscribe(
       search => {
-        if (this.search !== search.searchText) {
+        if (this.searchText !== search.searchText) {
           this.foundList = [];
+          this.searchText = search.searchText;
+          this.search = new RegExp(this.searchText.replace(/ /, '([  ]|&nbsp;)'), 'gi');
         }
 
-        this.search = search.searchText;
         this.searchStyle = search.style;
 
         if (search.searchText.length >= this.SEARCH_MIN_LENGTH) {
@@ -1112,10 +1114,29 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
 
 
     if (ret && (this.searchStyle === SearchStyle.FILTER)) {
-      const key = charNum * this.PURSUIT_KEY_MULTIPLIER + pursuitNum;
-      if (this.foundList.indexOf(key) === -1) {
-        ret = false;
+
+      let match = false;
+
+      // if (pursuit.name.startsWith('Trésor')) {
+      //   console.log(pursuit.name + ' ' + match + ' ' + (pursuit.name.match(this.search) !== null));
+      // }
+      match = match ||
+        (pursuit.name.match(this.search) !== null) ||
+        (pursuit.description.match(this.search) !== null) ||
+        (pursuit.vendorName && (pursuit.vendorName.match(this.search) !== null));
+
+      if (!match) {
+        pursuit.rewards.forEach(reward => {
+          match = match || (reward.name.match(this.search) !== null);
+        });
       }
+      if (!match) {
+        pursuit.objectives.forEach(objective => {
+          match = match || (objective.item.progressDescription.match(this.search) !== null);
+        });
+      }
+
+      ret = match;
     }
 
     return ret;
@@ -1143,12 +1164,11 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
   }
 
   highlight(string, charNum, pursuitNum): string {
-    if (!this.search || (this.search.length < this.SEARCH_MIN_LENGTH)) {
+    if (!this.searchText || (this.searchText.length < this.SEARCH_MIN_LENGTH)) {
       return string;
     }
-    // add no break space (and &nbsp;)
-    const search = this.search.replace(/ /, '([  ]|&nbsp;)');
-    return string.replace(new RegExp(search, 'gi'), match => {
+    // do the highlighting
+    return string.replace(this.search, match => {
       const key = charNum * this.PURSUIT_KEY_MULTIPLIER + pursuitNum;
       if (this.foundList.indexOf(key) === -1) {
         this.foundList.push(key);
