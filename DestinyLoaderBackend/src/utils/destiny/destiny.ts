@@ -3725,7 +3725,7 @@ export class Destiny {
     // remove the hardcoded ones
     if (time.bungieNetUser === 'HardCoded') {
       debug('Objective time : Found hardcoded');
-      DestinyDb.deleteTime(time._id, (err, t) => {
+      DestinyDb.deleteTime(time._id, (err) => {
         if (err) {
           error(err);
         } else {
