@@ -1,6 +1,7 @@
 {
   "development": {
     "mongoUrl": "mongodb://localhost",
+    "proxy": "http://myproxy.com:8569",
     "dbPath": "../../data/destinyDb.dev.db",
     "crontab": "0 * * * * *",
     "crontabGrimoire": "0 * * * * *",

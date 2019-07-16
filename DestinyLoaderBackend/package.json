@@ -1,6 +1,6 @@
 {
   "name": "destiny-loader",
-  "version": "0.5.33",
+  "version": "0.5.34",
   "private": true,
   "scripts": {
     "start": "node ./src/bin/www",
@@ -24,6 +24,7 @@
     "express": "^4.16.4",
     "express-session": "^1.16.1",
     "google-spreadsheet": "^2.0.7",
+    "https-proxy-agent": "^2.2.2",
     "jsonwebtoken": "^8.5.1",
     "mongodb": "^2.2.36",
     "morgan": "^1.9.1",

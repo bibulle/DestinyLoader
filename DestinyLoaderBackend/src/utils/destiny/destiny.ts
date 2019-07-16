@@ -8,6 +8,7 @@ import * as _ from "lodash";
 const debug = require('debug')('server:debug:Destiny');
 const error = require('debug')('server:error:Destiny');
 const https = require('https');
+const HttpsProxyAgent = require('https-proxy-agent');
 const request = require('request');
 const async = require('async');
 const fs = require('fs');
@@ -3883,10 +3884,17 @@ export class Destiny {
       port: 443,
       path: path,
       headers: {'X-API-Key': Config.destinyAPIKey},
-      method: 'GET'
+      method: 'GET',
+      agent: undefined
     };
     if (accessToken) {
       options.headers['Authorization'] = "Bearer " + accessToken
+    }
+
+    if (Config.proxy) {
+      let proxy = Config.proxy;
+      options.agent = new HttpsProxyAgent(proxy);
+      debug(`Using proxy ${Config.proxy}`);
     }
 
 //debug(JSON.stringify(options, null, 2));
@@ -3945,7 +3953,7 @@ export class Destiny {
     req.end();
 
     req.on('error', function (e) {
-      error("Error in connecting Bungie");
+      error("Error in connecting Bungie : "+path);
       //debug(JSON.stringify(e, null, 2));
 
       return callback(e);

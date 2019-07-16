@@ -15,6 +15,7 @@ export class Config {
   };
 
   public static mongoUrl = "";
+  public static proxy = undefined;
   public static dbPath = "";
 
   public static defaultLanguage = 'en';
