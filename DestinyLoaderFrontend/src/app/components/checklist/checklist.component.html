@@ -19,9 +19,9 @@
       </ng-template>
       <div class="content character character{{charNum}}">
         <div *ngFor="let pursuit of character.pursuits; let pursuitNum = index"
-             [ngClass]="{'glow': (pursuitHasRunningObjectives(pursuit)), 'not-visible': (!pursuitShouldBeDisplayed(character,pursuit,charNum,pursuitNum)), 'searched': (searchedId===charNum+'-'+pursuitNum)}"
+             [ngClass]="{'glow': (pursuitHasRunningObjectives(pursuit)), 'not-visible': (!pursuitShouldBeDisplayed(character,pursuit)), 'searched': (searchedId===charNum+'-'+pursuitNum)}"
              [attr.id]="'pursuit-'+charNum+'-'+pursuitNum">
-          <mat-card class="pursuit-item" *ngIf="pursuitShouldBeDisplayed(character,pursuit,charNum,pursuitNum)"
+          <mat-card class="pursuit-item" *ngIf="pursuitShouldBeDisplayed(character,pursuit)"
                     title="{{pursuit.description}}"
                     (click)="toggleSelectedPursuit(pursuit, character, $event)"
                     [ngClass]="{'selected': (pursuitIsSelected(pursuit, character))}">
