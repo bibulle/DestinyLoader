@@ -2,6 +2,7 @@ import { Router, Response, Request, NextFunction } from "express";
 import { User } from "../models/user";
 import { Destiny } from "../utils/destiny/destiny";
 import { Config } from "../utils/config/config";
+const HttpsProxyAgent = require('https-proxy-agent');
 
 const https = require('https');
 
@@ -112,8 +113,14 @@ function _getBungieToken (url, postData, callback) {
       'Content-Type': 'application/x-www-form-urlencoded',
       'Content-Length': postData.length
     },
-    method: 'POST'
+    method: 'POST',
+    agent: undefined
   };
+  if (Config.proxy) {
+    let proxy = Config.proxy;
+    options.agent = new HttpsProxyAgent(proxy);
+    debug(`Using proxy ${Config.proxy}`);
+  }
 
   //debug(JSON.stringify(options, null, 2));
   //debug(JSON.stringify(postData, null, 2));
