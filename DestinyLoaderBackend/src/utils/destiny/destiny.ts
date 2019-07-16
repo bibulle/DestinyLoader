@@ -2053,27 +2053,39 @@ export class Destiny {
                         completionValue: completionValue,
                         complete: (progression.data.currentProgress >= completionValue),
                         progress: progression.data.currentProgress,
-                        itemName: 'Points to level '+ (progression.data.level + 1)
+                        itemName: 'Points to level ' + (progression.data.level + 1)
                       });
                       const key = progression.characterId + progression.instanceId + progression.instanceId + "_1";
                       result.objectives[key] = progression.data.currentProgress;
                     }
                     if (progression.data.seasonResets) {
+                      //debug(progression.progressionName);
                       let resets = 0;
+                      let resetsTotal = 0;
                       progression.data.seasonResets.forEach(r => {
                         if (r.resets > resets) {
                           resets = r.resets;
                         }
+                        resetsTotal += r.resets;
                       });
                       progression.objectives.push({
                         objectiveHash: progression.instanceId + "_2",
                         completionValue: 3,
                         complete: (resets >= 3),
                         progress: resets,
-                        itemName: 'Resets max'
+                        itemName: 'Resets max by season'
                       });
-                      const key = progression.characterId + progression.instanceId + progression.instanceId + "_2";
-                      result.objectives[key] = resets;
+                      const key1 = progression.characterId + progression.instanceId + progression.instanceId + "_2";
+                      result.objectives[key1] = resets;
+                      progression.objectives.push({
+                        objectiveHash: progression.instanceId + "_3",
+                        completionValue: 3,
+                        complete: (resetsTotal >= 3),
+                        progress: resetsTotal,
+                        itemName: 'Resets total'
+                      });
+                      const key2 = progression.characterId + progression.instanceId + progression.instanceId + "_3";
+                      result.objectives[key2] = resetsTotal;
                     }
 
                     // if (progression.progressionName !== 'Unknown name') {
@@ -3894,7 +3906,7 @@ export class Destiny {
     if (Config.proxy) {
       let proxy = Config.proxy;
       options.agent = new HttpsProxyAgent(proxy);
-      debug(`Using proxy ${Config.proxy}`);
+      //debug(`Using proxy ${Config.proxy}`);
     }
 
 //debug(JSON.stringify(options, null, 2));
@@ -3953,7 +3965,7 @@ export class Destiny {
     req.end();
 
     req.on('error', function (e) {
-      error("Error in connecting Bungie : "+path);
+      error("Error in connecting Bungie : " + path);
       //debug(JSON.stringify(e, null, 2));
 
       return callback(e);
@@ -3982,10 +3994,16 @@ export class Destiny {
         'Content-Type': 'application/x-www.ts-form-urlencoded',
         'Content-Length': postData.length
       },
-      method: 'POST'
+      method: 'POST',
+      agent: undefined
     };
     if (accessToken) {
       options.headers['Authorization'] = "Bearer " + accessToken
+    }
+    if (Config.proxy) {
+      let proxy = Config.proxy;
+      options.agent = new HttpsProxyAgent(proxy);
+      debug(`Using proxy ${Config.proxy}`);
     }
 
     //debug(JSON.stringify(options, null, 2));

@@ -1,6 +1,6 @@
 {
   "name": "destiny-front-end",
-  "version": "0.5.35",
+  "version": "0.5.36",
   "license": "MIT",
   "scripts": {
     "ng": "ng",
