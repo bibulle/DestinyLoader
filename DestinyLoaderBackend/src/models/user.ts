@@ -3,6 +3,7 @@ import { sign, verify } from "jsonwebtoken";
 import { refreshBungieToken } from "../routes/authent";
 import { Destiny } from "../utils/destiny/destiny";
 
+// noinspection JSUnusedLocalSymbols
 const debug = require('debug')('server:debug:user');
 
 
@@ -25,7 +26,7 @@ export class User {
    */
   static createToken (user): string {
     //debug(user);
-    let sendUser = _.pick(user, ['destinyMemberships', 'bungieNetUser', 'auth', 'isAdmin']);
+    let sendUser: any = _.pick(user, ['destinyMemberships', 'bungieNetUser', 'auth', 'isAdmin']);
     sendUser.tokenDate = new Date();
 
     return sign(sendUser, "myReallySecret", {expiresIn: "14d"});

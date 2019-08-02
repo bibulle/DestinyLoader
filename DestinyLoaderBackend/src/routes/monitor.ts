@@ -3,6 +3,7 @@ import * as _ from "lodash";
 
 const async = require('async');
 const https = require('https');
+const HttpsProxyAgent = require('https-proxy-agent');
 
 const debug = require('debug')('server:debug:routes:monitor');
 const error = require('debug')('server:error:routes:monitor');
@@ -130,7 +131,9 @@ function monitorRouter (passport): Router {
                 //error(err);
                 if (err) {
                   debug(err);
-                  response.statusMessage = err.replace(/[(].*[)]/,'');
+                  if (err.replace) {
+                    response.statusMessage = err.replace(/[(].*[)]/,'');
+                  }
                   response.status(500).send(err);
                   //data.messages.push("ERROR : "+err);
                   //return response.send(JSON.stringify({messages: err}, null, 2));
@@ -501,8 +504,14 @@ function monitorRouter (passport): Router {
                 'Content-Type': 'application/x-www-form-urlencoded',
                 'Content-Length': postData.length
               },
-              method: 'POST'
+              method: 'POST',
+              agent: undefined
             };
+            if (Config.proxy) {
+              let proxy = Config.proxy;
+              options.agent = new HttpsProxyAgent(proxy);
+              debug(`Using proxy ${Config.proxy}`);
+            }
 
             //debug(JSON.stringify(options, null, 2));
             //debug(JSON.stringify(postData, null, 2));

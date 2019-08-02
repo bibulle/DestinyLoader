@@ -246,6 +246,8 @@ export class HeaderService {
           this.config = new Config();
           this.config = {...this.config, ...config};
           this.config.visible = {...new Config().visible, ...this.config.visible};
+          this.config.visible.types = {...new Config().visible.types, ...this.config.visible.types};
+          this.config.visible.rewards = {...new Config().visible.rewards, ...this.config.visible.rewards};
           // console.log(this.config);
           this._setLanguageFromConfig();
           this.configSubject.next(this.config);

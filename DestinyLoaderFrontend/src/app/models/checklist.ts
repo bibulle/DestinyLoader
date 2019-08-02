@@ -10,6 +10,24 @@ export class Checklist {
   vendors: {};
   catalysts: Catalyst[];
   triumphs: Triumph[];
+  itemWithObjectives: { [id: string]: Item[] };
+
+}
+
+export class Item {
+  instanceId: string;
+  itemName: string;
+  item: {
+    itemType: number;
+    displayProperties: {
+      name: string;
+      icon: string;
+      description: string;
+    }
+  };
+  objective: {
+    objectives: Objective[];
+  };
 
 }
 
@@ -133,6 +151,9 @@ export class Pursuit {
   saleDescription: string;
   type: PursuitType;
 
+  static ITEM_TYPE_ARMOR = 2;
+  static ITEM_TYPE_WEAPON = 3;
+
   static ITEM_TYPE_CONSUMABLE = 9;
   static ITEM_TYPE_QUEST_STEP = 12;
   static ITEM_TYPE_QUEST_STEP_COMPLETE = 13; // ?
@@ -155,7 +176,7 @@ export class Pursuit {
 // }
 
 export enum PursuitType {
-  MILESTONE, SALE, PURSUIT, CATALYST, TRIUMPH, TRIUMPH_REDEEMABLE, PROGRESSION
+  MILESTONE, SALE, PURSUIT, CATALYST, TRIUMPH, TRIUMPH_REDEEMABLE, PROGRESSION, ITEM
 }
 
 export enum catalystState {
@@ -275,6 +296,7 @@ export class Reward {
       case 2654582465: // Random Weapon Mod
       case 4046539562: // Mod Components
       case 659535164: // Boon of Opulence
+      case 1605352950: // Solstice Key Fragment
         return Reward.VALUE_TOKENS;
       case Reward.TRIUMPH_POINT_PSEUDO_HASH: // Triumph points
         return Reward.VALUE_TRIUMPH;

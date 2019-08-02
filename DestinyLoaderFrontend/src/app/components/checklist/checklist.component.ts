@@ -330,6 +330,46 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
               );
             }
 
+            // foreach item with objectives
+            (checklist.itemWithObjectives[char.characterId] ? checklist.itemWithObjectives[char.characterId] : []).forEach(item => {
+
+              // else create the object
+              const newProgression: Pursuit = {
+                itemInstanceId: item.instanceId,
+                itemType: item.item.itemType,
+                itemTypeDisplayName: 'Item',
+                description: item.item.displayProperties.description,
+                name: item.itemName,
+                icon: item.item.displayProperties.icon,
+                expirationDate: undefined,
+                rewards: [],
+                maxRewardLevel: -2,
+                objectives: [],
+                vendorName: undefined,
+                saleDescription: undefined,
+                type: PursuitType.ITEM
+              };
+
+
+              // add well formed objectives
+              item.objective.objectives.forEach(objective => {
+                const newObjective: Objective = {
+                    objectiveHash: objective.objectiveHash,
+                    completionValue: objective.completionValue,
+                    complete: objective.complete,
+                    progress: objective.progress,
+                    item: {
+                      progressDescription: objective.item.progressDescription
+                    },
+                    timeTillFinished: Number.MAX_SAFE_INTEGER
+                  }
+                ;
+                newProgression.objectives.push(newObjective);
+              });
+
+              char.pursuits.push(newProgression);
+            });
+
             // add catalyst and triumph (to the first character)
             if (charIndex === 1) {
               (checklist.catalysts ? checklist.catalysts : []).forEach(
@@ -614,6 +654,7 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
           delete checklist['objectives'];
           delete checklist['pursuitsName'];
           delete checklist.characters['times'];
+          delete checklist.itemWithObjectives;
 
           ChecklistService.saveChecklistFromLocalStorage(checklist);
         }
@@ -1049,6 +1090,11 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
         case Pursuit.ITEM_TYPE_PROGRESSION:
           checkedType = true;
           ret = ret || this.config.visible.types.progression;
+          break;
+        case Pursuit.ITEM_TYPE_ARMOR:
+        case Pursuit.ITEM_TYPE_WEAPON:
+          checkedType = true;
+          ret = ret || this.config.visible.types.item;
           break;
         case Pursuit.ITEM_TYPE_VENDOR:
           checkedType = true;

@@ -25,7 +25,8 @@ export class Config {
       pursuit: true,
       triumph: false,
       triumphRedeemable: false,
-      progression: false
+      progression: false,
+      item: true
     }
   };
 }

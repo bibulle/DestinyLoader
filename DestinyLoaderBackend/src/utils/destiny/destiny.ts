@@ -104,7 +104,7 @@ export class Destiny {
 
   private static pursuitsBucket;
 
-  private static manifestDb: Database = {};
+  private static manifestDb: { [id: string] : Database; } = {};
 
   //noinspection JSUnusedGlobalSymbols
   public static getAuthenticationCodeUrl(callback) {
@@ -789,7 +789,8 @@ export class Destiny {
         objectives: {},
         catalysts: [],
         triumphs: [],
-        pursuitsName: {}
+        pursuitsName: {},
+        itemWithObjectives: {}
       };
       let itemsToLoad;
       const itemInstancesTable = {};
@@ -2403,6 +2404,26 @@ export class Destiny {
                             }, lang)
                           },
                           function (err) {
+                            if ((item.item.itemType === Destiny.itemType.Armor) || (item.item.itemType === Destiny.itemType.Weapon)) {
+                              //debug (item.itemName);
+                              let visible = false;
+                              item.objective.objectives.forEach(obj => {
+                                if (obj.visible) {
+                                  visible = true;
+                                }
+                              })
+                              if (visible) {
+                                if (!result.itemWithObjectives[item.characterId]) {
+                                  result.itemWithObjectives[item.characterId] = [];
+                                }
+                                result.itemWithObjectives[item.characterId].push(item);
+                                //debug(JSON.stringify(item, null, 2));
+                              }
+                            }
+                            // if (item.itemHash === 1276995479)  {
+                            //    debug(JSON.stringify(item, null, 2));
+                            // }
+                            // debug (item.item.itemType+' '+item.item.itemTypeDisplayName+' '+item.itemName);
                             callback(err, item);
                           }
                         );
@@ -3078,7 +3099,7 @@ export class Destiny {
 
     //debug("initManifestDb");
 
-    if (Destiny.manifestDb[lang]) {
+    if (Destiny.manifestDb && Destiny.manifestDb[lang]) {
       return callback();
     }
 
@@ -3163,7 +3184,7 @@ export class Destiny {
                     }
 
                     // reset all the cache tables
-                    Destiny.manifestDb = new sqlite.Database(manifestPath);
+                    Destiny.manifestDb[lang] = new sqlite.Database(manifestPath);
                     Destiny.bucketHashCache = {};
                     Destiny.bucketHashCacheByName = {};
                     Destiny.itemHashCacheById = {};
