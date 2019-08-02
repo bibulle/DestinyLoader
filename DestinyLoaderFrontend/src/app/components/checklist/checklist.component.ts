@@ -116,7 +116,7 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
             });
 
             // foreach milestone
-            char.milestones.forEach(milestone => {
+            (char.milestones ? char.milestones : []).forEach(milestone => {
 
               // remove classified milestone
               if (milestone.milestoneName === 'Classified') {
@@ -193,7 +193,7 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
 
             const progressionNames = [];
             // foreach progression
-            char.progressions.forEach(progression => {
+            (char.progressions ? char.progressions : []).forEach(progression => {
 
               // remove classified or unknown progression
               if ((progression.progressionName === 'Classified') ||
@@ -332,7 +332,7 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
 
             // add catalyst and triumph (to the first character)
             if (charIndex === 1) {
-              checklist.catalysts.forEach(
+              (checklist.catalysts ? checklist.catalysts : []).forEach(
                 catalyst => {
                   if ((catalyst.state === catalystState.DROPPED) || (catalyst.state === catalystState.TO_BE_COMPLETED)) {
                     const newCatalyst: Pursuit = {
@@ -401,7 +401,7 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
                   }
                 }
               );
-              checklist.triumphs.forEach(
+              (checklist.triumphs ? checklist.triumphs : []).forEach(
                 triumph => {
 
                   // if it's a root item (badges), do nothing (they cannot be redeemed)
@@ -506,7 +506,7 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
             });
 
             // add purchasable bounties
-            Object.keys(checklist.vendors).forEach(
+            Object.keys((checklist.vendors ? checklist.vendors : {})).forEach(
               key => {
                 if (key === char.characterId) {
                   checklist.vendors[key].forEach(
