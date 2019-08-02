@@ -104,7 +104,7 @@ export class Destiny {
 
   private static pursuitsBucket;
 
-  private static manifestDb: { [id: string]: Database } = {};
+  private static manifestDb: Database = {};
 
   //noinspection JSUnusedGlobalSymbols
   public static getAuthenticationCodeUrl(callback) {
@@ -528,7 +528,7 @@ export class Destiny {
 
       async.eachSeries(
         data.results,
-        function (result, callback) {
+        function (result: any, callback) {
           //debug(JSON.stringify(result, null, 2));
           const member = {
             isOnLine: result.isOnline,
@@ -812,7 +812,7 @@ export class Destiny {
                 callback();
               },
               function (err) {
-                result.characters.sort(function (c1, c2) {
+                result.characters.sort(function (c1: any, c2: any) {
                   if (c1.dateLastPlayed > c2.dateLastPlayed) {
                     return -1;
                   } else if (c2.dateLastPlayed > c1.dateLastPlayed) {
@@ -969,14 +969,14 @@ export class Destiny {
                       if (instanceSockets) {
                         async.forEachSeries(
                           instanceSockets,
-                          (socket, callback) => {
+                          (socket: any, callback) => {
                             //debug(socket);
                             if (!socket.reusablePlugs) {
                               return callback();
                             }
                             async.forEachSeries(
                               socket.reusablePlugs,
-                              (plug, callback) => {
+                              (plug: any, callback) => {
                                 //debug('--> '+plug.plugItemHash);
                                 Destiny.queryItemById(
                                   plug.plugItemHash,
@@ -1461,7 +1461,7 @@ export class Destiny {
                           milestone.objectives = [];
                           async.eachSeries(
                             milestone.data.activities,
-                            function (activity, callback) {
+                            function (activity: any, callback) {
                               async.eachSeries(
                                 activity.challenges,
                                 function (challenge, callback) {
@@ -2253,7 +2253,7 @@ export class Destiny {
                           // search for mod into sockets
                           async.eachSeries(
                             item.sockets,
-                            function (socket, callback) {
+                            function (socket: any, callback) {
                               if (socket.plugHash && socket.isEnabled) {
                                 Destiny.queryItemById(socket.plugHash, function (err, plug) {
                                   // is it a mod
