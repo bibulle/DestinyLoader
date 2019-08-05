@@ -335,7 +335,7 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
 
               // else create the object
               const newProgression: Pursuit = {
-                itemInstanceId: item.instanceId,
+                itemInstanceId: item.itemInstanceId,
                 itemType: item.item.itemType,
                 itemTypeDisplayName: 'Item',
                 description: item.item.displayProperties.description,

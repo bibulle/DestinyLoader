@@ -15,7 +15,7 @@ export class Checklist {
 }
 
 export class Item {
-  instanceId: string;
+  itemInstanceId: string;
   itemName: string;
   item: {
     itemType: number;
