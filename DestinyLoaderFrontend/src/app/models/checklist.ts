@@ -233,6 +233,7 @@ export class Reward {
       case 248695599: // Powerful Gear
       case 1514402550: // Powerful Gear
       case 783563440 : // Powerful Gear
+      case 3114385605: // Powerful Gear (Tier 1)
         return Reward.VALUE_POWER_GEAR;
       case 2646629159: // Luminous Engram
       case 2127149322: // Legendary Gear
@@ -244,8 +245,10 @@ export class Reward {
       case 334865270: // Legendary Engram
       case 1772646107: // Rune légendaire
       case 476782113: // Best of Year One Engram
+      case 591441816: // Nostalgic Engram
         return Reward.VALUE_LEGENDARY_GEAR;
       case 3853748946: // Enhancement Core
+      case 2979281381: // Upgrade Module
       case 1633854071: // Dark Fragment
       case 3255036626: // Transcendent Blessing
       case 214896340: // Black Armory Badge
@@ -277,6 +280,38 @@ export class Reward {
       case 654608616: // Revoker
       case 1970295559: // Murmuration (it's a ship)
       case 2199703228 : // Synestesia (Borealis ornement)
+      case 3325778512: // A Fine Memorial
+      case 4227181568: // Exit Strategy
+      case 847329160: // Edgewise
+      case 3535742959: // Randy's Throwing Knife
+      case 659922705: // Dreambane Cowl
+      case 272413517: // Dreambane Helm
+      case 1528483180: // Dreambane Hood
+      case 3571441640: // Dreambane Grips
+      case 925079356: // Dreambane Gauntlets
+      case 682780965: // Dreambane Gloves
+      case 883769696: // Dreambane Vest
+      case 2568538788: // Dreambane Plate
+      case 3692187003: // Dreambane Robes
+      case 193805725: // Dreambane Cloak
+      case 3312368889: // Dreambane Mark
+      case 2048903186: // Dreambane Bond
+      case 377813570: // Dreambane Strides
+      case 310888006: // Dreambane Greaves
+      case 1030110631: // Dreambane Boots
+      case 1392223753: // Crucible Lazurite
+      case 1392223752: // Crucible Vermillion
+      case 94507878: // Burnished Blade
+      case 1359616732: // Gambit Emerald
+      case 1359616733: // Gambit Celadon
+      case 769892737: // Living Vestige
+      case 2058800852: // Vanguard Stratosphere
+      case 2058800853: // Vanguard Angelos
+      case 4042993010: // Timeless Vigil
+      case 2663204025: // Subjunctive
+      case 2314999489: // Imperative
+      case 1167153950: // Adhortative
+      case 2138599001: // Optative
         return Reward.VALUE_SPECIAL_WEAPON;
       case 3782248531: // Modulus Report
       case 183980811: // Crucible Token
@@ -297,6 +332,10 @@ export class Reward {
       case 4046539562: // Mod Components
       case 659535164: // Boon of Opulence
       case 1605352950: // Solstice Key Fragment
+      case 2211488305: // XP
+      case 443031982: // Phantasmal Fragment
+      case 443031983: // Phantasmal Core
+      case 3428387954: // Vex Mind Components
         return Reward.VALUE_TOKENS;
       case Reward.TRIUMPH_POINT_PSEUDO_HASH: // Triumph points
         return Reward.VALUE_TRIUMPH;
@@ -328,6 +367,8 @@ export class Reward {
       case 374658387: // Memory of Gra'ask
       case 374658386: // Memory of M'orn
       case 374658397: // Memory of Ta'aurc
+      case 3168101969: // Bright Dust
+      case 3592324052: // Helium Filaments
         return Reward.VALUE_RESOURCE;
       default:
         if (!Reward.notFoundRewards[r.itemHash]) {
