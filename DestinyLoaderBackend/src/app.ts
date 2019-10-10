@@ -19,6 +19,7 @@ import { apiRouter } from "./routes/api";
 import { api1Router } from "./routes/api1";
 import { monitorRouter } from "./routes/monitor";
 import { authenticationRouter } from "./routes/authent";
+import {healthRouter} from "./routes/health";
 
 import { Config } from "./utils/config/config";
 import { DestinyDb } from "./utils/destinyDb/destinyDb";
@@ -102,6 +103,7 @@ app.use('/api',  apiRouter(passport));
 app.use('/api1',  api1Router(passport));
 app.use("/monitorStuff", monitorRouter(passport));
 app.use("/authent", authenticationRouter(passport));
+app.use("/health", healthRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

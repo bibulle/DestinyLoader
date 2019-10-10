@@ -2411,7 +2411,7 @@ export class Destiny {
                                 if (obj.visible) {
                                   visible = true;
                                 }
-                              })
+                              });
                               if (visible) {
                                 if (!result.itemWithObjectives[item.characterId]) {
                                   result.itemWithObjectives[item.characterId] = [];
@@ -3460,7 +3460,7 @@ export class Destiny {
 
   private static itemHashCacheById: { [lang: string]: object } = {};
 
-  private static queryItemByName(itemName, callback, lang: string) {
+  public static queryItemByName(itemName, callback, lang: string) {
     if (!Destiny.itemHashCacheByName[Config.getLang(lang)]) {
       const itemHashCacheByNameTmp = {};
       try {
