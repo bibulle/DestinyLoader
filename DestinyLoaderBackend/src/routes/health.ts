@@ -3,6 +3,7 @@ import async = require("async");
 import {DestinyDb} from "../utils/destinyDb/destinyDb";
 import {Destiny} from "../utils/destiny/destiny";
 import {Config} from "../utils/config/config";
+import {Stat} from "../models/stat";
 
 const debug = require('debug')('server:routes:health');
 
@@ -18,12 +19,26 @@ healthRouter.route('/')
 
         async.parallel([
                 (callback) => {
-                    DestinyDb.listStats((err) => {
+                    DestinyDb.listStats((err, docs:Stat[]) => {
                         if (err) {
                             debug(err);
                             callback(new Error("DestinyDb KO"))
                         } else {
-                            callback(null, "DestinyDb OK")
+                            if (!docs) {
+                                return callback(new Error("DestinyDb KO"))
+                            }
+                            docs.sort((a,b) => {
+                                return b.date.getTime() - a.date.getTime()
+                            });
+                            if (docs[0] && docs[0].date) {
+                                let deltaMin = (new Date().getTime()-docs[0].date.getTime())/(60 * 1000);
+                                if (deltaMin > 30) {
+                                    return callback(new Error("Destiny dataMiner KO"))
+                                }
+                            } else {
+                                return callback(new Error("DestinyDb stats KO"))
+                            }
+                            callback(null, "Destiny stats OK")
                         }
                     })
                 },
