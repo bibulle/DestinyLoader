@@ -33,7 +33,7 @@ export class Stat {
   allPvPKills: number;
   allPvPAssists: number;
   allPvPDeaths: number;
-
+  glory: number;
 
 }
 
@@ -53,6 +53,8 @@ export class StatSummed {
 
   triumphScoreMin: number;
   triumphScore:number;
+  gloryScoreMin: number;
+  glory: number;
 
   minutesPlayedTotal:number;
   nightfallEntered:number;

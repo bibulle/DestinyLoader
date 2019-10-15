@@ -153,6 +153,7 @@ const calcList = _.throttle((callback) => {
                 result[key].date = new Date(year, month - 1, day, hours, minutes);
                 result[key].triumphScore = d.triumphScore;
                 result[key].triumphScoreMin = d.triumphScore;
+                result[key].gloryScoreMin = d.glory;
               } else {
                 if (d.light > result[key].lightMax) {
                   result[key].lightMax = d.light;
@@ -165,6 +166,9 @@ const calcList = _.throttle((callback) => {
                 }
                 if (d.triumphScore < (result[key].triumphScoreMin ? result[key].triumphScoreMin : 10000000)) {
                   result[key].triumphScoreMin = d.triumphScore;
+                }
+                if (d.glory < (result[key].gloryScoreMin ? result[key].gloryScoreMin : 10000000)) {
+                  result[key].gloryScoreMin = d.glory;
                 }
 
               }
@@ -200,6 +204,8 @@ const calcList = _.throttle((callback) => {
                 result[key].allPvPKillsDeathsAssistsRatio = previousRatio[d.id];
               }
 
+              result[key].glory = d.glory;
+
               previousRatio[d.id] = result[key].allPvPKillsDeathsAssistsRatio;
               //console.log(previousRatio[d.id]+" "+key);
             }
@@ -223,6 +229,7 @@ const calcList = _.throttle((callback) => {
               if (index == 0) {
                 d.light = list[key].lightMin;
                 d.triumphScore = list[key].triumphScoreMin;
+                d.glory = list[key].gloryScoreMin;
 
                 toBeUpdate.push(d);
               } else if (index == listByKey[key].length - 1) {

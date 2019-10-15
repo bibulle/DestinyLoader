@@ -24,7 +24,7 @@ export class Destiny {
   private static _URL_GET_CURRENT_USER = '/Platform/User/GetMembershipsForCurrentUser/';
   private static _URL_SEARCH_USER_BY_ID = '/Platform/User/GetBungieNetUserById/{id}/';
   private static _URL_SEARCH_DESTINY_PLAYER = '/Platform/Destiny2/SearchDestinyPlayer/{membershipType}/{displayName}/';
-  private static _URL_ACCOUNT_SUMMARY = '/Platform/Destiny2/{membershipType}/Profile/{destinyMembershipId}/?components=200,900';
+  private static _URL_ACCOUNT_SUMMARY = '/Platform/Destiny2/{membershipType}/Profile/{destinyMembershipId}/?components=200,900,202';
   private static _URL_ACCOUNT_SUMMARY_SMALL = '/Platform/Destiny2/{membershipType}/Profile/{destinyMembershipId}/?components=100';
 // private static _URL_GET_INVENTORY = '/Platform/Destiny/{membershipType}/Account/{destinyMembershipId}/Character/{characterId}/Inventory/?definitions=true';
   private static _URL_GET_GRIMOIRE = '/Platform/Destiny/Vanguard/Grimoire/{membershipType}/{membershipId}/?definitions=true';
@@ -281,6 +281,11 @@ export class Destiny {
           return callback(null, result);
         }
 
+        // if (userId == 'Bibullus') {
+        //   //debug(JSON.stringify(data, null, 2));
+        //   debug(data.characterProgressions.data['2305843009262856644'].progressions['2000925172']);
+        //   // 2000925172
+        // }
         //debug(JSON.stringify(data.characters.data, null, 2));
 
 
@@ -288,8 +293,17 @@ export class Destiny {
         //async.eachSeries(data.characters.data,
         async.eachSeries(Object.keys(data.characters.data),
           function (characterId, callback) {
+
+            // if (characterId == '2305843009261557194') {
+            //   debug(userId);
+            //   debug(data);
+            // }
+
             const character = data.characters.data[characterId];
-            //debug(JSON.stringify(character, null, 2));
+            let characterProgression = null;
+            if (data.characterProgressions.data) {
+              characterProgression = data.characterProgressions.data[characterId];
+            }
 
             const resultChar = {
               date: new Date(),
@@ -324,7 +338,8 @@ export class Destiny {
               trialsOfTheNineWon: 0,
               allPvPAssists: 0,
               allPvPKills: 0,
-              allPvPDeaths: 1
+              allPvPDeaths: 1,
+              glory: (characterProgression != null ? characterProgression.progressions['2000925172'].currentProgress : 0)
             };
 
 
@@ -367,6 +382,11 @@ export class Destiny {
               if (err) {
                 return callback(err);
               }
+
+              // if (userId + " / " + cpt == 'Bibullus / 2') {
+              //   debug(JSON.stringify(data.pvpCompetitive,null, 2));
+              //   //debug(data.pvpCompetitive.allTime.score);
+              // }
 
               resultChar.nightfallEntered = 0;
               try {

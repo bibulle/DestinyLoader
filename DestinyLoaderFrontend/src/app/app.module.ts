@@ -24,6 +24,7 @@ import { UserService } from './services/user.service';
 import { JwtModule } from '@auth0/angular-jwt';
 import { TimeExpirationPipe } from './time-expiration.pipe';
 import { ObjectiveTimesComponent } from './components/objective-times/objective-times.component';
+import {GloryComponent} from './components/glory/glory.component';
 
 export class MyMissingTranslationHandler implements MissingTranslationHandler {
   handle (params: MissingTranslationHandlerParams) {
@@ -44,6 +45,7 @@ registerLocaleData(localeEn, 'en');
     NavbarComponent,
     RatioComponent,
     TriumphComponent,
+    GloryComponent,
     ChecklistComponent,
     TimeExpirationPipe,
     ObjectiveTimesComponent

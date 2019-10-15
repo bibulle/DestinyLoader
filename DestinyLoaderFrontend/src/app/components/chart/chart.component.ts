@@ -348,7 +348,7 @@ export class ChartComponent implements OnInit, OnDestroy, OnChanges {
                       .attr('y', (d) => {
                         let pos = yScale(Math.max(Graph.MIN_VALUES[that.graphType], that._getYMax(d.values[d.values.length - 1])));
 
-                        if ((that.graphType !== GraphTypeKey.TRIUMPH) || (d.charNum === 1)) {
+                        if (((that.graphType !== GraphTypeKey.TRIUMPH) && (that.graphType !== GraphTypeKey.GLORY)) || (d.charNum === 1)) {
                           pos = that._checkPosition(pos, textsPositions);
                           textsPositions.push(pos);
                         }
@@ -383,7 +383,7 @@ export class ChartComponent implements OnInit, OnDestroy, OnChanges {
          .attr('y', (d) => {
            let pos = yScale(Math.max(Graph.MIN_VALUES[that.graphType], that._getYMax(d.values[d.values.length - 1])));
 
-           if ((that.graphType !== GraphTypeKey.TRIUMPH) || (d.charNum === 1)) {
+           if (((that.graphType !== GraphTypeKey.TRIUMPH) && (that.graphType !== GraphTypeKey.GLORY)) || (d.charNum === 1)) {
              pos = that._checkPosition(pos, textsPositions);
              textsPositions.push(pos);
            }
@@ -431,6 +431,7 @@ export class ChartComponent implements OnInit, OnDestroy, OnChanges {
     // Disable lines
     switch (that.graphType) {
       case GraphTypeKey.TRIUMPH:
+      case GraphTypeKey.GLORY:
         // GraphTypeKey.TIME:
         d3.selectAll('.Char_3').style('display', 'none');
         d3.selectAll('.Char_2').style('display', 'none');
@@ -486,6 +487,7 @@ export class ChartComponent implements OnInit, OnDestroy, OnChanges {
         return d.label + ' / ' + this.localLabels[d.class] + d.running;
       // case GraphTypeKey.TIME:
       case GraphTypeKey.TRIUMPH:
+      case GraphTypeKey.GLORY:
         return d.label + d.runningTotal;
     }
   }
@@ -501,6 +503,8 @@ export class ChartComponent implements OnInit, OnDestroy, OnChanges {
       //      return d.playedRatio;
       case GraphTypeKey.TRIUMPH:
         return d.triumphScore ? d.triumphScore : 0;
+      case GraphTypeKey.GLORY:
+        return d.glory ? d.glory : 0;
     }
   }
 
@@ -515,6 +519,8 @@ export class ChartComponent implements OnInit, OnDestroy, OnChanges {
 //      return d.playedRatio;
       case GraphTypeKey.TRIUMPH:
         return d.triumphScoreMin ? d.triumphScoreMin : 0;
+      case GraphTypeKey.GLORY:
+        return d.gloryScoreMin ? d.gloryScoreMin : 0;
     }
   }
 
@@ -540,6 +546,7 @@ export class ChartComponent implements OnInit, OnDestroy, OnChanges {
         title += `<div class="label">${this.localLabels['PvP']}</div>`;
         title += `<div class="label">${this.localLabels['PvP ratio']}</div>`;
         title += `<div class="label">${this.localLabels['PvP competitive']}</div>`;
+        title += `<div class="label">${this.localLabels['glory']}</div>`;
         title += `<div class="label">${this.localLabels['gambit']}</div>`;
         title += `</div>`;
         title += `<div class="right">`;
@@ -558,19 +565,23 @@ export class ChartComponent implements OnInit, OnDestroy, OnChanges {
         title += `<div class="value">${d.values[d.values.length - 1].allPvPWon + ' / ' + d.values[d.values.length - 1].allPvPEntered}</div>`;
         title += `<div class="value">${d.values[d.values.length - 1].allPvPKillsDeathsAssistsRatio.toFixed(2)}</div>`;
         title += `<div class="value">${d.values[d.values.length - 1].pvpCompetitiveWon + ' / ' + d.values[d.values.length - 1].pvpCompetitiveEntered}</div>`;
+        title += `<div class="value">${d3.format('.0f')(d.values[d.values.length - 1].glory)}</div>`;
         title += `<div class="value">${d.values[d.values.length - 1].gambitWon + ' / ' + d.values[d.values.length - 1].gambitEntered}</div>`;
         title += `</div>`;
         break;
 //    case GraphTypeKey.TIME:
       case GraphTypeKey.TRIUMPH:
+      case GraphTypeKey.GLORY:
         title += `<div class="left">`;
         title += `<div class="label">${this.localLabels['name']}</div>`;
         title += `<div class="label">${this.localLabels['triumph']}</div>`;
+        title += `<div class="label">${this.localLabels['glory']}</div>`;
         title += `<div class="label">${this.localLabels['played total']}</div>`;
         title += `</div>`;
         title += `<div class="right">`;
         title += `<div class="value">${d.values[d.values.length - 1].userId}</div>`;
         title += `<div class="value">${d3.format('.0f')(d.values[d.values.length - 1].triumphScore)}</div>`;
+        title += `<div class="value">${d3.format('.0f')(d.values[d.values.length - 1].glory)}</div>`;
         title += `<div class="value">${that._niceDate(d.minutePlayedTotalTotal)}</div>`;
         title += `</div>`;
         break;
