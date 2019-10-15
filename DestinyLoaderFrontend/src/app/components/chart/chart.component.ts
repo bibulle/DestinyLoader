@@ -658,6 +658,7 @@ export class ChartComponent implements OnInit, OnDestroy, OnChanges {
     'name': 'name',
     'name / class': 'name / class',
     'triumph': 'triumph',
+    'glory': 'glory',
     'played total': 'played total',
     'light': 'light',
     'played': 'played',
