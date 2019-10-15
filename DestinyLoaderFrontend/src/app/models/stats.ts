@@ -23,6 +23,7 @@ export class Stats {
   strikeEntered: number;
   trialsOfTheNineEntered: number;
   trialsOfTheNineWon: number;
+  triumphScore: number;
   glory: number;
   userId: string;
 }

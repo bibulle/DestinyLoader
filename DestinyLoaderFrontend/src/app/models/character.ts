@@ -11,6 +11,8 @@ export class Character {
   userId?: string;
   isOnLine?: boolean;
   minutePlayedTotalTotal?: number;
+  maxTotalTriumph?: number;
+  maxTotalGlory?: number;
 
   values: Stats[];
 

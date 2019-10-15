@@ -285,7 +285,7 @@ export class ChartComponent implements OnInit, OnDestroy, OnChanges {
          .append('path')
          .attr('class', function (d) {
            // console.log("area K" + d.key + " Char_" + d.charNum);
-           return 'area K' + d.key + ' Char_' + d.charNum;
+           return 'area K' + d.key + ' Char_' + (that._displayChart(d, that) ? d.charNum : 'NotDisplayed');
          })
          .attr('d', function (d) {
            return area(d.values);
@@ -325,7 +325,7 @@ export class ChartComponent implements OnInit, OnDestroy, OnChanges {
          .attr('clip-path', 'url(#clip)')
          .append('path')
          .attr('class', function (d) {
-           return 'line K' + d.key + ' Char_' + d.charNum;
+           return 'line K' + d.key + ' Char_' + (that._displayChart(d, that) === true ? d.charNum : 'NotDisplayed');
          })
          .attr('d', function (d) {
            return line(d.values);
@@ -348,7 +348,7 @@ export class ChartComponent implements OnInit, OnDestroy, OnChanges {
                       .attr('y', (d) => {
                         let pos = yScale(Math.max(Graph.MIN_VALUES[that.graphType], that._getYMax(d.values[d.values.length - 1])));
 
-                        if (((that.graphType !== GraphTypeKey.TRIUMPH) && (that.graphType !== GraphTypeKey.GLORY)) || (d.charNum === 1)) {
+                        if (that._displayChart(d, that)) {
                           pos = that._checkPosition(pos, textsPositions);
                           textsPositions.push(pos);
                         }
@@ -375,7 +375,7 @@ export class ChartComponent implements OnInit, OnDestroy, OnChanges {
          .append('text')
          .attr('class', function (d) {
            // console.log(d);
-           return 'text U' + d.userId + ' Char_' + d.charNum;
+           return 'text U' + d.userId + ' Char_' + (that._displayChart(d, that) ? d.charNum : 'NotDisplayed');
          })
          .attr('x', (d) => {
            return xScale(that._getX(d.values[d.values.length - 1])) + 8;
@@ -383,7 +383,7 @@ export class ChartComponent implements OnInit, OnDestroy, OnChanges {
          .attr('y', (d) => {
            let pos = yScale(Math.max(Graph.MIN_VALUES[that.graphType], that._getYMax(d.values[d.values.length - 1])));
 
-           if (((that.graphType !== GraphTypeKey.TRIUMPH) && (that.graphType !== GraphTypeKey.GLORY)) || (d.charNum === 1)) {
+           if (that._displayChart(d, that)) {
              pos = that._checkPosition(pos, textsPositions);
              textsPositions.push(pos);
            }
@@ -429,19 +429,20 @@ export class ChartComponent implements OnInit, OnDestroy, OnChanges {
 
 
     // Disable lines
-    switch (that.graphType) {
-      case GraphTypeKey.TRIUMPH:
-      case GraphTypeKey.GLORY:
-        // GraphTypeKey.TIME:
-        d3.selectAll('.Char_3').style('display', 'none');
-        d3.selectAll('.Char_2').style('display', 'none');
-        break;
-      default:
-        d3.selectAll('.Char_3').style('display', 'inline');
-        d3.selectAll('.Char_2').style('display', 'inline');
-        break;
-
-    }
+    d3.selectAll('.Char_NotDisplayed').style('display', 'none');
+    // switch (that.graphType) {
+    //   case GraphTypeKey.TRIUMPH:
+    //   case GraphTypeKey.GLORY:
+    //     // GraphTypeKey.TIME:
+    //     d3.selectAll('.Char_3').style('display', 'none');
+    //     d3.selectAll('.Char_2').style('display', 'none');
+    //     break;
+    //   default:
+    //     d3.selectAll('.Char_3').style('display', 'inline');
+    //     d3.selectAll('.Char_2').style('display', 'inline');
+    //     break;
+    //
+    // }
 
 
   }
@@ -591,6 +592,17 @@ export class ChartComponent implements OnInit, OnDestroy, OnChanges {
     return title;
   }
 
+  _displayChart(d, that = this) {
+    switch (that.graphType) {
+      case GraphTypeKey.TRIUMPH:
+        return (d.charNum === 1) && (d.maxTotalTriumph > 0);
+      case GraphTypeKey.GLORY:
+        return (d.charNum === 1) && (d.maxTotalGlory > 0);
+      default:
+        return true;
+
+    }
+  }
 
   /**
    * Function to get nice duration

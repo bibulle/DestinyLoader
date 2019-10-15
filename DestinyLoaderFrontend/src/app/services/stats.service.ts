@@ -107,6 +107,7 @@ export class StatsService {
                                          // .sortKeys(d3.ascending)
                                          .entries(stats) as Character[];
 
+              // console.log(StatsService.statsList);
               const charCounter = [];
               const isOnLine = [];
               const minutePlayedTotalTotal: number[] = [];
@@ -118,6 +119,8 @@ export class StatsService {
                 d.label = d.userId;
                 d.running = '';
                 d.runningTotal = '';
+                d.maxTotalTriumph = 0;
+                d.maxTotalGlory = 0;
 
                 if (d.values[d.values.length - 1].isOnLine == null) {
                   try {
@@ -200,6 +203,12 @@ export class StatsService {
                     }
                   }
 
+                  if (v.triumphScore && v.triumphScore > d.maxTotalTriumph) {
+                    d.maxTotalTriumph = v.triumphScore;
+                  }
+                  if (v.glory && v.glory > d.maxTotalGlory) {
+                    d.maxTotalGlory = v.glory;
+                  }
                 });
 
               });
