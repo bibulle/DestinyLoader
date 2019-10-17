@@ -1,10 +1,13 @@
-import {Component, OnDestroy, OnInit} from '@angular/core';
-import { ObjectiveTime } from '../../models/checklist';
-import { Subscription } from 'rxjs/internal/Subscription';
-import { ChecklistService } from '../../services/checklist.service';
-import { Config } from '../../models/config';
+import {Component, NgModule, OnDestroy, OnInit} from '@angular/core';
+import {ObjectiveTime} from '../../models/checklist';
+import {Subscription} from 'rxjs/internal/Subscription';
+import {ChecklistService} from '../../services/checklist.service';
+import {Config} from '../../models/config';
 import {HeaderService, ReloadingKey} from '../../services/header.service';
-import { TranslateService } from '@ngx-translate/core';
+import {TranslateModule, TranslateService} from '@ngx-translate/core';
+import {CommonModule} from '@angular/common';
+import {MatIconModule} from '@angular/material';
+import {TimeExpirationModule} from '../../pipes/time-expiration.pipe';
 
 @Component({
   selector: 'app-objective-times',
@@ -90,4 +93,26 @@ export class ObjectiveTimesComponent implements OnInit, OnDestroy {
           }
         });
   }
+}
+
+@NgModule({
+  imports: [
+    CommonModule,
+    // FormsModule,
+    TranslateModule,
+    // MatTabsModule,
+    // MatCardModule,
+    // MatCheckboxModule,
+    MatIconModule,
+    TimeExpirationModule
+  ],
+  declarations: [
+    ObjectiveTimesComponent
+  ],
+  providers: [],
+  exports: [
+    ObjectiveTimesComponent
+  ]
+})
+export class ObjectiveTimesModule {
 }

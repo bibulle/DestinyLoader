@@ -1,11 +1,17 @@
-/* tslint:disable:member-ordering no-bitwise */
-import {AfterViewChecked, ChangeDetectorRef, Component, ElementRef, HostListener, OnDestroy, OnInit, ViewChild} from '@angular/core';
+/* tslint:disable:member-ordering */
+import {AfterViewChecked, ChangeDetectorRef, Component, ElementRef, HostListener, NgModule, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {Subscription} from 'rxjs';
 import {ChecklistService} from '../../services/checklist.service';
 import {catalystState, Character, Checklist, Objective, ObjectiveTime, Pursuit, PursuitType, Reward} from '../../models/checklist';
 import {Config, SearchStyle} from '../../models/config';
 import {HeaderService, ReloadingKey} from '../../services/header.service';
-import {TranslateService} from '@ngx-translate/core';
+import {TranslateModule, TranslateService} from '@ngx-translate/core';
+import {MatCardModule, MatCheckboxModule, MatIconModule, MatTabsModule} from '@angular/material';
+import {CommonModule} from '@angular/common';
+import {TimeExpirationModule} from '../../pipes/time-expiration.pipe';
+import {FormsModule} from '@angular/forms';
+import {PursuitModule} from './pursuit/pursuit.component';
+import {UtilService} from '../../services/util.service';
 import Timer = NodeJS.Timer;
 
 @Component({
@@ -26,7 +32,6 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
   oldLanguage = '';
 
   searchText = '';
-  search: RegExp;
   private searchStyle = SearchStyle.SEARCH;
   foundList: number[] = [];
   searchTimout: Timer;
@@ -35,14 +40,19 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
   selectedTab = 0;
   searchedId = '';
 
+  swipeRunning = -1;
+
+
   constructor(private _checklistService: ChecklistService,
               private _translateService: TranslateService,
               private _headerService: HeaderService,
+              private _utilService: UtilService,
               private elRef: ElementRef,
               private cd: ChangeDetectorRef) {
   }
 
   private static PURSUIT_HASH = '1345459588';
+
 
   private SEARCH_MIN_LENGTH = 3;
 
@@ -100,6 +110,7 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
           checklist.characters.forEach(char => {
             charIndex++;
             char.pursuits = [];
+            char.charNum = charIndex - 1;
 
             // foreach pursuit type
             Object.keys(checklist.items[ChecklistComponent.PURSUIT_HASH]).forEach(key => {
@@ -126,6 +137,7 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
               // else create the object
               const newMilestone: Pursuit = {
                 itemInstanceId: milestone.instanceId,
+                pursuitNum: 0,
                 itemType: Pursuit.ITEM_TYPE_MILESTONE,
                 itemTypeDisplayName: 'Milestone',
                 description: milestone.description,
@@ -211,6 +223,7 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
               // else create the object
               const newProgression: Pursuit = {
                 itemInstanceId: progression.instanceId,
+                pursuitNum: 0,
                 itemType: Pursuit.ITEM_TYPE_PROGRESSION,
                 itemTypeDisplayName: 'Progression',
                 description: progression.description,
@@ -245,7 +258,7 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
             });
 
             // add character triumph
-            if (char.triumphs) {
+            if (!char.triumphs) {
               char.triumphs.forEach(
                 triumph => {
                   // console.log(triumph);
@@ -255,9 +268,11 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
                   }
 
                   // If not already redeemed, add it
+                  // tslint:disable-next-line:no-bitwise
                   if ((triumph.state & 1) === 0) {
                     const newTriumph: Pursuit = {
                       itemInstanceId: triumph.hash,
+                      pursuitNum: 0,
                       itemType: (triumph.state === 0 ? Pursuit.ITEM_TYPE_TRIUMPH_REDEEMABLE : Pursuit.ITEM_TYPE_TRIUMPH),
                       itemTypeDisplayName: 'Triumph',
                       description: triumph.item.displayProperties.description,
@@ -336,6 +351,7 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
               // else create the object
               const newProgression: Pursuit = {
                 itemInstanceId: item.itemInstanceId,
+                pursuitNum: 0,
                 itemType: item.item.itemType,
                 itemTypeDisplayName: 'Item',
                 description: item.item.displayProperties.description,
@@ -377,6 +393,7 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
                   if ((catalyst.state === catalystState.DROPPED) || (catalyst.state === catalystState.TO_BE_COMPLETED)) {
                     const newCatalyst: Pursuit = {
                       itemInstanceId: catalyst.inventoryItem.itemInstanceId,
+                      pursuitNum: 0,
                       itemType: Pursuit.ITEM_TYPE_CATALYST,
                       itemTypeDisplayName: 'Catalyst',
                       description: catalyst.item.displayProperties.description,
@@ -450,9 +467,11 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
                   }
 
                   // If not already redeemed, add it
+                  // tslint:disable-next-line:no-bitwise
                   if ((triumph.state & 1) === 0) {
                     const newTriumph: Pursuit = {
                       itemInstanceId: triumph.hash,
+                      pursuitNum: 0,
                       itemType: (triumph.state === 0 ? Pursuit.ITEM_TYPE_TRIUMPH_REDEEMABLE : Pursuit.ITEM_TYPE_TRIUMPH),
                       itemTypeDisplayName: 'Triumph',
                       description: triumph.item.displayProperties.description,
@@ -559,6 +578,7 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
                               // console.log(key + ' ' + vendor.name + ' : ' + sale.name + ' (' + sale.itemTypeDisplayName + ')');
                               const newSale: Pursuit = {
                                 itemInstanceId: sale.hash,
+                                pursuitNum: 0,
                                 itemType: Pursuit.ITEM_TYPE_VENDOR,
                                 itemTypeDisplayName: 'Vendor',
                                 description: sale.displaySource,
@@ -619,6 +639,11 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
             // sort pursuit
             this.sortPursuits(char);
 
+            // add the pursuit index
+            char.pursuits.forEach((p, index) => {
+              p.pursuitNum = index;
+            });
+
             // Clean the characters
             delete char.baseCharacterLevel;
             delete char.checklists;
@@ -675,7 +700,7 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
 
         // console.log(checklist);
         // this.foundList = [];
-        ChecklistComponent.updateObject(checklist, this.checklist);
+        UtilService.updateObject(checklist, this.checklist);
         console.log(this.checklist);
 
 
@@ -709,8 +734,8 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
         if (this.searchText !== search.searchText) {
           this.foundList = [];
           this.searchText = search.searchText;
-          this.search = new RegExp(this.searchText.replace(/ /, '([  ]|&nbsp;)'), 'gi');
         }
+        // console.log(this.searchText + ' ' + search.searchText);
 
         this.searchStyle = search.style;
 
@@ -720,11 +745,12 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
           }
           this.searchTimout = setTimeout(() => {
             this.searchTimout = undefined;
+            // console.log(this.foundList);
             if (this.foundList.length !== 0) {
               const key = this.foundList[search.foundCurrent % this.foundList.length];
 
-              const charNum = Math.floor(key / this.PURSUIT_KEY_MULTIPLIER);
-              const pursuitNum = key - charNum * this.PURSUIT_KEY_MULTIPLIER;
+
+              const {charNum, pursuitNum} = this.getFromPursuitKey(key);
 
               if (charNum !== this.selectedTab) {
                 this.selectedTab = charNum;
@@ -904,73 +930,6 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
     }
   }
 
-  stopObjectiveTime(objective: Objective, characterId: string, pursuitId: string, event: any) {
-    // console.log('stopObjectiveTime');
-    event.stopPropagation();
-
-    if (this.swipeRunning === -1) {
-
-      this._checklistService.stopObjective(objective, characterId, pursuitId)
-        .then(obj => {
-
-          if (obj.runningTimeObjective) {
-            obj.runningTimeObjective.timeStart = new Date(obj.runningTimeObjective.timeStart);
-          }
-          ChecklistComponent.updateObject(obj, objective);
-        });
-    }
-  }
-
-  launchObjectiveTime(objective: Objective, characterId: string, characterName: string, pursuitId: string, pursuitName: string, event: any) {
-    // console.log('launchObjectiveTime');
-    event.stopPropagation();
-
-    if (this.swipeRunning === -1) {
-
-      this._checklistService.startObjective(objective, characterId, characterName, pursuitId, pursuitName)
-        .then(obj => {
-
-          if (obj.runningTimeObjective) {
-            // console.log(obj);
-            obj.runningTimeObjective.timeStart = new Date(obj.runningTimeObjective.timeStart);
-            obj.runningTimeObjective.timeRunning = (new Date().getTime() - obj.runningTimeObjective.timeStart.getTime());
-            // console.log(obj);
-          }
-
-          ChecklistComponent.updateObject(obj, objective);
-          this.checklist.currentTimes.push(objective.runningTimeObjective);
-        });
-    }
-  }
-
-
-  private static updateObject(src: Object, dst: Object) {
-
-    if ((src instanceof Array) && (dst instanceof Array)) {
-      while (src.length < dst.length) {
-        dst.splice(-1, 1);
-      }
-    } else {
-      for (const key of Object.keys(dst)) {
-        if (!src.hasOwnProperty(key)) {
-          delete dst[key];
-        }
-      }
-    }
-
-    for (const key of Object.keys(src)) {
-      if (src[key] instanceof Object) {
-        if ((!dst.hasOwnProperty(key)) || (src[key] instanceof Date)) {
-          dst[key] = src[key];
-        } else {
-          ChecklistComponent.updateObject(src[key], dst[key]);
-        }
-      } else {
-        dst[key] = src[key];
-        // console.log(key);
-      }
-    }
-  }
 
 
   // toggleShowOnlyPowerfulGear (event: any) {
@@ -1008,6 +967,7 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
   }
 
   pursuitShouldBeDisplayed(character: Character, pursuit: Pursuit) {
+
     if (!pursuit) {
       return false;
     }
@@ -1166,21 +1126,7 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
       // if (pursuit.name.startsWith('Trésor')) {
       //   console.log(pursuit.name + ' ' + match + ' ' + (pursuit.name.match(this.search) !== null));
       // }
-      match = match ||
-        (pursuit.name.match(this.search) !== null) ||
-        (pursuit.description.match(this.search) !== null) ||
-        (pursuit.vendorName && (pursuit.vendorName.match(this.search) !== null));
-
-      if (!match) {
-        pursuit.rewards.forEach(reward => {
-          match = match || (reward.name.match(this.search) !== null);
-        });
-      }
-      if (!match) {
-        pursuit.objectives.forEach(objective => {
-          match = match || (objective.item.progressDescription.match(this.search) !== null);
-        });
-      }
+      match = match || (this.foundList.indexOf(this.getPursuitKey(character.charNum, pursuit.pursuitNum)) !== -1);
 
       ret = match;
     }
@@ -1189,44 +1135,6 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
   }
 
   static notCheckedType = {};
-
-  pursuitHasRunningObjectives(pursuit: Pursuit) {
-    let ret = false;
-    pursuit.objectives.forEach((obj) => {
-      if (this.objectivesIsRunning(obj)) {
-        ret = true;
-      }
-    });
-
-    return ret;
-  }
-
-  objectivesIsRunning(objective) {
-    return objective.runningTimeObjective && !objective.runningTimeObjective.finished;
-  }
-
-  getObjectiveProgress(objective) {
-    return 100 * Math.min(1.0, objective.progress / objective.completionValue);
-  }
-
-  highlight(string, charNum, pursuitNum): string {
-    if (!this.searchText || (this.searchText.length < this.SEARCH_MIN_LENGTH)) {
-      return string;
-    }
-    // do the highlighting
-    return string.replace(this.search, match => {
-      const key = charNum * this.PURSUIT_KEY_MULTIPLIER + pursuitNum;
-      if (this.foundList.indexOf(key) === -1) {
-        this.foundList.push(key);
-        this.foundList.sort((n1, n2) => {
-          return n1 - n2;
-        });
-        // console.log('this.foundList.length ' + this.foundList.length);
-        this._headerService.setSearchFoundCount(this.foundList.length);
-      }
-      return '<span class="highlight-text">' + match + '</span>';
-    });
-  }
 
   swipe(event) {
     console.log(`swipe : ${event.type} ${this.selectedTab}`);
@@ -1248,8 +1156,6 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
     }, 100);
   }
 
-  swipeRunning = -1;
-
   selectedIndexChange(event) {
     // console.log(`selectedIndexChange : ${event} (${this.swipeRunning})`);
     // console.log(this.selectedTab);
@@ -1263,5 +1169,60 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
 
     // console.log(this.selectedTab);
   }
+
+  pursuitMatchSearch(charNum, pursuitNum) {
+    // console.log(charNum+" "+pursuitNum);
+    const key = this.getPursuitKey(charNum, pursuitNum);
+    if (this.foundList.indexOf(key) === -1) {
+      this.foundList.push(key);
+      this.foundList.sort((n1, n2) => {
+        return n1 - n2;
+      });
+      // console.log('this.foundList.length ' + this.foundList.length);
+      this._headerService.setSearchFoundCount(this.foundList.length);
+    }
+
+  }
+
+  getPursuitKey(charNum: number, pursuitNum: number): number {
+    return charNum * this.PURSUIT_KEY_MULTIPLIER + pursuitNum;
+  }
+
+  getFromPursuitKey(pursuitKey: number): { charNum: number, pursuitNum: number } {
+    const charNum = Math.floor(pursuitKey / this.PURSUIT_KEY_MULTIPLIER);
+    const pursuitNum = pursuitKey - charNum * this.PURSUIT_KEY_MULTIPLIER;
+
+    return {charNum, pursuitNum};
+  }
+
+  /**
+   * An objective time has been launched... add it to local list (before reloading)
+   * @param objectiveTime
+   */
+  objectiveTimeChange(objectiveTime: ObjectiveTime) {
+    this.checklist.currentTimes.push(objectiveTime);
+  }
 }
 
+@NgModule({
+  imports: [
+    CommonModule,
+    FormsModule,
+    TranslateModule,
+    MatTabsModule,
+    MatCardModule,
+    MatCheckboxModule,
+    MatIconModule,
+    TimeExpirationModule,
+    PursuitModule
+  ],
+  declarations: [
+    ChecklistComponent
+  ],
+  providers: [],
+  exports: [
+    ChecklistComponent
+  ]
+})
+export class ChecklistModule {
+}

@@ -1,0 +1,75 @@
+:host {
+
+  .objective {
+    padding-left: 4em;
+    display: flex;
+
+    .objective-checkbox {
+      flex: 1 1 100%;
+      cursor: inherit;
+
+      ::ng-deep label {
+        width: 100%;
+        white-space: normal;
+
+        .mat-checkbox-inner-container {
+          margin-left: 0;
+        }
+
+        .mat-checkbox-label {
+          width: 100%;
+          position: relative;
+        }
+
+        .mat-checkbox-ripple {
+          display: none;
+        }
+      }
+    }
+
+    .objective-checkbox-border {
+      ::ng-deep .mat-checkbox-label {
+        border-style: solid;
+        border-width: 1px;
+        border-color: #1b5e20;
+      }
+    }
+
+    .objective-description {
+      z-index: 10;
+      opacity: 1;
+      position: relative;
+
+      span {
+        font-size: 0.7em;
+      }
+    }
+
+    .objective-progress {
+      z-index: 10;
+      opacity: 1;
+      position: relative;
+      float: right;
+    }
+
+    .objective-progressbar {
+      background-color: #2e7d32;
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      opacity: 0.3;
+      z-index: 1;
+    }
+
+    .objective-running {
+      width: 7em;
+      padding-left: 0.5em;
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+      z-index: 19;
+    }
+  }
+
+}

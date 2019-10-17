@@ -1,0 +1,13 @@
+<mat-card-subtitle class="reward" >
+  <div *ngIf="reward && !reward.redeemed && ((reward.earned !== false) || (pursuitObjectivesLength != 0))">
+    <img class="reward-icon" *ngIf="reward.icon" src="https://www.bungie.net{{reward.icon}}"
+         alt="{{reward.name}}">
+    <span *ngIf="reward.identifier && (reward.identifier != pursuitName)">
+            <img class="reward-identifier-icon" *ngIf="reward.identifierIcon"
+                 src="https://www.bungie.net{{reward.identifierIcon}}" title="{{reward.identifier}}"
+                 alt="{{reward.identifier}}">
+          </span>
+    <span><span
+      [innerHTML]="highlight(reward.name)"></span>&nbsp;<span>{{reward.quantity < 2 ? '' : '+' + reward.quantity}}</span></span>
+  </div>
+</mat-card-subtitle>

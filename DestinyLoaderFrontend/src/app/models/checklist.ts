@@ -68,6 +68,7 @@ export class Triumph {
 
 export class Character {
   characterId: string;
+  charNum: number;
   //noinspection JSUnusedGlobalSymbols
   baseCharacterLevel: number;
   //noinspection JSUnusedGlobalSymbols
@@ -135,6 +136,7 @@ export class Character {
 
 export class Pursuit {
   itemInstanceId: string;
+  pursuitNum: number;
   //noinspection JSUnusedGlobalSymbols
   itemType: number;
   itemTypeDisplayName: string;
@@ -423,6 +425,10 @@ export class Objective {
     result = result / Math.max(1, objectives.length);
 
     return result;
+  }
+
+  static objectivesIsRunning(objective) {
+    return objective.runningTimeObjective && !objective.runningTimeObjective.finished;
   }
 
 }

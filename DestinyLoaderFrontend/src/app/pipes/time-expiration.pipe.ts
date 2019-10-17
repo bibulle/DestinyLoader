@@ -1,5 +1,5 @@
 /* tslint:disable:member-ordering */
-import { Pipe, PipeTransform } from '@angular/core';
+import {NgModule, Pipe, PipeTransform} from '@angular/core';
 
 /**
  * time expiration pipe
@@ -55,3 +55,19 @@ export class TimeExpirationPipe implements PipeTransform {
     }
   }
 }
+
+@NgModule({
+  imports: [
+  ],
+  declarations: [
+    TimeExpirationPipe
+  ],
+  providers: [
+      ],
+  exports: [
+    TimeExpirationPipe
+  ]
+})
+export class TimeExpirationModule {
+}
+

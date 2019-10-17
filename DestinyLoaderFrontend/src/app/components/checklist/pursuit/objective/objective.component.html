@@ -1,0 +1,29 @@
+<mat-card-subtitle class="objective" title="{{objective.objectiveHash}}">
+  <mat-checkbox class="objective-checkbox"
+                [ngClass]="{'objective-checkbox-border': (objective.completionValue >= 1)}"
+                [ngModel]="objective.complete"
+                [disableRipple]="true"
+                onclick="return false;">
+    <div class="objective-progressbar" [style.width]="getObjectiveProgress(objective)+'%'">
+      &nbsp;
+    </div>
+    <span class="objective-description"><span
+      [innerHTML]="highlight(objective.item.progressDescription)"></span>
+              <span *ngIf="objective.timeTillFinished > 0"> ({{objective.timeTillFinished | timeExpiration}})</span>
+            </span>
+    <span class="objective-progress">{{objective.progress}}/{{objective.completionValue}}</span>
+  </mat-checkbox>
+  <div class="objective-running"
+       *ngIf="!isVendor && objectivesIsRunning(objective)"
+       (click)="stopObjectiveTime(objective, $event)">
+    <mat-icon>stop</mat-icon>
+    <span>{{objective.runningTimeObjective.timeRunning | timeExpiration}}</span>
+  </div>
+  <div class="objective-running"
+       *ngIf="!isVendor && !objectivesIsRunning(objective)"
+       (click)="launchObjectiveTime(objective, $event)">
+    <mat-icon>play_arrow</mat-icon>
+  </div>
+  <div class="objective-running" *ngIf="!isVendor">
+  </div>
+</mat-card-subtitle>

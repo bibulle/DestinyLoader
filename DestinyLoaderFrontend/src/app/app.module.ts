@@ -1,29 +1,28 @@
-import { BrowserModule } from '@angular/platform-browser';
-import { NgModule } from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import { HttpClient, HttpClientModule } from '@angular/common/http';
+import {BrowserModule} from '@angular/platform-browser';
+import {NgModule} from '@angular/core';
+import {FormsModule} from '@angular/forms';
+import {HttpClient, HttpClientModule} from '@angular/common/http';
 
 
-import { AppComponent } from './app.component';
-import { AppRoutingModule } from './app-routing.module';
-import { MaterialModule } from './material.module';
-import { LightComponent } from './components/light/light.component';
-import { ChartComponent } from './components/chart/chart.component';
-import { NavbarComponent } from './components/navbar/navbar.component';
-import { TranslateHttpLoader } from '@ngx-translate/http-loader';
-import { MissingTranslationHandler, MissingTranslationHandlerParams, TranslateLoader, TranslateModule } from '@ngx-translate/core';
-import { registerLocaleData } from '@angular/common';
+import {AppComponent} from './app.component';
+import {AppRoutingModule} from './app-routing.module';
+import {MaterialModule} from './material.module';
+import {LightComponent} from './components/light/light.component';
+import {ChartComponent} from './components/chart/chart.component';
+import {NavbarComponent} from './components/navbar/navbar.component';
+import {TranslateHttpLoader} from '@ngx-translate/http-loader';
+import {MissingTranslationHandler, MissingTranslationHandlerParams, TranslateLoader, TranslateModule} from '@ngx-translate/core';
+import {registerLocaleData} from '@angular/common';
 import localeFr from '@angular/common/locales/fr';
 import localeEn from '@angular/common/locales/en';
-import { RatioComponent } from './components/ratio/ratio.component';
-import { TriumphComponent } from './components/triumph/triumph.component';
-import { NotFoundComponent } from './components/not-found/not-found.component';
-import { ChecklistComponent } from './components/checklist/checklist.component';
-import { AuthGuard, AuthGuardAdmin } from './components/authent/auth.guard';
-import { UserService } from './services/user.service';
-import { JwtModule } from '@auth0/angular-jwt';
-import { TimeExpirationPipe } from './time-expiration.pipe';
-import { ObjectiveTimesComponent } from './components/objective-times/objective-times.component';
+import {RatioComponent} from './components/ratio/ratio.component';
+import {TriumphComponent} from './components/triumph/triumph.component';
+import {NotFoundComponent} from './components/not-found/not-found.component';
+import {ChecklistModule} from './components/checklist/checklist.component';
+import {AuthGuard, AuthGuardAdmin} from './components/authent/auth.guard';
+import {UserService} from './services/user.service';
+import {JwtModule} from '@auth0/angular-jwt';
+import {ObjectiveTimesModule} from './components/objective-times/objective-times.component';
 import {GloryComponent} from './components/glory/glory.component';
 
 export class MyMissingTranslationHandler implements MissingTranslationHandler {
@@ -45,10 +44,7 @@ registerLocaleData(localeEn, 'en');
     NavbarComponent,
     RatioComponent,
     TriumphComponent,
-    GloryComponent,
-    ChecklistComponent,
-    TimeExpirationPipe,
-    ObjectiveTimesComponent
+    GloryComponent
   ],
   imports: [
     BrowserModule,
@@ -71,7 +67,9 @@ registerLocaleData(localeEn, 'en');
       },
       missingTranslationHandler: {provide: MissingTranslationHandler, useClass: MyMissingTranslationHandler},
       // useDefaultLang: false
-    })
+    }),
+    ChecklistModule,
+    ObjectiveTimesModule
   ],
   providers: [
     AuthGuard,

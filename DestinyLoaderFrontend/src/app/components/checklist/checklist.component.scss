@@ -39,9 +39,15 @@
     .content {
       display: flex;
 
-      > div {
-        flex: 1 1 33%;
+      > app-pursuit {
+        flex: 0 1 33%;
       }
+
+      .not-visible {
+        display: none;
+      }
+
+
     }
 
     .character {
@@ -102,184 +108,7 @@
 
       }
 
-      .not-visible {
-        display: none;
-      }
 
-      @-webkit-keyframes glowing {
-        from {
-          background-color: #424242;
-        }
-        to {
-          background-color: #666666;
-        }
-      }
-      .glow mat-card {
-        animation: glowing 1s ease-in-out infinite alternate;
-      }
-
-      div {
-        mat-card {
-          border-color: #424242;
-          border-width: 1px;
-          border-style: solid;
-        }
-        mat-card.selected {
-          border-color: rgba(255, 255, 141, 0.8);
-        }
-        mat-card .highlighter {
-          position: absolute;
-          width: 100%;
-          height: 100%;
-          background-color: rgba(255, 255, 141, 0.05);
-          top: 0;
-          left: 0;
-          display: none;
-        }
-        mat-card.selected .highlighter {
-          display: block;
-        }
-      }
-
-      .pursuit-item {
-
-        overflow: hidden;
-        height: 100%;
-        margin: 1px;
-
-        .pursuit-title {
-          display: flex;
-          align-items: center;
-        }
-
-        .pursuit-text {
-          margin-left: 0.5em;
-          width: 100%;
-        }
-
-        .pursuit-itemType {
-          color: rgba(0, 0, 0, 0.6);
-        }
-
-        .pursuit-item-icon {
-          width: 2em;
-          vertical-align: middle;
-        }
-
-        .pursuit-description {
-          font-size: 0.5em;
-        }
-
-        .pursuit-expiration {
-          font-size: 0.5em;
-          font-style: italic;
-          float: right;
-        }
-
-        //.selected {
-        //  -webkit-transform: rotate(45deg);
-        //  position: absolute;
-        //  right: -34px;
-        //  top: 10px;
-        //  width: 100px;
-        //  text-align: center;
-        //  font-size: 13px;
-        //  line-height: 15px;
-        //  //background-color: #ffff8d;
-        //  background-color: rgba(255, 255, 141, 0.8);
-        //  display: none;
-        //}
-
-
-        .reward {
-          padding-left: 4em;
-
-          span {
-            vertical-align: middle;
-          }
-
-          .reward-icon, .reward-identifier-icon {
-            width: 1.5em;
-            vertical-align: middle;
-            padding-right: 0.5em;
-          }
-        }
-
-        .objective {
-          padding-left: 4em;
-          display: flex;
-
-          .objective-checkbox {
-            flex: 1 1 100%;
-            cursor: inherit;
-
-            ::ng-deep label {
-              width: 100%;
-              white-space: normal;
-
-              .mat-checkbox-inner-container {
-                margin-left: 0;
-              }
-
-              .mat-checkbox-label {
-                width: 100%;
-                position: relative;
-              }
-
-              .mat-checkbox-ripple {
-                display: none;
-              }
-            }
-          }
-
-          .objective-checkbox-border {
-            ::ng-deep .mat-checkbox-label {
-              border-style: solid;
-              border-width: 1px;
-              border-color: #1b5e20;
-            }
-          }
-
-          .objective-description {
-            z-index: 10;
-            opacity: 1;
-            position: relative;
-
-            span {
-              font-size: 0.7em;
-            }
-          }
-
-          .objective-progress {
-            z-index: 10;
-            opacity: 1;
-            position: relative;
-            float: right;
-          }
-
-          .objective-progressbar {
-            background-color: #2e7d32;
-            position: absolute;
-            top: 0;
-            bottom: 0;
-            left: 0;
-            opacity: 0.3;
-            z-index: 1;
-          }
-
-          .objective-running {
-            width: 7em;
-            padding-left: 0.5em;
-            display: flex;
-            align-items: center;
-            cursor: pointer;
-            z-index: 19;
-          }
-        }
-      }
-      .pursuit-item.selected .selected {
-        display: block;
-      }
 
 
     }
@@ -292,14 +121,6 @@
 
   }
 
-  ::ng-deep .highlight-text {
-    background-color: #ffff8d;
-    color: #303030;
-  }
-  .searched ::ng-deep .highlight-text {
-    background-color: #ffff00;
-    color: #303030;
-  }
 
 
 }
