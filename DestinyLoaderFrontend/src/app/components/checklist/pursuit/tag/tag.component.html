@@ -1,0 +1,6 @@
+<mat-chip [ngClass]="{selected: selected}" (click)="toggleTag($event)">
+  <img class="nav-img" *ngIf="tag.iconType=='img'" src="{{tag.icon}}" alt="{{tag.name|translate}}"
+       title="{{tag.name|translate}}">
+  <i class="fas {{tag.icon}}" *ngIf="tag.iconType=='fas'" title="{{tag.name|translate}}"></i>
+  <mat-icon svgIcon="{{tag.icon}}" *ngIf="tag.iconType=='svgIcon'" title="{{tag.name|translate}}">></mat-icon>
+</mat-chip>

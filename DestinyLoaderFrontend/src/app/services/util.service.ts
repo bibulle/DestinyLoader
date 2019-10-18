@@ -27,7 +27,11 @@ export class UtilService {
         if ((!dst.hasOwnProperty(key)) || (src[key] instanceof Date)) {
           dst[key] = src[key];
         } else {
-          UtilService.updateObject(src[key], dst[key]);
+          if (dst[key] == null) {
+            src[key] = null;
+          } else {
+            UtilService.updateObject(src[key], dst[key]);
+          }
         }
       } else {
         dst[key] = src[key];

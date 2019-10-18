@@ -24,6 +24,7 @@ import {UserService} from './services/user.service';
 import {JwtModule} from '@auth0/angular-jwt';
 import {ObjectiveTimesModule} from './components/objective-times/objective-times.component';
 import {GloryComponent} from './components/glory/glory.component';
+import {MatChipsModule} from '@angular/material';
 
 export class MyMissingTranslationHandler implements MissingTranslationHandler {
   handle (params: MissingTranslationHandlerParams) {
@@ -69,7 +70,8 @@ registerLocaleData(localeEn, 'en');
       // useDefaultLang: false
     }),
     ChecklistModule,
-    ObjectiveTimesModule
+    ObjectiveTimesModule,
+    MatChipsModule
   ],
   providers: [
     AuthGuard,

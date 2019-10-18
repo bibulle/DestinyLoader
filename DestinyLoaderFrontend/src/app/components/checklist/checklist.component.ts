@@ -2,7 +2,7 @@
 import {AfterViewChecked, ChangeDetectorRef, Component, ElementRef, HostListener, NgModule, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {Subscription} from 'rxjs';
 import {ChecklistService} from '../../services/checklist.service';
-import {catalystState, Character, Checklist, Objective, ObjectiveTime, Pursuit, PursuitType, Reward} from '../../models/checklist';
+import {catalystState, Character, Checklist, Objective, ObjectiveTime, Pursuit, PursuitType, Reward, Tag} from '../../models/checklist';
 import {Config, SearchStyle} from '../../models/config';
 import {HeaderService, ReloadingKey} from '../../services/header.service';
 import {TranslateModule, TranslateService} from '@ngx-translate/core';
@@ -149,7 +149,9 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
                 objectives: [],
                 vendorName: undefined,
                 saleDescription: undefined,
-                type: PursuitType.MILESTONE
+                type: PursuitType.MILESTONE,
+                tags: [],
+                questlineItemHash: null
               };
 
               // add well formed rewards
@@ -235,7 +237,9 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
                 objectives: [],
                 vendorName: undefined,
                 saleDescription: undefined,
-                type: PursuitType.PROGRESSION
+                type: PursuitType.PROGRESSION,
+                tags: [],
+                questlineItemHash: null
               };
 
               // add well formed objectives
@@ -258,7 +262,7 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
             });
 
             // add character triumph
-            if (!char.triumphs) {
+            if (char.triumphs) {
               char.triumphs.forEach(
                 triumph => {
                   // console.log(triumph);
@@ -284,7 +288,9 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
                       objectives: [],
                       vendorName: undefined,
                       saleDescription: undefined,
-                      type: (triumph.state === 0 ? PursuitType.TRIUMPH_REDEEMABLE : PursuitType.TRIUMPH)
+                      type: (triumph.state === 0 ? PursuitType.TRIUMPH_REDEEMABLE : PursuitType.TRIUMPH),
+                      tags: [],
+                      questlineItemHash: null
                     };
 
                     char.pursuits.push(newTriumph);
@@ -363,7 +369,9 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
                 objectives: [],
                 vendorName: undefined,
                 saleDescription: undefined,
-                type: PursuitType.ITEM
+                type: PursuitType.ITEM,
+                tags: [],
+                questlineItemHash: null
               };
 
 
@@ -405,7 +413,9 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
                       objectives: [],
                       vendorName: undefined,
                       saleDescription: undefined,
-                      type: PursuitType.CATALYST
+                      type: PursuitType.CATALYST,
+                      tags: [],
+                      questlineItemHash: null
                     };
 
                     this._translateService
@@ -483,7 +493,9 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
                       objectives: [],
                       vendorName: undefined,
                       saleDescription: undefined,
-                      type: (triumph.state === 0 ? PursuitType.TRIUMPH_REDEEMABLE : PursuitType.TRIUMPH)
+                      type: (triumph.state === 0 ? PursuitType.TRIUMPH_REDEEMABLE : PursuitType.TRIUMPH),
+                      tags: [],
+                      questlineItemHash: null
                     };
 
                     char.pursuits.push(newTriumph);
@@ -590,7 +602,9 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
                                 rewards: [],
                                 maxRewardLevel: -2,
                                 objectives: [],
-                                type: PursuitType.SALE
+                                type: PursuitType.SALE,
+                                tags: [],
+                                questlineItemHash: null
                               };
 
                               // add  rewards
@@ -639,9 +653,16 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
             // sort pursuit
             this.sortPursuits(char);
 
-            // add the pursuit index
+            // add the pursuit index and the tags
             char.pursuits.forEach((p, index) => {
               p.pursuitNum = index;
+
+              if (p.questlineItemHash && checklist.tags[p.questlineItemHash]) {
+                p.tags = checklist.tags[p.questlineItemHash];
+              } else {
+                p.tags = checklist.tags[p.itemInstanceId];
+              }
+
             });
 
             // Clean the characters
@@ -931,7 +952,6 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
   }
 
 
-
   // toggleShowOnlyPowerfulGear (event: any) {
   //   event.stopPropagation();
   //   this._headerService.toggleShowOnlyPowerfulGear();
@@ -1129,6 +1149,20 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
       match = match || (this.foundList.indexOf(this.getPursuitKey(character.charNum, pursuit.pursuitNum)) !== -1);
 
       ret = match;
+    }
+
+    if (ret) {
+      // check for tags
+      if (this.config.selectedTags.length === 0) {
+        return (!pursuit.tags || pursuit.tags.length === 0);
+      } else if (!pursuit.tags) {
+        return false;
+      } else {
+        const intersectArray: string[] = pursuit.tags.filter(t => (this.config.selectedTags.indexOf(t) > -1));
+        return (intersectArray.length !== 0);
+      }
+
+
     }
 
     return ret;

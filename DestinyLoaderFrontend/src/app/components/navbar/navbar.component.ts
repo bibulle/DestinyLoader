@@ -1,11 +1,12 @@
-import { AfterViewInit, Component, ElementRef, EventEmitter, OnDestroy, OnInit, Output } from '@angular/core';
-import { NavigationEnd, Router } from '@angular/router';
-import { UserService } from '../../services/user.service';
-import { HeaderService } from '../../services/header.service';
+import {AfterViewInit, Component, ElementRef, EventEmitter, OnDestroy, OnInit, Output} from '@angular/core';
+import {NavigationEnd, Router} from '@angular/router';
+import {UserService} from '../../services/user.service';
+import {HeaderService} from '../../services/header.service';
 import {Config, Search, SearchStyle} from '../../models/config';
-import { Subscription } from 'rxjs';
-import { User } from '../../models/user';
-import { environment } from '../../../environments/environment';
+import {Subscription} from 'rxjs';
+import {User} from '../../models/user';
+import {environment} from '../../../environments/environment';
+import {Tag} from '../../models/checklist';
 
 @Component({
   selector: 'app-navbar',
@@ -43,11 +44,15 @@ export class NavbarComponent implements OnInit, OnDestroy, AfterViewInit {
   private _currentVersionSubscription: Subscription;
   updateNeeded = false;
 
+  tagList = Tag.list;
+  tagClickTimer: NodeJS.Timer = null;
+  tagClickPrevent = false;
 
-  constructor (private _router: Router,
-               private _userService: UserService,
-               private _headerService: HeaderService,
-               private _elementRef: ElementRef) {
+
+  constructor(private _router: Router,
+              private _userService: UserService,
+              private _headerService: HeaderService,
+              private _elementRef: ElementRef) {
 
     this._router.events.subscribe((data) => {
       if (data instanceof NavigationEnd) {
@@ -63,7 +68,7 @@ export class NavbarComponent implements OnInit, OnDestroy, AfterViewInit {
 
   }
 
-  ngOnInit () {
+  ngOnInit() {
 
     this._currentUserSubscription = this._userService.userObservable().subscribe(
       user => {
@@ -80,17 +85,16 @@ export class NavbarComponent implements OnInit, OnDestroy, AfterViewInit {
     this._currentConfigSubscription = this._headerService.configObservable().subscribe(
       rel => {
         this.config = {...this.config, ...rel};
-        console.log(this.config);
         this.checkHeight();
       });
 
     this._currentSearchSubscription = this._headerService.searchObservable()
-                                          .subscribe(search => {
-                                            // console.log(search);
-                                            this.search = search;
-                                            this.searchTextfield = this.search.searchText;
-                                            this.checkHeight();
-                                          });
+      .subscribe(search => {
+        // console.log(search);
+        this.search = search;
+        this.searchTextfield = this.search.searchText;
+        this.checkHeight();
+      });
 
     this._currentVersionSubscription = this._headerService.versionObservable().subscribe(
       rel => {
@@ -100,7 +104,7 @@ export class NavbarComponent implements OnInit, OnDestroy, AfterViewInit {
 
   }
 
-  private calculateMenus () {
+  private calculateMenus() {
     const newLinksLeft: { path: string, label: string, icon: string, iconType: string, selected: boolean }[] = [];
     const newLinksRight: { path: string, label: string, icon: string, iconType: string, selected: boolean }[] = [];
     this._router.config.forEach(obj => {
@@ -130,7 +134,7 @@ export class NavbarComponent implements OnInit, OnDestroy, AfterViewInit {
     this.checkHeight();
   }
 
-  ngOnDestroy (): void {
+  ngOnDestroy(): void {
     if (this._currentUserSubscription) {
       this._currentUserSubscription.unsubscribe();
     }
@@ -156,10 +160,12 @@ export class NavbarComponent implements OnInit, OnDestroy, AfterViewInit {
       }
     });
   }
+
   ngAfterViewInit() {
     this.checkHeight();
   }
-  onResize () {
+
+  onResize() {
     this.checkHeight();
   }
 
@@ -167,33 +173,33 @@ export class NavbarComponent implements OnInit, OnDestroy, AfterViewInit {
   //   this._headerService.toggleShowOnlyPowerfulGear();
   // }
 
-  saveConfig (event) {
+  saveConfig(event) {
     event.stopPropagation();
     setTimeout(() => {
       this._headerService.saveConfig(this.config);
     });
   }
 
-  logout () {
+  logout() {
     this._userService.logout();
 
     this._router.navigate(['']).catch();
   }
 
-  toggleLang (lang: string) {
+  toggleLang(lang: string) {
     this._headerService.changeLanguage(lang);
   }
 
-  searchText () {
+  searchText() {
     this._headerService.setSearch(this.searchTextfield);
   }
 
-  searchNext (event: any) {
+  searchNext(event: any) {
     event.stopPropagation();
     this._headerService.setSearchNext();
   }
 
-  searchToggleType () {
+  searchToggleType() {
     this._headerService.toggleSearchType();
   }
 
@@ -201,4 +207,36 @@ export class NavbarComponent implements OnInit, OnDestroy, AfterViewInit {
     location.reload();
   }
 
+  tagSelected(tag: Tag) {
+    return this.config.selectedTags.includes(tag.name);
+  }
+
+  toggleTag(tag: Tag, event: MouseEvent) {
+    // first wait (to see if it's a double click)
+    this.tagClickTimer = setTimeout(() => {
+      if (!this.tagClickPrevent) {
+        // do the job
+        if (!this.tagSelected(tag)) {
+          this.config.selectedTags.push(tag.name);
+        } else {
+          this.config.selectedTags.splice(this.config.selectedTags.indexOf(tag.name), 1);
+        }
+        this.saveConfig(event);
+      }
+    }, 200);
+  }
+
+  toggleAllTag(tag: Tag, event: MouseEvent) {
+    clearTimeout(this.tagClickTimer);
+    this.tagClickPrevent = true;
+    if (!this.tagSelected(tag)) {
+      this.config.selectedTags = this.config.selectedTags.concat(this.tagList.map(t => t.name)).filter((item, pos, c) => c.indexOf(item) === pos);
+    } else {
+      this.config.selectedTags = [];
+    }
+    this.saveConfig(event);
+    setTimeout(() => {
+      this.tagClickPrevent = false;
+    }, 200);
+  }
 }

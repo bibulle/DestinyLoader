@@ -11,6 +11,7 @@ export class Checklist {
   catalysts: Catalyst[];
   triumphs: Triumph[];
   itemWithObjectives: { [id: string]: Item[] };
+  tags: { [key: string]: string[] };
 
 }
 
@@ -152,6 +153,9 @@ export class Pursuit {
   vendorName: string;
   saleDescription: string;
   type: PursuitType;
+  tags: string[];
+  questlineItemHash: string = null;
+
 
   static ITEM_TYPE_ARMOR = 2;
   static ITEM_TYPE_WEAPON = 3;
@@ -464,4 +468,17 @@ export class ObjectiveTimeSummed {
 
 }
 
+export class Tag {
+  static readonly list: Tag[] = [];
 
+  static readonly STRIKE = new Tag('crucible', 'pvp', 'svgIcon');
+  static readonly VANGUARD = new Tag('vanguard', '/assets/images/vanguard.png');
+  static readonly GAMBIT = new Tag('gambit', '/assets/images/gambit.png');
+  static readonly DESTINATION = new Tag('destination', '/assets/images/milestone.png');
+  static readonly RAID = new Tag('raid', '/assets/images/raid.png');
+
+  private constructor(public readonly name: string, public readonly icon: string, public readonly iconType = 'img') {
+    Tag.list.push(this);
+  }
+
+}

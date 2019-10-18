@@ -1,3 +1,4 @@
+import {Tag} from './checklist';
 
 export class Config {
   showOnlyPowerfulGear: boolean;
@@ -29,6 +30,7 @@ export class Config {
       item: true
     }
   };
+  selectedTags: string[] = [];
 }
 
 export class Search {

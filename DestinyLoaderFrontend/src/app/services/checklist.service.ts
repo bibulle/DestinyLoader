@@ -33,6 +33,7 @@ export class ChecklistService {
 //  private runningUrl = environment.serverUrl + 'monitorStuff/running';
   private checklistUrl = '/monitorStuff/api';
   private runningUrl =  '/monitorStuff/running';
+  private setTagUrl =  '/monitorStuff/tag';
 
   private language = '';
 
@@ -178,8 +179,38 @@ export class ChecklistService {
     return this.currentChecklistSubject;
   }
 
+  setTag(key: string, tags: string[]) {
+    return new Promise<Checklist>((resolve, reject) => {
+      this.httpClient.post(this.setTagUrl, {
+        key: key,
+        tags: tags
+      }).subscribe(
+        (data: Object) => {
+          // console.log(data);
 
-  startObjective (objective: Objective, characterId: string, characterName: string, pursuitId: string, pursuitName: string): Promise<Objective> {
+          // is the token refreshed ?
+          if (data['refreshedToken']) {
+            UserService.tokenSetter(data['refreshedToken']);
+            this._userService.checkAuthent();
+          }
+          if (data['version']) {
+            this._headerService.checkVersion(data['version']);
+          }
+          ChecklistService.checklists = data['data'];
+
+          resolve(ChecklistService.checklists);
+        },
+        err => {
+          this._headerService.stopReloading(ReloadingKey.Checklist);
+          reject(err);
+        },
+      );
+
+    });
+  }
+
+
+    startObjective (objective: Objective, characterId: string, characterName: string, pursuitId: string, pursuitName: string): Promise<Objective> {
     return new Promise<Objective>(((resolve, reject) => {
       this.httpClient.post(this.runningUrl, {
         action: 'start',
@@ -337,6 +368,5 @@ export class ChecklistService {
   currentObjectiveTimesObservable (): Observable<ObjectiveTime[]> {
     return this.currentObjectiveTimesSubject;
   }
-
 
 }

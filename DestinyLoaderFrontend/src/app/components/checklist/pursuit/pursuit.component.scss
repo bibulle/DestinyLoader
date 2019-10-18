@@ -8,6 +8,7 @@
       background-color: #666666;
     }
   }
+
   .glow mat-card {
     animation: glowing 1s ease-in-out infinite alternate;
   }
@@ -18,9 +19,11 @@
       border-width: 1px;
       border-style: solid;
     }
+
     mat-card.selected {
       border-color: rgba(255, 255, 141, 0.8);
     }
+
     mat-card .highlighter {
       position: absolute;
       width: 100%;
@@ -30,6 +33,7 @@
       left: 0;
       display: none;
     }
+
     mat-card.selected .highlighter {
       display: block;
     }
@@ -85,10 +89,17 @@
     //}
 
 
-
   }
+
   .pursuit-item.selected .selected {
     display: block;
+  }
+
+  .tags {
+    position: absolute;
+    top: 3px;
+    right: 3px;
+    zoom: 0.6;
   }
 
 }
@@ -97,6 +108,7 @@
   background-color: #ffff8d;
   color: #303030;
 }
+
 .searched ::ng-deep .highlight-text {
   background-color: #ffff00;
   color: #303030;

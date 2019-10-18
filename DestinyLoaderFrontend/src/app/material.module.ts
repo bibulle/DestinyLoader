@@ -17,6 +17,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { HAMMER_GESTURE_CONFIG, HammerGestureConfig } from '@angular/platform-browser';
 import * as Hammer from 'hammerjs';
+import {MatChipsModule} from '@angular/material';
 
 export class MyHammerConfig extends HammerGestureConfig  {
   overrides = {
@@ -77,7 +78,8 @@ export class MyHammerConfig extends HammerGestureConfig  {
     MatCheckboxModule,
     MatFormFieldModule,
     MatInputModule,
-    MatTabsModule
+    MatTabsModule,
+    MatChipsModule
   ],
   exports: [
     MatButtonModule,
@@ -93,7 +95,8 @@ export class MyHammerConfig extends HammerGestureConfig  {
     MatTooltipModule,
     MatFormFieldModule,
     MatInputModule,
-    MatTabsModule
+    MatTabsModule,
+    MatChipsModule
   ],
   providers: [{
     provide: HAMMER_GESTURE_CONFIG,

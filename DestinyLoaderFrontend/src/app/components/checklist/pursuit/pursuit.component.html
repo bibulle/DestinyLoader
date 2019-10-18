@@ -21,6 +21,13 @@
           : <span [innerHTML]="highlight(pursuit.vendorName)"></span></div>
       </div>
     </mat-card-title>
+    <mat-chip-list class="tags">
+      <app-tag class="tag" *ngFor="let tag of tagList"
+               [tag]="tag"
+               [selected]="containsTag(tag)"
+               (toggleTagEmitter)="toggleTag(tag, $event)"
+      ></app-tag>
+    </mat-chip-list>
     <app-reward class="reward" *ngFor="let reward of pursuit.rewards"
                 [reward]="reward"
                 [pursuitName]="pursuit.name"

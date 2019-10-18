@@ -1,6 +1,7 @@
 import { Config } from "../config/config";
 import { ObjectiveTime } from "../../models/objectiveTime";
 import { Stat } from "../../models/stat";
+import {PursuitTags} from "../../models/PursuitTags";
 
 const debug = require('debug')('server:debug:destinyDb');
 const error = require('debug')('server:error:destinyDb');
@@ -13,6 +14,7 @@ export class DestinyDb {
   static DB_NAME = 'destiny';
   private static DB_COLL_NAME_STATS = 'stats1';
   private static DB_COLL_NAME_CONFIGURATIONS = 'confs';
+  private static DB_COLL_NAME_TAGS = 'tags';
   private static DB_COLL_NAME_TIMES = 'times';
 
   private static MongoClient = require("mongodb").MongoClient;
@@ -20,6 +22,7 @@ export class DestinyDb {
   private static _db;
   private static _colStats;
   private static _colConfigurations;
+  private static _colTags;
   private static _colTimes;
 
   constructor () {
@@ -48,7 +51,7 @@ export class DestinyDb {
     // debug("_initDb");
     //debug(this._db && this._colStats && this._colConfigurations);
 
-    if (this._db && this._colStats && this._colConfigurations && this._colTimes) {
+    if (this._db && this._colStats && this._colConfigurations && this._colTags && this._colTimes) {
       // debug("_initDb nothing to do");
       callback()
     } else {
@@ -92,6 +95,7 @@ export class DestinyDb {
                   } else {
                     DestinyDb._colStats = DestinyDb._db.collection(DestinyDb.DB_COLL_NAME_STATS);
                     DestinyDb._colConfigurations = DestinyDb._db.collection(DestinyDb.DB_COLL_NAME_CONFIGURATIONS);
+                    DestinyDb._colTags = DestinyDb._db.collection(DestinyDb.DB_COLL_NAME_TAGS);
                     DestinyDb._colTimes = DestinyDb._db.collection(DestinyDb.DB_COLL_NAME_TIMES);
                     callback();
                   }
@@ -303,6 +307,56 @@ export class DestinyDb {
                });
     });
   };
+
+  public static insertTag(pursuitTags: PursuitTags, callback: (err, result?) => void) {
+
+    pursuitTags._id = pursuitTags.key;
+
+    this._initDb(function (err) {
+      if (err) {
+        return callback(err);
+      }
+      DestinyDb._colTags.insertOne(pursuitTags)
+          .then(function (data) {
+            callback(null, data);
+          })
+          .catch(function (err) {
+            //console.log(err);
+            if (err.code == 11000) {
+              DestinyDb._colTags.update({_id: pursuitTags._id}, pursuitTags)
+                  .then(function () {
+                    callback(null, pursuitTags);
+                  })
+                  .catch(function (err) {
+                    console.log(err);
+                    callback(err);
+                  });
+            } else {
+              callback(err);
+            }
+          });
+    });
+
+  }
+  public static listTags (callback: (err, docs?:PursuitTags[])=> void) {
+    // debug("listTags");
+    this._initDb(function (err) {
+      if (err) {
+        return callback(err);
+      }
+      //_db.collection("stats").find({}).toArray().sort({date: 1, name: 1}).exec(callback);
+      DestinyDb._colTags.find({})
+          //.sort({date: 1, name: 1})
+          .toArray(function (err, docs:PursuitTags[]) {
+            if (err) {
+              return callback(err);
+            }
+            debug(docs.length + " tags");
+            callback(err, docs);
+          });
+    });
+  };
+
 
   public static readConf (user, callback) {
     //debug("readConf ------ 1");
@@ -552,4 +606,5 @@ export class DestinyDb {
     )
 
   }
+
 }
