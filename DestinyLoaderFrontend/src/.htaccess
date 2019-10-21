@@ -11,6 +11,9 @@
    RewriteCond %{REQUEST_URI} /health
    RewriteRule ^(.*)$ http://localhost:4001/$1 [P]
 
+   RewriteCond %{REQUEST_URI} /tag
+   RewriteRule ^(.*)$ http://localhost:4001/$1 [P]
+
    RewriteCond %{REQUEST_URI} /api
    RewriteRule ^(.*)$ http://localhost:4001/$1 [P]
 
