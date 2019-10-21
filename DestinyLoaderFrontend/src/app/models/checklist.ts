@@ -229,6 +229,11 @@ export class Reward {
 
     //noinspection SpellCheckingInspection
     switch (r.itemHash) {
+      //
+      // reward "1645386487" not found (Tranquility)
+      // reward "2723909519" not found (Arc Logic)
+      // reward "3924212056" not found (Loud Lullaby)
+      // reward "73143230" not found (Pinnacle Gear)
       case 4039143015: // Powerful Gear
       case 326786556: // Powerful Gear
       case 964120289: // Powerful Gear
@@ -240,6 +245,7 @@ export class Reward {
       case 1514402550: // Powerful Gear
       case 783563440 : // Powerful Gear
       case 3114385605: // Powerful Gear (Tier 1)
+      case 73143230: // Pinnacle Gear
         return Reward.VALUE_POWER_GEAR;
       case 2646629159: // Luminous Engram
       case 2127149322: // Legendary Gear
@@ -273,6 +279,7 @@ export class Reward {
       case 2501601653: // Powerful Revelry Arms Engram
       case 1508024268: // Powerful Revelry Class Engram
       case 2823823727: // Bourse d'Impériaux minuscule
+      case 3586070587: // Firewall Data Fragment
         return Reward.VALUE_IMPORTANT_CONSUMABLE;
       case 580961571: // Loaded Question
       case 792755504: // Nightshade
@@ -318,6 +325,9 @@ export class Reward {
       case 2314999489: // Imperative
       case 1167153950: // Adhortative
       case 2138599001: // Optative
+      case  1645386487: // Tranquility
+      case 2723909519: // Arc Logic
+      case 3924212056: // Loud Lullaby
         return Reward.VALUE_SPECIAL_WEAPON;
       case 3782248531: // Modulus Report
       case 183980811: // Crucible Token
