@@ -351,7 +351,7 @@ export class DestinyDb {
             if (err) {
               return callback(err);
             }
-            debug(docs.length + " tags");
+            //debug(docs.length + " tags");
             callback(err, docs);
           });
     });

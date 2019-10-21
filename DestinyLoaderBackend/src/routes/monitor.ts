@@ -133,7 +133,7 @@ function monitorRouter(passport): Router {
                           docs.forEach(tag => {
                             data.tags[""+tag.key] = tag.tags;
                           });
-                          console.log(data.tags);
+                          //console.log(data.tags);
                           callback(null, data);
                         });
                       }
