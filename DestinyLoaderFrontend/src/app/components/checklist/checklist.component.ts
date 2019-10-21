@@ -750,6 +750,7 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
       });
 
     this._headerService.setSearchShown(true);
+    this._headerService.setTagsShown(true);
     this._currentSearchSubscription = this._headerService.searchObservable().subscribe(
       search => {
         if (this.searchText !== search.searchText) {

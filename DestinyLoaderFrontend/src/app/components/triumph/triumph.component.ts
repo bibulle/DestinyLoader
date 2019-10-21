@@ -24,6 +24,7 @@ export class TriumphComponent implements OnInit, OnDestroy {
   ngOnInit () {
 
     this._headerService.setSearchShown(false);
+    this._headerService.setTagsShown(false);
 
     this._currentStatsSubscription = this._statsService.currentStatsObservable().subscribe(
       characters => {

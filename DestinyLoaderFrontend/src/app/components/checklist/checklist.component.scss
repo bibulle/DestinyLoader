@@ -126,7 +126,7 @@
 }
 
 @media (max-width: 700px) {
-  .page .content.character  > div {
+  .page .content.character  > app-pursuit {
     flex: 0 1 100%;
   }
   .page .tab-header.selected mat-card-title {
@@ -148,22 +148,22 @@
 }
 
 @media (min-width: 700px) and (max-width: 1400px) {
-  .page .content.character  > div {
+  .page .content.character  > app-pursuit {
       flex: 0 1 50%;
   }
 }
 @media (min-width: 1400px) and (max-width: 2100px) {
-  .page .content.character  > div {
+  .page .content.character  > app-pursuit {
       flex: 0 1 33%;
   }
 }
 @media (min-width: 2100px) and (max-width: 3500px) {
-  .page .content.character  > div {
+  .page .content.character  > app-pursuit {
       flex: 0 1 25%;
   }
 }
 @media (min-width: 3500px) {
-  .page .content.character  > div {
+  .page .content.character  > app-pursuit {
       flex: 0 1 20%;
   }
 }

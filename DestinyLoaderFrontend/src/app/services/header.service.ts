@@ -57,7 +57,8 @@ export class HeaderService {
         searchText: search,
         foundCount: 0,
         foundCurrent: 0,
-        style: this.searchSubject.getValue().style
+        style: this.searchSubject.getValue().style,
+        tagsShown: this.searchSubject.getValue().tagsShown
       });
     }
   }
@@ -68,7 +69,8 @@ export class HeaderService {
       searchText: this.searchSubject.getValue().searchText,
       foundCount: this.searchSubject.getValue().foundCount,
       foundCurrent: this.searchSubject.getValue().foundCurrent + 1,
-      style: this.searchSubject.getValue().style
+      style: this.searchSubject.getValue().style,
+      tagsShown: this.searchSubject.getValue().tagsShown
     });
   }
 
@@ -78,7 +80,8 @@ export class HeaderService {
       searchText: this.searchSubject.getValue().searchText,
       foundCount: count,
       foundCurrent: this.searchSubject.getValue().foundCurrent,
-      style: this.searchSubject.getValue().style
+      style: this.searchSubject.getValue().style,
+      tagsShown: this.searchSubject.getValue().tagsShown
     });
   }
 
@@ -88,7 +91,8 @@ export class HeaderService {
       searchText: (shown ? this.searchSubject.getValue().searchText : ''),
       foundCount: (shown ? this.searchSubject.getValue().foundCount : 0),
       foundCurrent: (shown ? this.searchSubject.getValue().foundCurrent : 0),
-      style: this.searchSubject.getValue().style
+      style: this.searchSubject.getValue().style,
+      tagsShown: this.searchSubject.getValue().tagsShown
     });
   }
 
@@ -98,9 +102,23 @@ export class HeaderService {
       searchText: this.searchSubject.getValue().searchText,
       foundCount: this.searchSubject.getValue().foundCount,
       foundCurrent: this.searchSubject.getValue().foundCurrent,
-      style: (this.searchSubject.getValue().style === SearchStyle.SEARCH ? SearchStyle.FILTER : SearchStyle.SEARCH)
+      style: (this.searchSubject.getValue().style === SearchStyle.SEARCH ? SearchStyle.FILTER : SearchStyle.SEARCH),
+      tagsShown: this.searchSubject.getValue().tagsShown
     });
   }
+
+  setTagsShown(shown: boolean) {
+    this.searchSubject.next({
+      shown: this.searchSubject.getValue().shown,
+      searchText: (shown ? this.searchSubject.getValue().searchText : ''),
+      foundCount: (shown ? this.searchSubject.getValue().foundCount : 0),
+      foundCurrent: (shown ? this.searchSubject.getValue().foundCurrent : 0),
+      style: this.searchSubject.getValue().style,
+      tagsShown: shown
+    });
+  }
+
+
 
   // Reloading management
 

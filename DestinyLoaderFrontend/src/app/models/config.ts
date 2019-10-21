@@ -40,11 +40,13 @@ export class Search {
   foundCount = 0;
   foundCurrent = 0;
   style = SearchStyle.SEARCH;
+  tagsShown = false;
 }
 
 export enum SearchAction {
   FIRST, NEXT
 }
+
 export enum SearchStyle {
   SEARCH, FILTER
 }

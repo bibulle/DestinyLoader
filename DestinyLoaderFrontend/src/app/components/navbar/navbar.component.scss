@@ -6,6 +6,8 @@
 
   .docs-header-left {
     flex: 1 1 100%;
+    display: flex;
+    align-items: center;
   }
   .docs-header-right {
     flex: 1 0 auto;
@@ -122,9 +124,16 @@ mat-chip-list {
     opacity: 1;
   }
 
+  .tag-container {
+    flex: 1 1 100%;
+    justify-content: space-around;
+    display: flex;
+    margin-top: 4px;
+  }
+
   mat-chip {
     margin: 2px;
-    padding: 5px;
+    padding: 4px;
     border-width: 1px;
     border-style: solid;
     opacity: 0.5;

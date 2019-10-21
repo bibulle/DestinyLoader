@@ -27,16 +27,6 @@
   </div>
   <div class="docs-header-right">
     <span class="version-small" matTooltip="commit : {{commit.shorthash}} ({{commit.timestamp * 1000 | date}})">{{version}}</span>
-    <div class="tags">
-      <mat-chip-list>
-          <mat-chip [ngClass]="{selected: tagSelected(tag)}" *ngFor="let tag of tagList" (click)="toggleTag(tag, $event)" (dblclick)="toggleAllTag(tag, $event)">
-            <img class="nav-img" *ngIf="tag.iconType=='img'" src="{{tag.icon}}" alt="{{tag.name|translate}}"
-                 title="{{tag.name|translate}}">
-            <i class="fas {{tag.icon}}" *ngIf="tagList[0].iconType=='fas'" title="{{tag.name|translate}}"></i>
-            <mat-icon svgIcon="{{tag.icon}}" *ngIf="tag.iconType=='svgIcon'" title="{{tag.name|translate}}">></mat-icon>
-          </mat-chip>
-      </mat-chip-list>
-    </div>
     <div class="user">
       <div class="docs-navbar-hide-small not-reloading" *ngIf="reloading === 0"></div>
       <mat-progress-spinner class="docs-navbar-hide-small reloading" diameter="20" *ngIf="reloading !== 0" mode="determinate" [value]="reloading"></mat-progress-spinner>
@@ -52,14 +42,28 @@
         <mat-icon>cloud_upload</mat-icon>
       </button>
     </div>
-    <div class="search" *ngIf="search.shown">
-      <mat-form-field appearance="legacy">
-        <input matInput placeholder="{{ 'label.search' | translate }}" [(ngModel)]="searchTextfield"
-               (ngModelChange)="searchText()" (keyup.enter)="searchNext($event)">
-        <mat-hint *ngIf="search.foundCount > 0" align="start">{{search.foundCurrent % search.foundCount + 1}}/{{search.foundCount}}</mat-hint>
-        <mat-icon *ngIf="search.style === searchStyle.SEARCH" matSuffix (click)="searchToggleType()">search</mat-icon>
-        <mat-icon *ngIf="search.style === searchStyle.FILTER" matSuffix (click)="searchToggleType()">filter_list</mat-icon>
-      </mat-form-field>
+    <div>
+      <div class="tags"  *ngIf="search.tagsShown">
+        <mat-chip-list>
+          <div class="tag-container">
+          <mat-chip [ngClass]="{selected: tagSelected(tag)}" *ngFor="let tag of tagList" (click)="toggleTag(tag, $event)" (dblclick)="toggleAllTag(tag, $event)">
+            <img class="nav-img" *ngIf="tag.iconType=='img'" src="{{tag.icon}}" alt="{{tag.name|translate}}"
+                 title="{{tag.name|translate}}">
+            <i class="fas {{tag.icon}}" *ngIf="tagList[0].iconType=='fas'" title="{{tag.name|translate}}"></i>
+            <mat-icon svgIcon="{{tag.icon}}" *ngIf="tag.iconType=='svgIcon'" title="{{tag.name|translate}}">></mat-icon>
+          </mat-chip>
+          </div>
+        </mat-chip-list>
+      </div>
+      <div class="search" *ngIf="search.shown">
+        <mat-form-field appearance="legacy">
+          <input matInput placeholder="{{ 'label.search' | translate }}" [(ngModel)]="searchTextfield"
+                 (ngModelChange)="searchText()" (keyup.enter)="searchNext($event)">
+          <mat-hint *ngIf="search.foundCount > 0" align="start">{{search.foundCurrent % search.foundCount + 1}}/{{search.foundCount}}</mat-hint>
+          <mat-icon *ngIf="search.style === searchStyle.SEARCH" matSuffix (click)="searchToggleType()">search</mat-icon>
+          <mat-icon *ngIf="search.style === searchStyle.FILTER" matSuffix (click)="searchToggleType()">filter_list</mat-icon>
+        </mat-form-field>
+      </div>
     </div>
 
     <mat-menu #menu="matMenu">
