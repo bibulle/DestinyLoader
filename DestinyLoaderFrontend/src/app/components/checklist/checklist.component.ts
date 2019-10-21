@@ -1153,7 +1153,9 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
 
     if (ret) {
       // check for tags
-      if (this.config.selectedTags.length === 0) {
+      if (this.config.selectedTags.length === Tag.list.length) {
+        return true;
+      } else if (this.config.selectedTags.length === 0) {
         return (!pursuit.tags || pursuit.tags.length === 0);
       } else if (!pursuit.tags) {
         return false;
