@@ -29,7 +29,7 @@ export class ObjectiveComponent implements OnInit, OnChanges {
   @Output()
   stopObjectiveTimeEmitter: EventEmitter<Objective> = new EventEmitter();
 
-  private progressDescriptionHighlighted: string;
+  progressDescriptionHighlighted: string;
 
 
   constructor() {

@@ -65,10 +65,10 @@ export class PursuitComponent implements OnInit, OnChanges {
   @Output()
   toggleSelectedPursuit = new EventEmitter();
 
-  private itemTypeDisplayNameHighlighted: string;
-  private nameHighlighted: string;
-  private descriptionHighlighted: string;
-  private vendorNameHighlighted: string;
+  itemTypeDisplayNameHighlighted: string;
+  nameHighlighted: string;
+  descriptionHighlighted: string;
+  vendorNameHighlighted: string;
 
 
   constructor(private _checklistService: ChecklistService,

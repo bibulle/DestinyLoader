@@ -22,7 +22,7 @@ export class RewardComponent implements OnInit, OnChanges {
   @Input()
   searchRegExp: RegExp;
 
-  private nameHighlighted: string;
+  nameHighlighted: string;
 
   constructor() {
   }
