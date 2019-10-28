@@ -8,7 +8,7 @@
       &nbsp;
     </div>
     <span class="objective-description"><span
-      [innerHTML]="highlight(objective.item.progressDescription)"></span>
+      [innerHTML]="progressDescriptionHighlighted"></span>
               <span *ngIf="objective.timeTillFinished > 0"> ({{objective.timeTillFinished | timeExpiration}})</span>
             </span>
     <span class="objective-progress">{{objective.progress}}/{{objective.completionValue}}</span>

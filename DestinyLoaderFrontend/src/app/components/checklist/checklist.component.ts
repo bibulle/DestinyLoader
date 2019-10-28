@@ -2,7 +2,6 @@
 import {AfterViewChecked, ChangeDetectorRef, Component, ElementRef, HostListener, NgModule, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {Subscription} from 'rxjs';
 import {ChecklistService} from '../../services/checklist.service';
-import {catalystState, Character, Checklist, Objective, ObjectiveTime, Pursuit, PursuitType, Reward, Tag} from '../../models/checklist';
 import {Config, SearchStyle} from '../../models/config';
 import {HeaderService, ReloadingKey} from '../../services/header.service';
 import {TranslateModule, TranslateService} from '@ngx-translate/core';
@@ -12,7 +11,14 @@ import {TimeExpirationModule} from '../../pipes/time-expiration.pipe';
 import {FormsModule} from '@angular/forms';
 import {PursuitModule} from './pursuit/pursuit.component';
 import {UtilService} from '../../services/util.service';
-import Timer = NodeJS.Timer;
+import {CatalystState, Character, Checklist, Item} from '../../models/checklist';
+import {ObjectiveTime} from '../../models/objective-time';
+import {Pursuit, PursuitType} from '../../models/pursuit';
+import {Reward} from '../../models/reward';
+import {Objective} from '../../models/objective';
+import {Tag} from '../../models/tag';
+
+// import Timer = NodeJS.Timer;
 
 @Component({
   selector: 'app-checklist',
@@ -33,8 +39,8 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
 
   searchText = '';
   private searchStyle = SearchStyle.SEARCH;
-  foundList: number[] = [];
-  searchTimout: Timer;
+  private foundList: number[] = [];
+  // searchTimout: Timer;
   private _currentSearchSubscription: Subscription;
 
   selectedTab = 0;
@@ -42,6 +48,9 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
 
   swipeRunning = -1;
 
+  private visibleList: number[] = [];
+
+  // private visiblePursuits: { [characterId: string]: Pursuit[] } = {};
 
   constructor(private _checklistService: ChecklistService,
               private _translateService: TranslateService,
@@ -398,7 +407,7 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
             if (charIndex === 1) {
               (checklist.catalysts ? checklist.catalysts : []).forEach(
                 catalyst => {
-                  if ((catalyst.state === catalystState.DROPPED) || (catalyst.state === catalystState.TO_BE_COMPLETED)) {
+                  if ((catalyst.state === CatalystState.DROPPED) || (catalyst.state === CatalystState.TO_BE_COMPLETED)) {
                     const newCatalyst: Pursuit = {
                       itemInstanceId: catalyst.inventoryItem.itemInstanceId,
                       pursuitNum: 0,
@@ -425,7 +434,7 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
                       });
 
                     // change description on dropped catalyst
-                    if (catalyst.state === catalystState.DROPPED) {
+                    if (catalyst.state === CatalystState.DROPPED) {
                       this._translateService
                         .get('catalyst.dropped')
                         .subscribe(res => {
@@ -710,7 +719,7 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
           const listOfPursuitsKey = [];
           checklist.characters.forEach(char => {
             char.pursuits.forEach(pursuit => {
-              listOfPursuitsKey.push(ChecklistComponent.getPursuitKey(pursuit, char));
+              listOfPursuitsKey.push(ChecklistComponent.getPursuitKeyString(pursuit, char));
             });
           });
           this.config.selectedPursuits = this.config.selectedPursuits.filter(key => {
@@ -721,9 +730,11 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
 
         // console.log(checklist);
         // this.foundList = [];
-        UtilService.updateObject(checklist, this.checklist);
-        console.log(this.checklist);
+        // UtilService.updateObject(checklist, this.checklist);
+        this.checklist = checklist;
 
+        console.log(this.checklist);
+        this.calculateEverything();
 
       }
     );
@@ -739,13 +750,14 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
         this.config = rel;
         // console.log(rel);
 
-        if (this.checklist && this.checklist.characters) {
-          this.checklist.characters.forEach(char => {
-            setTimeout(() => {
-              this.sortPursuits(char);
-            }, 500);
-          });
-        }
+        this.calculateEverything();
+        // if (this.checklist && this.checklist.characters) {
+        //   this.checklist.characters.forEach(char => {
+        //     setTimeout(() => {
+        //       this.calculateEverything();
+        //     }, 500);
+        //   });
+        // }
 
       });
 
@@ -753,45 +765,48 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
     this._headerService.setTagsShown(true);
     this._currentSearchSubscription = this._headerService.searchObservable().subscribe(
       search => {
-        if (this.searchText !== search.searchText) {
-          this.foundList = [];
+        // console.error(new Error());
+        // console.log(search.searchText + ' <-> ' + this.searchText + ' (' + search.foundCount + ')');
+        if ((this.searchText !== search.searchText) || (this.searchStyle !== search.style)) {
           this.searchText = search.searchText;
+          this.searchStyle = search.style;
+          this.calculateEverything();
+
+          // console.log('this.foundList.length ' + this.foundList.length);
         }
         // console.log(this.searchText + ' ' + search.searchText);
 
-        this.searchStyle = search.style;
 
         if (search.searchText.length >= this.SEARCH_MIN_LENGTH) {
-          if (this.searchTimout) {
-            clearTimeout(this.searchTimout);
-          }
-          this.searchTimout = setTimeout(() => {
-            this.searchTimout = undefined;
-            // console.log(this.foundList);
-            if (this.foundList.length !== 0) {
-              const key = this.foundList[search.foundCurrent % this.foundList.length];
+          // if (this.searchTimout) {
+          //   clearTimeout(this.searchTimout);
+          // }
+          // this.searchTimout = setTimeout(() => {
+          //   this.searchTimout = undefined;
+          if (this.foundList.length !== 0) {
+            const key = this.foundList[search.foundCurrent % this.foundList.length];
 
 
-              const {charNum, pursuitNum} = this.getFromPursuitKey(key);
+            const {charNum, pursuitNum} = this.getFromPursuitKey(key);
 
-              if (charNum !== this.selectedTab) {
-                this.selectedTab = charNum;
-              }
-              this.searchedId = charNum + '-' + pursuitNum;
-              // console.log(this.searchedId);
-
-              setTimeout(() => {
-                const el = document.getElementById('pursuit-' + this.searchedId);
-
-                if (el) {
-                  el.scrollIntoView({behavior: 'smooth'});
-                } else {
-                  console.log('not found el : ' + charNum + '-' + pursuitNum);
-                  console.log(search);
-                }
-              });
+            if (charNum !== this.selectedTab) {
+              this.selectedTab = charNum;
             }
-          }, 100);
+            this.searchedId = charNum + '-' + pursuitNum;
+            // console.log(this.searchedId);
+
+            setTimeout(() => {
+              const el = document.getElementById('pursuit-' + this.searchedId);
+
+              if (el) {
+                el.scrollIntoView({behavior: 'smooth'});
+              } else {
+                console.log('not found el : ' + charNum + '-' + pursuitNum);
+                console.log(search);
+              }
+            });
+          }
+          // }, 100);
         }
 
       }
@@ -888,6 +903,86 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
     this.calcPositionsStickyHeaders();
   }
 
+  calculateEverything() {
+    this.foundList = this.calculateFoundList();
+
+    // let cpt1 = 0;
+    // let cpt2 = 0;
+    // this.checklist.characters.forEach(char => {
+    //   cpt1 += char.pursuits.length;
+    //   this.visiblePursuits[char.characterId] = char.pursuits.filter(pursuit => this.visibleList.includes(this.getPursuitKey(char.charNum, pursuit.pursuitNum)));
+    //   cpt2 += this.visiblePursuits[char.characterId].length;
+    // });
+    //
+    // console.log(cpt1 + ' <-> ' + cpt2);
+
+    if (this.searchText) {
+      this._headerService.setSearchFoundCount(this.foundList.length);
+    } else {
+      this._headerService.setSearchFoundCount(0);
+    }
+
+  }
+
+  calculateFoundList(): number[] {
+    let foundListLocal: number[] = [];
+    const searchRegExp = new RegExp(this.searchText.replace(/ /, '([  ]|&nbsp;)'), 'gi');
+
+    if (this.checklist.characters) {
+      this.checklist.characters.forEach(char => {
+        char.pursuits.forEach(pursuit => {
+          let found = false;
+          found = found || (pursuit.name.match(searchRegExp) != null);
+          found = found || (pursuit.description.match(searchRegExp) != null);
+          found = found || (!pursuit.icon && (pursuit.itemTypeDisplayName.match(searchRegExp) != null));
+          found = found || (pursuit.vendorName && pursuit.vendorName.match(searchRegExp) != null);
+
+          pursuit.rewards.forEach(reward => {
+            found = found || (reward.name.match(searchRegExp) != null);
+          });
+          pursuit.objectives.forEach(objective => {
+            found = found || (objective.item.progressDescription.match(searchRegExp) != null);
+          });
+
+          if (found) {
+            foundListLocal.push(this.getPursuitKey(char.charNum, pursuit.pursuitNum));
+            // console.log(pursuit);
+          }
+        });
+      });
+
+      // console.log(foundListLocal);
+      // limit only to visible one
+      this.calculateVisibleList(foundListLocal);
+
+      foundListLocal = foundListLocal.filter(k => this.visibleList.includes(k));
+
+
+    }
+
+    foundListLocal.sort((n1, n2) => {
+      return n1 - n2;
+    });
+
+    // console.log(this.searchText);
+    // console.log(foundListLocal);
+    return foundListLocal;
+  }
+
+  calculateVisibleList(foundListLocal) {
+    const visibleListLocal: number[] = [];
+    if (this.checklist.characters) {
+      this.checklist.characters.forEach(char => {
+        char.pursuits.forEach(pursuit => {
+
+          if (this.pursuitShouldBeDisplayed1(char, pursuit, foundListLocal)) {
+            visibleListLocal.push(this.getPursuitKey(char.charNum, pursuit.pursuitNum));
+          }
+        });
+      });
+    }
+    this.visibleList = visibleListLocal;
+  }
 
   private topPage = 0;
 
@@ -959,7 +1054,7 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
   // }
 
 
-  static getPursuitKey(pursuit, character) {
+  static getPursuitKeyString(pursuit, character): string {
     // console.log(pursuit);
 
     let char = character.characterId;
@@ -978,16 +1073,16 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
     // console.log(`toggleSelectedPursuit (${this.swipeRunning})`);
     event.stopPropagation();
     if (this.swipeRunning === -1) {
-      this._headerService.toggleSelectedPursuit(ChecklistComponent.getPursuitKey(pursuit, character));
+      this._headerService.toggleSelectedPursuit(ChecklistComponent.getPursuitKeyString(pursuit, character));
       // console.log(pursuit);
     }
   }
 
   pursuitIsSelected(pursuit, character) {
-    return this.config.selectedPursuits && (this.config.selectedPursuits.indexOf(ChecklistComponent.getPursuitKey(pursuit, character)) > -1);
+    return this.config.selectedPursuits && (this.config.selectedPursuits.indexOf(ChecklistComponent.getPursuitKeyString(pursuit, character)) > -1);
   }
 
-  pursuitShouldBeDisplayed(character: Character, pursuit: Pursuit) {
+  pursuitShouldBeDisplayed1(character: Character, pursuit: Pursuit, foundListLocal: number[]): boolean {
 
     if (!pursuit) {
       return false;
@@ -1102,6 +1197,8 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
             case 'Contrat de la semaine (Gambit Prestige)':
             case 'Prime "Civic Duty" Bounty':
             case 'Contrat citoyen':
+            case 'Weekly Clan Bounty':
+            case 'Contrat de clan de la semaine':
               checkedType = true;
               ret = ret || this.config.visible.types.owned_bounty;
               break;
@@ -1147,7 +1244,7 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
       // if (pursuit.name.startsWith('Trésor')) {
       //   console.log(pursuit.name + ' ' + match + ' ' + (pursuit.name.match(this.search) !== null));
       // }
-      match = match || (this.foundList.indexOf(this.getPursuitKey(character.charNum, pursuit.pursuitNum)) !== -1);
+      match = match || (foundListLocal.indexOf(this.getPursuitKey(character.charNum, pursuit.pursuitNum)) !== -1);
 
       ret = match;
     }
@@ -1169,6 +1266,10 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
     }
 
     return ret;
+  }
+
+  pursuitShouldBeDisplayed(character: Character, pursuit: Pursuit): boolean {
+    return this.visibleList.includes(this.getPursuitKey(character.charNum, pursuit.pursuitNum));
   }
 
   static notCheckedType = {};
@@ -1205,20 +1306,6 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
     }
 
     // console.log(this.selectedTab);
-  }
-
-  pursuitMatchSearch(charNum, pursuitNum) {
-    // console.log(charNum+" "+pursuitNum);
-    const key = this.getPursuitKey(charNum, pursuitNum);
-    if (this.foundList.indexOf(key) === -1) {
-      this.foundList.push(key);
-      this.foundList.sort((n1, n2) => {
-        return n1 - n2;
-      });
-      // console.log('this.foundList.length ' + this.foundList.length);
-      this._headerService.setSearchFoundCount(this.foundList.length);
-    }
-
   }
 
   getPursuitKey(charNum: number, pursuitNum: number): number {

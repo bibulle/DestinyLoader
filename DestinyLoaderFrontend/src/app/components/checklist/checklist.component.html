@@ -25,12 +25,10 @@
                      [genderedClassNames]="character.genderedClassNames"
                      [charNum]="character.charNum"
                      [searchedId]="searchedId"
-                     [pursuitShouldBeDisplayed]="pursuitShouldBeDisplayed(character,pursuit)"
                      [pursuitIsSelected]="pursuitIsSelected(pursuit, character)"
 
 
                      (toggleSelectedPursuit)="toggleSelectedPursuit(pursuit, character, $event)"
-                     (pursuitMatchSearch)="pursuitMatchSearch(charNum, pursuitNum)"
                      (objectiveTimeChange)="objectiveTimeChange($event)"
                      [ngClass]="{'not-visible': !pursuitShouldBeDisplayed(character,pursuit)}"
         ></app-pursuit>

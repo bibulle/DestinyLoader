@@ -1,6 +1,5 @@
 import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
-import {Tag} from '../../../../models/checklist';
-import {Config} from '../../../../models/config';
+import {Tag} from '../../../../models/tag';
 
 @Component({
   selector: 'app-tag',

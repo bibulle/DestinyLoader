@@ -8,6 +8,6 @@
                  alt="{{reward.identifier}}">
           </span>
     <span><span
-      [innerHTML]="highlight(reward.name)"></span>&nbsp;<span>{{reward.quantity < 2 ? '' : '+' + reward.quantity}}</span></span>
+      [innerHTML]="nameHighlighted"></span>&nbsp;<span>{{reward.quantity < 2 ? '' : '+' + reward.quantity}}</span></span>
   </div>
 </mat-card-subtitle>

@@ -1,4 +1,3 @@
-import {Tag} from './checklist';
 
 export class Config {
   showOnlyPowerfulGear: boolean;

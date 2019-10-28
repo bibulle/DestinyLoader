@@ -1,5 +1,5 @@
-import {Component, EventEmitter, Input, NgModule, OnInit, Output} from '@angular/core';
-import {Objective, ObjectiveTime, Pursuit, Tag} from '../../../models/checklist';
+/* tslint:disable:member-ordering */
+import {ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, NgModule, OnChanges, OnInit, Output, SimpleChanges} from '@angular/core';
 import {HeaderService} from '../../../services/header.service';
 import {Subscription} from 'rxjs';
 import {ChecklistService} from '../../../services/checklist.service';
@@ -12,14 +12,18 @@ import {TimeExpirationModule} from '../../../pipes/time-expiration.pipe';
 import {RewardComponent} from './reward/reward.component';
 import {ObjectiveComponent} from './objective/objective.component';
 import {TagComponent} from './tag/tag.component';
-import {Config} from '../../../models/config';
+import {Tag} from '../../../models/tag';
+import {Pursuit} from '../../../models/pursuit';
+import {ObjectiveTime} from '../../../models/objective-time';
+import {Objective} from '../../../models/objective';
 
 @Component({
   selector: 'app-pursuit',
   templateUrl: './pursuit.component.html',
-  styleUrls: ['./pursuit.component.scss']
+  styleUrls: ['./pursuit.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class PursuitComponent implements OnInit {
+export class PursuitComponent implements OnInit, OnChanges {
 
   tagList = Tag.list;
 
@@ -35,21 +39,17 @@ export class PursuitComponent implements OnInit {
   @Input()
   swipeRunning: number;
 
-  // @Input()
-  // pursuitHasRunningObjectives: boolean;
-  @Input()
-  pursuitShouldBeDisplayed: boolean;
   @Input()
   pursuitIsSelected: boolean;
 
   @Input()
   searchedId: string;
-  searchText: string;
-  search: RegExp;
+  searchText = '';
+  searchRegExp: RegExp;
   found = false;
   private _currentSearchSubscription: Subscription;
-  @Output()
-  pursuitMatchSearch: EventEmitter<any> = new EventEmitter();
+  // @Output()
+  // pursuitMatchSearch: EventEmitter<any> = new EventEmitter();
 
   @Output()
   objectiveTimeChange: EventEmitter<ObjectiveTime> = new EventEmitter();
@@ -65,9 +65,15 @@ export class PursuitComponent implements OnInit {
   @Output()
   toggleSelectedPursuit = new EventEmitter();
 
+  private itemTypeDisplayNameHighlighted: string;
+  private nameHighlighted: string;
+  private descriptionHighlighted: string;
+  private vendorNameHighlighted: string;
+
 
   constructor(private _checklistService: ChecklistService,
-              private _headerService: HeaderService) {
+              private _headerService: HeaderService,
+              private _changeDetectorRef: ChangeDetectorRef) {
   }
 
   ngOnInit() {
@@ -76,7 +82,9 @@ export class PursuitComponent implements OnInit {
         if (this.searchText !== search.searchText) {
           this.found = false;
           this.searchText = search.searchText;
-          this.search = new RegExp(this.searchText.replace(/ /, '([  ]|&nbsp;)'), 'gi');
+          this.searchRegExp = new RegExp(this.searchText.replace(/ /, '([  ]|&nbsp;)'), 'gi');
+          this.highlightPursuit();
+          this._changeDetectorRef.markForCheck();
         }
 
       }
@@ -84,19 +92,24 @@ export class PursuitComponent implements OnInit {
 
   }
 
-  highlight(string): string {
-    if (!this.searchText) {
-      return string;
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes.hasOwnProperty('pursuit') || changes.hasOwnProperty('genderedClassNames')) {
+      this.highlightPursuit();
     }
-    // do the highlighting
-    return string.replace(this.search, (match: string) => {
-      if (!this.found) {
-        this.found = true;
-        this.pursuitMatchSearch.emit({charNum: this.charNum, pursuitNum: this.pursuit.pursuitNum});
-      }
-      return '<span class="highlight-text">' + match + '</span>';
-    });
+    // console.log(changes);
   }
+
+  // cptHighlight = 0;
+
+  highlightPursuit() {
+    // console.log(this.pursuit.name);
+    // console.log(new Error());
+    this.itemTypeDisplayNameHighlighted = UtilService.highlight(this.pursuit.itemTypeDisplayName, this.searchText, this.searchRegExp);
+    this.nameHighlighted = UtilService.highlight(this.pursuit.name, this.searchText, this.searchRegExp);
+    this.descriptionHighlighted = UtilService.highlight(this.pursuit.description, this.searchText, this.searchRegExp);
+    this.vendorNameHighlighted = UtilService.highlight(this.pursuit.vendorName, this.searchText, this.searchRegExp);
+  }
+
 
   pursuitHasRunningObjectives() {
     let ret = false;

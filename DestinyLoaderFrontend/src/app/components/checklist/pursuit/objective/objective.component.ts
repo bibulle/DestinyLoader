@@ -1,18 +1,21 @@
-import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
-import {Objective} from '../../../../models/checklist';
+import {Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges} from '@angular/core';
+import {Objective} from '../../../../models/objective';
+import {UtilService} from '../../../../services/util.service';
 
 @Component({
   selector: 'app-objective',
   templateUrl: './objective.component.html',
   styleUrls: ['./objective.component.scss']
 })
-export class ObjectiveComponent implements OnInit {
+export class ObjectiveComponent implements OnInit, OnChanges {
 
   @Input()
   objective: Objective;
 
   @Input()
-  highlight: (string) => string;
+  searchText: string;
+  @Input()
+  searchRegExp: RegExp;
 
   @Input()
   isVendor: boolean;
@@ -26,11 +29,20 @@ export class ObjectiveComponent implements OnInit {
   @Output()
   stopObjectiveTimeEmitter: EventEmitter<Objective> = new EventEmitter();
 
+  private progressDescriptionHighlighted: string;
+
 
   constructor() {
   }
 
   ngOnInit() {
+  }
+
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes.hasOwnProperty('objective') || changes.hasOwnProperty('searchText')) {
+      this.progressDescriptionHighlighted = UtilService.highlight(this.objective.item.progressDescription, this.searchText, this.searchRegExp);
+    }
+    // console.log(changes);
   }
 
   getObjectiveProgress(objective) {

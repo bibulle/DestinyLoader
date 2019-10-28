@@ -40,5 +40,25 @@ export class UtilService {
     }
   }
 
+  static highlight(string: string, searchText: string, searchRegExp: RegExp): string {
+    // this.cptHighlight++;
+    // if (this.cptHighlight % 100 === 0) {
+    // console.log('highlignt ' + this.cptHighlight + ' (' + this.constructor.name + ')');
+    // console.log('highlignt ' + this.cptHighlight + ' (' + this.charNum + '-' + this.pursuit.pursuitNum + ')');
+    // }
+    if (!searchText || !string) {
+      return string;
+    }
+    // do the highlighting
+    return string.replace(searchRegExp, (match: string) => {
+      // if (!this.found) {
+      //   this.found = true;
+      //   this.pursuitMatchSearch.emit({charNum: this.charNum, pursuitNum: this.pursuit.pursuitNum});
+      // }
+      return '<span class="highlight-text">' + match + '</span>';
+    });
+  }
+
+
 
 }

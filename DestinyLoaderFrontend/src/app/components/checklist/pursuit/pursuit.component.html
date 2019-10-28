@@ -1,6 +1,6 @@
 <div [ngClass]="{'glow': pursuitHasRunningObjectives(), 'searched': (searchedId===charNum+'-'+pursuit.pursuitNum)}"
      [attr.id]="'pursuit-'+charNum+'-'+pursuit.pursuitNum">
-  <mat-card class="pursuit-item" *ngIf="pursuitShouldBeDisplayed"
+  <mat-card class="pursuit-item"
             title="{{pursuit.description}}"
             (click)="toggleSelectedPursuit.emit($event)"
             [ngClass]="{'selected': pursuitIsSelected}">
@@ -11,14 +11,14 @@
            alt="{{pursuit.itemTypeDisplayName}}" title="{{pursuit.itemTypeDisplayName}}">
       <div class="pursuit-text">
             <span class="pursuit-itemType"
-                  *ngIf="!pursuit.icon">{{highlight(pursuit.itemTypeDisplayName)}} : </span>
-        <span [innerHTML]="highlight(pursuit.name)"></span>
-        <div class="pursuit-description" [innerHTML]="highlight(pursuit.description)"></div>
+                  *ngIf="!pursuit.icon">{{itemTypeDisplayNameHighlighted}} : </span>
+        <span [innerHTML]="nameHighlighted"></span>
+        <div class="pursuit-description" [innerHTML]="descriptionHighlighted"></div>
         <div class="pursuit-expiration"
              *ngIf="pursuit.expirationDate">{{pursuit.expirationDate | timeExpiration }}</div>
         <div class="pursuit-expiration"
              *ngIf="pursuit.itemTypeDisplayName == 'Vendor'">{{'available_bounty' | translate }}
-          : <span [innerHTML]="highlight(pursuit.vendorName)"></span></div>
+          : <span [innerHTML]="vendorNameHighlighted"></span></div>
       </div>
     </mat-card-title>
     <mat-chip-list class="tags">
@@ -32,13 +32,15 @@
                 [reward]="reward"
                 [pursuitName]="pursuit.name"
                 [pursuitObjectivesLength]="pursuit.objectives.length"
-                [highlight]="highlight"
+                [searchText]="searchText"
+                [searchRegExp]="searchRegExp"
     ></app-reward>
     <div *ngIf="pursuit.objectives">
       <app-objective class="objective" *ngFor="let objective of pursuit.objectives"
                      [objective]="objective"
-                     [highlight]="highlight"
                      [isVendor]="pursuit.itemTypeDisplayName == 'Vendor'"
+                     [searchText]="searchText"
+                     [searchRegExp]="searchRegExp"
 
                      (launchObjectiveTimeEmitter)="launchObjectiveTime($event)"
                      (stopObjectiveTimeEmitter)="stopObjectiveTime($event)"

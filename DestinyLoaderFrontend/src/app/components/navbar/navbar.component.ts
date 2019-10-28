@@ -6,7 +6,7 @@ import {Config, Search, SearchStyle} from '../../models/config';
 import {Subscription} from 'rxjs';
 import {User} from '../../models/user';
 import {environment} from '../../../environments/environment';
-import {Tag} from '../../models/checklist';
+import {Tag} from '../../models/tag';
 
 @Component({
   selector: 'app-navbar',

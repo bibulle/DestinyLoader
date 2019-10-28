@@ -5,8 +5,10 @@ import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { UserService } from './user.service';
 import {HeaderService, ReloadingKey} from './header.service';
-import { Checklist, Objective, ObjectiveTime } from '../models/checklist';
+import { Checklist } from '../models/checklist';
 import { NotificationService } from './notification.service';
+import {ObjectiveTime} from '../models/objective-time';
+import {Objective} from '../models/objective';
 
 @Injectable({
   providedIn: 'root'
