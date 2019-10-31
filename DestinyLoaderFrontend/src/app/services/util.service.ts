@@ -5,11 +5,10 @@ import {Injectable} from '@angular/core';
 })
 export class UtilService {
 
-  constructor () {
+  constructor() {
   }
 
-  static updateObject(src: Object, dst: Object) {
-
+  static updateObject(src: Object, dst: Object, excludedKey: string[] = []) {
     if ((src instanceof Array) && (dst instanceof Array)) {
       while (src.length < dst.length) {
         dst.splice(-1, 1);
@@ -23,19 +22,21 @@ export class UtilService {
     }
 
     for (const key of Object.keys(src)) {
-      if (src[key] instanceof Object) {
-        if ((!dst.hasOwnProperty(key)) || (src[key] instanceof Date)) {
-          dst[key] = src[key];
-        } else {
-          if (dst[key] == null) {
-            src[key] = null;
+      if (!excludedKey.includes(key)) {
+        if (src[key] instanceof Object) {
+          if ((!dst.hasOwnProperty(key)) || (src[key] instanceof Date)) {
+            dst[key] = src[key];
           } else {
-            UtilService.updateObject(src[key], dst[key]);
+            if (dst[key] == null) {
+              src[key] = null;
+            } else {
+              UtilService.updateObject(src[key], dst[key], ['pursuits']);
+            }
           }
+        } else {
+          dst[key] = src[key];
+          // console.log(key);
         }
-      } else {
-        dst[key] = src[key];
-        // console.log(key);
       }
     }
   }
@@ -58,7 +59,6 @@ export class UtilService {
       return '<span class="highlight-text">' + match + '</span>';
     });
   }
-
 
 
 }

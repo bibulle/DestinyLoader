@@ -133,7 +133,7 @@ export class PursuitComponent implements OnInit, OnChanges {
           if (obj.runningTimeObjective) {
             obj.runningTimeObjective.timeStart = new Date(obj.runningTimeObjective.timeStart);
           }
-          UtilService.updateObject(obj, objective);
+          UtilService.updateObject(obj, objective, ['pursuits']);
         });
     }
   }
@@ -156,7 +156,7 @@ export class PursuitComponent implements OnInit, OnChanges {
             // console.log(obj);
           }
 
-          UtilService.updateObject(obj, objective);
+          UtilService.updateObject(obj, objective, ['pursuits']);
           this.objectiveTimeChange.emit(objective.runningTimeObjective);
         });
     }

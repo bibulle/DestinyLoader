@@ -38,11 +38,6 @@ export class Reward {
 
     //noinspection SpellCheckingInspection
     switch (r.itemHash) {
-      //
-      // reward "1645386487" not found (Tranquility)
-      // reward "2723909519" not found (Arc Logic)
-      // reward "3924212056" not found (Loud Lullaby)
-      // reward "73143230" not found (Pinnacle Gear)
       case 4039143015: // Powerful Gear
       case 326786556: // Powerful Gear
       case 964120289: // Powerful Gear
@@ -58,6 +53,7 @@ export class Reward {
         return Reward.VALUE_POWER_GEAR;
       case 2646629159: // Luminous Engram
       case 2127149322: // Legendary Gear
+      case 3407672161: // Legendary Gear
       case 2169340581: // Ballistics Log
       case 1: // Black Armory Badge
       case 4072589658: // Augmented Weapon
@@ -164,6 +160,8 @@ export class Reward {
       case 443031982: // Phantasmal Fragment
       case 443031983: // Phantasmal Core
       case 3428387954: // Vex Mind Components
+      case 1196485999: // Chocolate Strange Coin
+      case 1165306707: // Hymn of Desecration
         return Reward.VALUE_TOKENS;
       case Reward.TRIUMPH_POINT_PSEUDO_HASH: // Triumph points
         return Reward.VALUE_TRIUMPH;

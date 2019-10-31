@@ -731,7 +731,39 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
         // console.log(checklist);
         // this.foundList = [];
         // UtilService.updateObject(checklist, this.checklist);
-        this.checklist = checklist;
+
+
+        // update checklists
+        UtilService.updateObject(checklist, this.checklist, ['pursuits']);
+        if (this.checklist && this.checklist.characters) {
+          this.checklist.characters.forEach((character, cIndex) => {
+
+            character.pursuits.forEach((pursuit, pIndex) => {
+              if ( checklist.characters[cIndex].pursuits[pIndex] ) {
+                // compare and update
+                const json1 = JSON.stringify(pursuit);
+                const json2 = JSON.stringify(checklist.characters[cIndex].pursuits[pIndex]);
+                if (json1 !== json2) {
+                  character.pursuits[pIndex] = checklist.characters[cIndex].pursuits[pIndex];
+                }
+              }
+
+            });
+
+            // remove missing at the end
+            while (checklist.characters[cIndex].pursuits.length < character.pursuits.length) {
+              character.pursuits.splice(-1, 1);
+            }
+            // add missing at the end
+            while (checklist.characters[cIndex].pursuits.length > character.pursuits.length) {
+              character.pursuits.push(checklist.characters[cIndex].pursuits[character.pursuits.length]);
+            }
+
+            // console.log(character.pursuits.length + '<->' + checklist.characters[cIndex].pursuits.length);
+          });
+        } else {
+          this.checklist = checklist;
+        }
 
         console.log(this.checklist);
         this.calculateEverything();
@@ -1222,6 +1254,11 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
             case 'Contrats de clan de la semaine':
               checkedType = true;
               ret = ret || this.config.visible.types.owned_bounty;
+              break;
+            case 'Quests':
+            case 'Quêtes':
+              checkedType = true;
+              ret = ret || this.config.visible.types.quest_step;
               break;
           }
       }
