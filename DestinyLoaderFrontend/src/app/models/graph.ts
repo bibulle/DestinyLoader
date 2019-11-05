@@ -30,7 +30,7 @@ Graph.MAX_VALUES[GraphTypeKey.GLORY] = 5500;
 Graph.Y_TICK_VALUES[GraphTypeKey.LIGHT] = [500, 700, 800, 850, 900, 950, 960, 1000];
 Graph.Y_TICK_VALUES[GraphTypeKey.RATIO] = null;
 Graph.Y_TICK_VALUES[GraphTypeKey.TRIUMPH] = null;
-Graph.Y_TICK_VALUES[GraphTypeKey.GLORY] = null;
+Graph.Y_TICK_VALUES[GraphTypeKey.GLORY] = [200, 1050, 2100, 3500, 5450, 5500];
 
 Graph.POW_VALUES[GraphTypeKey.LIGHT] = 10;
 Graph.POW_VALUES[GraphTypeKey.RATIO] = 1;
