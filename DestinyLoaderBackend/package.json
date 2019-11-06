@@ -1,6 +1,6 @@
 {
   "name": "destiny-loader",
-  "version": "0.7.17",
+  "version": "0.7.18",
   "private": true,
   "scripts": {
     "start": "node ./src/bin/www",
@@ -31,7 +31,7 @@
     "morgan": "^1.9.1",
     "nedb": "^1.8.0",
     "node-stream-zip": "^1.8.2",
-    "passport": "^0.3.2",
+    "passport": "^0.4.0",
     "passport-bungie-oauth2": "^1.0.0",
     "passport-http-bearer": "^1.0.1",
     "passport-oauth2": "^1.5.0",
