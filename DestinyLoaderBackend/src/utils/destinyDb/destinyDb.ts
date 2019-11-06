@@ -56,8 +56,8 @@ export class DestinyDb {
       callback()
     } else {
       //debug("_initDb try to connect");
-      this.MongoClient.connect(Config.mongoUrl + "/" + DestinyDb.DB_NAME, function (err, db) {
-        DestinyDb._db = db;
+      this.MongoClient.connect(Config.mongoUrl, { useUnifiedTopology:true }, function (err, client) {
+        DestinyDb._db = client.db(DestinyDb.DB_NAME);
         if (err) {
           error("Error connecting to '" + DestinyDb.DB_NAME + "'");
           error(err);
@@ -65,7 +65,7 @@ export class DestinyDb {
           debug("Connect successfully to database '" + DestinyDb.DB_NAME + "'");
 
           // check for collection stats
-          db.listCollections().toArray(
+          DestinyDb._db.listCollections().toArray(
             //db.listCollections()
             function (err, columnInfo) {
               // debug(err);
@@ -146,7 +146,7 @@ export class DestinyDb {
                .catch(function (err) {
                  //console.log(err);
                  if (err.code == 11000) {
-                   DestinyDb._colTimes.update({_id: doc._id}, doc)
+                   DestinyDb._colTimes.updateOne({_id: doc._id}, { $set: doc})
                             .then(function () {
                               //debug(doc);
                               callback(null, doc);
@@ -293,7 +293,7 @@ export class DestinyDb {
                .catch(function (err) {
                  //console.log(err);
                  if (err.code == 11000) {
-                   DestinyDb._colConfigurations.update({_id: data._id}, data)
+                   DestinyDb._colConfigurations.updateOne({_id: data._id}, { $set: data})
                             .then(function () {
                               callback(null, data);
                             })
@@ -323,7 +323,7 @@ export class DestinyDb {
           .catch(function (err) {
             //console.log(err);
             if (err.code == 11000) {
-              DestinyDb._colTags.update({_id: pursuitTags._id}, pursuitTags)
+              DestinyDb._colTags.updateOne({_id: pursuitTags._id}, {$set: pursuitTags})
                   .then(function () {
                     callback(null, pursuitTags);
                   })
@@ -391,13 +391,12 @@ export class DestinyDb {
   };
 
   public static insertStats (data: Stat, callback) {
-    //debug("insertStats");
     this._initDb(function (err) {
       if (err) {
         return callback(err);
       }
-      //console.log(data);
-      DestinyDb._colStats.save(data)
+      delete data['_id'];
+      DestinyDb._colStats.insertOne(data)
                .then(function (data) {
                  callback(null, data);
                })
