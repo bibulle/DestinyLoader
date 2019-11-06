@@ -104,7 +104,7 @@ export class Destiny {
 
   private static pursuitsBucket;
 
-  private static manifestDb: { [id: string] : Database; } = {};
+  private static manifestDb: { [id: string]: Database; } = {};
 
   //noinspection JSUnusedGlobalSymbols
   public static getAuthenticationCodeUrl(callback) {
@@ -1123,20 +1123,25 @@ export class Destiny {
                             //console.log(item);
                             return callback(err);
                           }
-                          // if (item.displayProperties.name.match(/nuit/i)) {
+                          // if (item.displayProperties.name.match(/become legend/i)) {
                           //   debug(triumphHash+' '+item.displayProperties.name);
                           // }
-                          //if (triumph.hash === '3758540824') {
-                          //if ((triumph.hash == '1842255612') || (triumph.hash == "1082441448")) {
-                          //if (item.presentationInfo.parentPresentationNodeHashes.length == 0) {
-                          //debug(item);
-                          //}
+                          // //if (triumph.hash === '3758540824') {
+                          // if ((triumph.hash == '1702720423') || (triumph.hash == "2158033469")) {
+                          // //if (item.presentationInfo.parentPresentationNodeHashes.length == 0) {
+                          // debug(JSON.stringify(item, null, 2));
+                          // }
 
 
                           triumph.item = _.pick(item, ['displayProperties', 'hash', 'presentationInfo.parentPresentationNodeHashes']);
                           //console.log(triumph.hash);
                           if (item.completionInfo) {
                             triumph.scoreValue = item.completionInfo.ScoreValue;
+                          }
+                          if (item.intervalInfo && item.intervalInfo.intervalObjectives && item.intervalInfo.intervalObjectives.length > 0) {
+                            item.intervalInfo.intervalObjectives.forEach(i => {
+                              triumph.scoreValue += i.intervalScoreValue;
+                            });
                           }
                           result.triumphs.push(triumph);
                           callback();
@@ -1193,6 +1198,9 @@ export class Destiny {
                       }
                     },
                     (callback) => {
+                      if (!triumph.objectives && triumph.intervalObjectives) {
+                        triumph.objectives = triumph.intervalObjectives;
+                      }
                       async.forEachSeries(
                         triumph.objectives,
                         (objective, callback) => {
