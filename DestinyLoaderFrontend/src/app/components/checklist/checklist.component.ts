@@ -1130,7 +1130,9 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
     pursuit.rewards.forEach(reward => {
       const val = Reward.getRewardValue(reward);
       switch (val) {
-        case Reward.VALUE_POWER_GEAR:
+        case Reward.VALUE_PINNACLE_GEAR:
+        case Reward.VALUE_POWER_GEAR_TIER2:
+        case Reward.VALUE_POWER_GEAR_TIER1:
           checkedRewards = true;
           ret = ret || this.config.visible.rewards.powerful_gear;
           break;

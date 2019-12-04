@@ -38,7 +38,9 @@ export class Reward {
 
     //noinspection SpellCheckingInspection
     switch (r.itemHash) {
-      case 4039143015: // Powerful Gear
+      case 73143230: // Pinnacle Gear
+        return Reward.VALUE_PINNACLE_GEAR;
+      // case 4039143015: // Powerful Gear
       case 326786556: // Powerful Gear
       case 964120289: // Powerful Gear
       case 3789021730: // Powerful Gear
@@ -49,8 +51,13 @@ export class Reward {
       case 1514402550: // Powerful Gear
       case 783563440 : // Powerful Gear
       case 3114385605: // Powerful Gear (Tier 1)
-      case 73143230: // Pinnacle Gear
-        return Reward.VALUE_POWER_GEAR;
+        if (r.name.match(/(Pinnacle|de[\s]prestige)/i)) {
+          return Reward.VALUE_PINNACLE_GEAR;
+        } else if (r.name.match(/(Tier|Palier)[\s]2/i)) {
+          return Reward.VALUE_POWER_GEAR_TIER2;
+        } else {
+          return Reward.VALUE_POWER_GEAR_TIER1;
+        }
       case 2646629159: // Luminous Engram
       case 2127149322: // Legendary Gear
       case 3407672161: // Legendary Gear
@@ -208,7 +215,9 @@ export class Reward {
 
   static TRIUMPH_POINT_PSEUDO_HASH = -999999;
 
-  static VALUE_POWER_GEAR = 100;
+  static VALUE_PINNACLE_GEAR = 104;
+  static VALUE_POWER_GEAR_TIER2 = 102;
+  static VALUE_POWER_GEAR_TIER1 = 100;
   static VALUE_LEGENDARY_GEAR = 50;
   static VALUE_IMPORTANT_CONSUMABLE = 10;
   static VALUE_SPECIAL_WEAPON = 6;
