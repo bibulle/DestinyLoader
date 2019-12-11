@@ -1233,6 +1233,8 @@ export class ChecklistComponent implements OnInit, OnDestroy, AfterViewChecked {
             case 'Contrat citoyen':
             case 'Weekly Clan Bounty':
             case 'Contrat de clan de la semaine':
+            case 'Timelost Weapon Bounty':
+            case 'Contrat d\'arme du temps perdu':
               checkedType = true;
               ret = ret || this.config.visible.types.owned_bounty;
               break;

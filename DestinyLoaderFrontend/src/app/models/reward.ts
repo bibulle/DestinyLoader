@@ -137,12 +137,22 @@ export class Reward {
       case 2314999489: // Imperative
       case 1167153950: // Adhortative
       case 2138599001: // Optative
-      case  1645386487: // Tranquility
+      case 1645386487: // Tranquility
       case 2723909519: // Arc Logic
       case 3924212056: // Loud Lullaby
       case 4277547616: // Every Waking Moment
       case 3870811754: // Night Terror
       case 3690523502: // Love and Death
+      case 2173837803: // Gambit Jadestone
+      case 1736897076: // Team Player
+      case 3603801350: // Crucible Prestige
+      case 1736897075: // No Quarter
+      case 838556752: // Python
+      case 805677041: // Buzzard
+      case 3850168899: // Martyr's Retribution
+      case 3373970267: // Vanguard Nightbeam
+      case 1736897078: // Tactician
+      case 2697058914: // Komodo-4FR
         return Reward.VALUE_SPECIAL_WEAPON;
       case 3782248531: // Modulus Report
       case 183980811: // Crucible Token
@@ -169,6 +179,7 @@ export class Reward {
       case 3428387954: // Vex Mind Components
       case 1196485999: // Chocolate Strange Coin
       case 1165306707: // Hymn of Desecration
+      case 1192116287: // Major Fractaline Harvest
         return Reward.VALUE_TOKENS;
       case Reward.TRIUMPH_POINT_PSEUDO_HASH: // Triumph points
         return Reward.VALUE_TRIUMPH;
