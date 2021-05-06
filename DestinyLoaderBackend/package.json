@@ -48,7 +48,7 @@
     "@types/node": "^12.12.6",
     "concurrently": "^5.0.0",
     "husky": "^3.0.9",
-    "json": "^9.0.6",
+    "json": "^10.0.0",
     "nodemon": "^1.19.4",
     "typescript": "^3.7.2"
   },
